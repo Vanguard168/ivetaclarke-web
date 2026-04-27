@@ -61,7 +61,7 @@ const consultationData = {
       desc: "Neomezený počet setkání dle vaší potřeby (předpoklad 3 sezení), délka setkání 90 minut. Online nebo osobní dle dohody. Vhodné pro prozkoumání dilemat, vyhodnocení postojů a osvojení relevantních konceptů.",
     },
     {
-      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "53 990 Kč", priceNote: "vč. DPH / 44 620 Kč bez DPH", available: true,
+      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "50 990 Kč", priceNote: "vč. DPH / 42 141 Kč bez DPH", available: true,
       desc: "Neomezený počet setkání (předpoklad 6 sezení), délka 90 minut. Online nebo dle dohody. Umožňuje jít do větší hloubky, pracujeme s ověřenými koncepty a nástroji vedoucími ke zklidnění, úlevě a obnově energie.",
     },
     {
