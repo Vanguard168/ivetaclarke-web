@@ -504,8 +504,6 @@ export default function App() {
                 </div>
               </Reveal>
             ))}
-
-            ))}
           </div>
 
           {/* Packages */}
