@@ -296,8 +296,8 @@ export default function App() {
                   color: navScrolled ? C.muted : "rgba(255,255,255,0.8)",
                   transition: "color 0.2s", padding: "4px 0",
                 }}
-                onMouseEnter={e => e.target.style.color = C.gold}
-                onMouseLeave={e => e.target.style.color = navScrolled ? C.muted : "rgba(255,255,255,0.8)"}
+                onMouseEnter={e => e.currentTarget.style.color = C.gold}
+                onMouseLeave={e => e.currentTarget.style.color = navScrolled ? C.muted : "rgba(255,255,255,0.8)"}
               >{item}</button>
             ))}
             <Btn small onClick={() => scrollTo("konzultace")}>Rezervovat</Btn>
@@ -815,8 +815,8 @@ export default function App() {
               {navItems.map(item => (
                 <button key={item} onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontFamily: "Trebuchet MS", color: "rgba(255,255,255,0.35)" }}
-                  onMouseEnter={e => e.target.style.color = C.gold}
-                  onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.35)"}
+                  onMouseEnter={e => e.currentTarget.style.color = C.gold}
+                  onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}
                 >{item}</button>
               ))}
             </div>
