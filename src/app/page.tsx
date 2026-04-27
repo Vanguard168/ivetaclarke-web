@@ -88,9 +88,9 @@ const podcasts = [
 const supervisionData = {
   intro: "Supervize je prostor k profesní i osobní reflexi a k učení z vlastních zkušeností a vhledů.",
   functions: [
-    { label: "Normativní", desc: "Zaměřuje se na kvalitu a standardy práce. „Dělám svou práci správně?"" },
-    { label: "Formativní", desc: "Zaměřuje se na učení a profesní růst. „Jak se můžu zlepšit?"" },
-    { label: "Restorativní", desc: "Zaměřuje se na psychickou pohodu a zvládání zátěže. „Jak u toho vydržím v rovnováze?"" },
+    { label: "Normativní", desc: "Zaměřuje se na kvalitu a standardy práce. \u201eDělám svou práci správně?\u201c" },
+    { label: "Formativní", desc: "Zaměřuje se na učení a profesní růst. \u201eJak se můžu zlepšit?\u201c" },
+    { label: "Restorativní", desc: "Zaměřuje se na psychickou pohodu a zvládání zátěže. \u201eJak u toho vydržím v rovnováze?\u201c" },
   ],
   qualification: "Prošla jsem odborným supervizním výcvikem (CSA London) a mezinárodním akreditačním procesem u profesní organizace EMCC (level ESIA Senior Practitioner). ESIA ověřuje reálnou praxi v supervizi, schopnost reflektovat vlastní práci, dodržování etiky profese a kontinuální profesní rozvoj.",
   packages: [
