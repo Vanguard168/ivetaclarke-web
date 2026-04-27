@@ -126,14 +126,14 @@ function useScrollY() {
   return y;
 }
 
-function useInView(threshold = 0.15) {
-  const ref = useRef(null);
+function useInView(threshold = 0.15): [React.RefObject<HTMLDivElement>, boolean] {
+  const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold]);
   return [ref, inView];
 }
 
@@ -437,15 +437,18 @@ export default function App() {
 
           <Reveal delay={0.2}>
             <div style={{ position: "relative" }}>
-              {/* Photo placeholder */}
+              {/* Photo */}
               <div style={{
                 width: "100%", aspectRatio: "3/4", borderRadius: 20,
-                background: `linear-gradient(145deg, ${C.warm}, ${C.sand})`,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                border: `1px solid ${C.sand}`, position: "relative", overflow: "hidden",
+                overflow: "hidden", position: "relative",
+                border: `1px solid ${C.sand}`,
+                boxShadow: "0 8px 40px rgba(44,44,62,0.12)",
               }}>
-                <div style={{ fontSize: 64, opacity: 0.3, marginBottom: 12 }}>📷</div>
-                <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>Studiová fotografie</div>
+                <img
+                  src="/iveta-photo.png"
+                  alt="Iveta Clarke"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+                />
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
               {/* Fingerprint motif */}
