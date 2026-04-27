@@ -642,7 +642,7 @@ export default function App() {
             <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Série krátkých přednášek</h2>
             <Divider />
             <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, maxWidth: 560, marginBottom: 48 }}>
-              Mini přednášky o tématech, která hýbají našimi životy. První video každé série zdarma. Max 7 minut, každé téma do hloubky.
+              Mini přednášky o tématech, která hýbají našimi životy. První video každé série zdarma.
             </p>
           </Reveal>
 
@@ -850,7 +850,7 @@ export default function App() {
         </div>
         <div style={{ maxWidth: 1100, margin: "24px auto 0", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "Trebuchet MS" }}>© 2025 Iveta Clarke · ivetaclarke.com</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "Trebuchet MS" }}>⚠️ Testovací demo – finální design po dohodě s Andreou Grigarovou · Texty © Iveta Clarke</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "Trebuchet MS" }}>⚠️ Testovací demo · Texty © Iveta Clarke</div>
         </div>
       </footer>
 
