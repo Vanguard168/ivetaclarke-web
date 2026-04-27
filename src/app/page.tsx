@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -138,7 +138,7 @@ function useInView(threshold = 0.15) {
 }
 
 // ── Animated section wrapper ─────────────────────────────────────────────────
-function Reveal({ children, delay = 0, style = {} }) {
+function Reveal({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const [ref, inView] = useInView();
   return (
     <div ref={ref} style={{
@@ -153,7 +153,7 @@ function Reveal({ children, delay = 0, style = {} }) {
 }
 
 // ── Fingerprint circles (Iveta's visual motif) ───────────────────────────────
-function Fingerprints({ size = 320 }) {
+function Fingerprints({ size = 320 }: { size?: number }) {
   const circles = [
     { cx: "38%", cy: "42%", r: "38%", color: C.gold, op: 0.18 },
     { cx: "55%", cy: "35%", r: "34%", color: "#8B6FA0", op: 0.13 },
@@ -189,12 +189,12 @@ function Fingerprints({ size = 320 }) {
 }
 
 // ── Gold divider ──────────────────────────────────────────────────────────────
-function Divider({ width = 48 }) {
+function Divider({ width = 48 }: { width?: number }) {
   return <div style={{ width, height: 2, background: C.gold, borderRadius: 1, margin: "0 0 28px" }} />;
 }
 
 // ── Section label ─────────────────────────────────────────────────────────────
-function SectionLabel({ children }) {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
       <div style={{ width: 3, height: 18, background: C.gold, borderRadius: 2 }} />
@@ -206,7 +206,7 @@ function SectionLabel({ children }) {
 }
 
 // ── Button ────────────────────────────────────────────────────────────────────
-function Btn({ children, primary = true, onClick, small = false }) {
+function Btn({ children, primary = true, onClick, small = false }: { children: React.ReactNode; primary?: boolean; onClick?: () => void; small?: boolean }) {
   const [hover, setHover] = useState(false);
   return (
     <button
