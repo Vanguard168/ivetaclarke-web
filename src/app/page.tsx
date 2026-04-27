@@ -250,10 +250,10 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [playingPodcast, setPlayingPodcast] = useState(null);
+  const [playingPodcast, setPlayingPodcast] = useState<string | null>(null);
 
-  const scrollTo = (id) => {
-    const map = { "o mně": "o-mne", "konzultace": "konzultace", "pro kouče": "pro-kouce", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
+  const scrollTo = (id: string) => {
+    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "pro kouče": "pro-kouce", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
     const el = document.getElementById(map[id.toLowerCase()] || id.toLowerCase().replace(/\s/g, "-").replace(/[^\w-]/g, ""));
     el?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
