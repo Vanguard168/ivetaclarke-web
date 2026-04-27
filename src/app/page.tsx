@@ -38,25 +38,35 @@ const aboutData = {
 };
 
 const consultationData = {
-  note: "Setkání mohou být online anebo osobní, v mé kanceláři v centru Prahy. Plánujete si je sami v požadované frekvenci, dle mého plánovacího kalendáře. Ceny jsou uvedeny bez DPH.",
-  individual: {
-    title: "Jednorázová konzultace",
-    duration: "90 minut",
-    price: "7 500 Kč",
-    desc: "Tento formát je vhodný pro analýzu vaší současné situace, zasazení do širšího kontextu, pojmenování základních otázek, definování vašich témat, a ošetření emocí. Výsledkem je vhled do situace, nasměrování a zklidnění.",
-  },
+  note: "Setkání mohou být online anebo osobní, v mé kanceláři v centru Prahy. Plánujete si je sami v požadované frekvenci, dle mého plánovacího kalendáře. Ceny jsou uvedeny bez DPH. Balíčky jsou platné ode dne převodu platby na účet ReDefine s.r.o.",
+  individual: [
+    {
+      title: "Individuální konzultace online",
+      duration: "60 minut",
+      price: "5 990 Kč",
+      priceNote: "vč. DPH / 4 950 Kč bez DPH",
+      desc: "Tento formát je vhodný pro analýzu vaší současné situace, zasazení do širšího kontextu, pojmenování základních otázek, definování vašich témat, a ošetření emocí. Výsledkem je vhled do situace, nasměrování a zklidnění.",
+    },
+    {
+      title: "Individuální konzultace osobní",
+      duration: "90 minut",
+      price: "8 990 Kč",
+      priceNote: "vč. DPH / 7 430 Kč bez DPH",
+      desc: "Osobní setkání v mé kanceláři v centru Prahy. Prostor pro hloubkový rozhovor s přesahem, reflexi a konkrétní impulzy pro váš život.",
+    },
+  ],
   packages: [
     {
-      id: "3m", title: "Krátkodobá spolupráce", duration: "3 měsíce", price: "21 000 Kč", available: true,
-      desc: "Neomezený počet setkání dle vaší potřeby, délka setkání 90 minut. Vhodné pro prozkoumání dilemat, vyhodnocení postojů a osvojení relevantních konceptů. Pomůže se zklidnit a efektivně vyhodnotit další kroky.",
+      id: "3m", title: "Krátkodobá spolupráce", duration: "3 měsíce", price: "25 990 Kč", priceNote: "vč. DPH / 21 479 Kč bez DPH", available: true,
+      desc: "Neomezený počet setkání dle vaší potřeby (předpoklad 3 sezení), délka setkání 90 minut. Online nebo osobní dle dohody. Vhodné pro prozkoumání dilemat, vyhodnocení postojů a osvojení relevantních konceptů.",
     },
     {
-      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "36 000 Kč", available: true,
-      desc: "Neomezený počet setkání, délka 90 minut. Umožňuje jít do větší hloubky. Pracujeme s ověřenými koncepty a nástroji, které rozšiřují perspektivu a zprostředkují nové vhledy vedoucí ke zklidnění, úlevě a obnově energie.",
+      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "53 990 Kč", priceNote: "vč. DPH / 44 620 Kč bez DPH", available: true,
+      desc: "Neomezený počet setkání (předpoklad 6 sezení), délka 90 minut. Online nebo dle dohody. Umožňuje jít do větší hloubky, pracujeme s ověřenými koncepty a nástroji vedoucími ke zklidnění, úlevě a obnově energie.",
     },
     {
-      id: "12m", title: "Roční spolupráce", duration: "12 měsíců", price: "60 000 Kč", available: true,
-      desc: "Osobní provázení vaším životním kontextem a profesionální mentoring. Neomezený počet setkání v délce 90 minut po dobu jednoho ročního cyklu. V tomto balíčku budujeme vztah – jsem vaším životním sparring partnerem.",
+      id: "12m", title: "Roční spolupráce", duration: "12 měsíců", price: "99 990 Kč", priceNote: "vč. DPH / 82 636 Kč bez DPH", available: true,
+      desc: "Osobní provázení vaším životním kontextem a profesionální mentoring. Neomezený počet setkání (předpoklad 12 sezení) v délce 90 minut. Online nebo dle dohody. V tomto balíčku budujeme vztah – jsem vaším životním sparring partnerem.",
     },
   ],
 };
@@ -470,28 +480,33 @@ export default function App() {
             <Divider />
           </Reveal>
 
-          {/* Individual consultation */}
-          <Reveal delay={0.1}>
-            <div style={{
-              background: C.white, borderRadius: 20, padding: "36px 40px",
-              border: `1px solid ${C.sand}`, marginBottom: 32,
-              boxShadow: "0 4px 32px rgba(44,44,62,0.06)",
-              display: "flex", gap: 40, alignItems: "flex-start",
-            }}>
-              <div style={{ width: 4, alignSelf: "stretch", background: C.gold, borderRadius: 2, flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS", marginBottom: 8 }}>{consultationData.individual.duration.toUpperCase()}</div>
-                <h3 style={{ fontSize: 22, fontWeight: "normal", margin: "0 0 12px" }}>{consultationData.individual.title}</h3>
-                <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", maxWidth: 560 }}>
-                  {consultationData.individual.desc}
-                </p>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-                  <div style={{ fontSize: 26, color: C.dark }}>{consultationData.individual.price} <span style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS" }}>bez DPH</span></div>
-                  <Btn onClick={() => alert("→ Přesměrování na kalendář rezervací")}>Rezervovat termín</Btn>
+          {/* Individual consultations */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20, marginBottom: 32 }}>
+            {consultationData.individual.map((item, i) => (
+              <Reveal key={i} delay={0.1 + i * 0.1}>
+                <div style={{
+                  background: C.white, borderRadius: 20, padding: "28px 32px",
+                  border: `1px solid ${C.sand}`,
+                  boxShadow: "0 4px 32px rgba(44,44,62,0.06)",
+                  display: "flex", flexDirection: "column", height: "100%",
+                }}>
+                  <div style={{ width: 4, height: 3, background: C.gold, borderRadius: 2, marginBottom: 16 }} />
+                  <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS", marginBottom: 8 }}>{item.duration.toUpperCase()}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{item.title}</h3>
+                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{item.desc}</p>
+                  <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 24, color: C.dark }}>{item.price}</div>
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS" }}>{item.priceNote}</div>
+                    </div>
+                    <Btn small onClick={() => alert("→ Přesměrování na kalendář rezervací")}>Rezervovat</Btn>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+
+            ))}
+          </div>
 
           {/* Packages */}
           <Reveal delay={0.15}>
@@ -512,7 +527,8 @@ export default function App() {
                     <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>{pkg.duration.toUpperCase()}</div>
                     <div style={{ fontSize: 17, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{pkg.title}</div>
                     <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, marginBottom: 20, flex: 1 }}>{pkg.desc}</p>
-                    <div style={{ fontSize: 22, color: C.dark, marginBottom: 20 }}>{pkg.price} <span style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS" }}>bez DPH</span></div>
+                    <div style={{ fontSize: 22, color: C.dark, marginBottom: 4 }}>{pkg.price}</div>
+                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginBottom: 16 }}>{pkg.priceNote}</div>
                     <Btn small onClick={() => alert("→ Rezervace balíčku")}>Vybrat balíček</Btn>
                   </div>
                 </div>
