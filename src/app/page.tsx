@@ -628,8 +628,9 @@ export default function App() {
 
   // Interpolate nav colors continuously
   const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
-  // Fade in the glass panel after scrolling past 80px (hero fade zone 80–180px)
-  const navAlpha = Math.min(1, Math.max(0, (scrollY - 80) / 100));
+  // Glass panel invisible on hero, fades in smoothly after scrolling ~40% of viewport
+  const heroFadeStart = typeof window !== "undefined" ? window.innerHeight * 0.35 : 300;
+  const navAlpha = Math.min(1, Math.max(0, (scrollY - heroFadeStart) / 120));
   const nr = lerp(250, 44, navDarkness); const ng = lerp(248, 44, navDarkness); const nb = lerp(244, 62, navDarkness);
   const navBg = `rgba(${nr},${ng},${nb},${(0.78 * navAlpha).toFixed(2)})`;
   const navBorder = `rgba(${lerp(201, 255, navDarkness)},${lerp(192, 255, navDarkness)},${lerp(168, 255, navDarkness)},${((0.1 + navDarkness * 0.05) * navAlpha).toFixed(2)})`;
@@ -771,10 +772,6 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, opacity: 0, animation: "fadeUp 0.8s ease 1.2s forwards" }}>
-          <div style={{ fontSize: 9, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS" }}>SCROLLOVAT</div>
-          <div style={{ width: 1, height: 32, background: `linear-gradient(to bottom, rgba(201,168,76,0.6), transparent)` }} />
-        </div>
       </section>
 
       {/* ── QUOTE ────────────────────────────────────────────────────────── */}
