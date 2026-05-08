@@ -80,7 +80,7 @@ const videoSeries = [
 
 const podcasts = [
   {
-    name: "Zámyslník",
+    name: "Každopádně Kladně - Zámyslník 1.0",
     type: "Autorský podcast",
     desc: "Inspirativní přemýšlení nahlas o tématech, která hýbají našimi životy.",
     episodes: "Dostupné na všech platformách",
@@ -563,7 +563,6 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [playingPodcast, setPlayingPodcast] = useState<string | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
 
   const scrollTo = (id: string) => {
@@ -1035,63 +1034,58 @@ export default function App() {
             <Divider />
           </Reveal>
 
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24 }}>
-            {podcasts.map((pod, i) => (
-              <Reveal key={pod.name} delay={i * 0.15}>
-                <div style={{
-                  background: "rgba(255,255,255,0.05)", borderRadius: 20, padding: "32px 28px",
-                  border: `1px solid rgba(255,255,255,0.08)`,
-                  backdropFilter: "blur(8px)",
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                    <div>
-                      <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>{pod.type.toUpperCase()}</div>
-                      <h3 style={{ fontSize: 22, color: C.white, fontWeight: "normal", margin: 0 }}>{pod.name}</h3>
-                    </div>
-                    {pod.free ? (
-                      <div style={{ fontSize: 9, background: "rgba(74,124,90,0.3)", color: "#7AC48A", padding: "4px 12px", borderRadius: 12, fontFamily: "Trebuchet MS", border: "1px solid rgba(74,124,90,0.4)" }}>ZDARMA</div>
-                    ) : (
-                      <div style={{ fontSize: 9, background: "rgba(201,168,76,0.2)", color: C.gold, padding: "4px 12px", borderRadius: 12, fontFamily: "Trebuchet MS", border: `1px solid rgba(201,168,76,0.3)` }}>BRZY</div>
-                    )}
-                  </div>
-                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginBottom: 20 }}>{pod.desc}</p>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS" }}>{pod.episodes}</div>
-                    {pod.free && (
-                      <button
-                        onClick={() => setPlayingPodcast(playingPodcast === pod.name ? null : pod.name)}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 8,
-                          background: "transparent", border: `1px solid ${C.gold}`,
-                          borderRadius: 24, padding: "8px 18px",
-                          color: C.gold, fontSize: 12, fontFamily: "Trebuchet MS", cursor: "pointer",
-                        }}
-                      >
-                        {playingPodcast === pod.name ? "⏸ Pauza" : "▶ Poslouchat"}
-                      </button>
-                    )}
-                  </div>
-                  {playingPodcast === pod.name && (
-                    <div style={{ marginTop: 16, background: "rgba(201,168,76,0.1)", borderRadius: 10, padding: "12px 16px" }}>
-                      <div style={{ fontSize: 10, color: C.gold, fontFamily: "Trebuchet MS", marginBottom: 8 }}>PŘEHRÁVÁ SE</div>
-                      <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 4, height: 4 }}>
-                        <div style={{ background: C.gold, height: "100%", width: "35%", borderRadius: 4 }} />
-                      </div>
-                    </div>
-                  )}
+          {/* Každopádně Kladně – Spotify embed */}
+          <Reveal delay={0.1}>
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>AUTORSKÝ PODCAST</div>
+                  <h3 style={{ fontSize: 22, color: C.white, fontWeight: "normal", margin: 0 }}>Každopádně Kladně – Zámyslník 1.0</h3>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={0.2}>
-            <div style={{ marginTop: 32, padding: "20px 24px", background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", gap: 16 }}>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Poslouchejte také na platformách</div>
-              <div style={{ display: "flex", gap: 12 }}>
-                {["Spotify", "Apple Podcasts", "Google Podcasts"].map(p => (
-                  <div key={p} style={{ padding: "7px 16px", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, fontSize: 11, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", cursor: "pointer" }}>{p}</div>
-                ))}
+                <div style={{ display: "flex", gap: 10 }}>
+                  <a
+                    href="https://open.spotify.com/show/4eDcqMArBDuEFbLKPzCqH2"
+                    target="_blank" rel="noopener noreferrer"
+                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", background: "#1DB954", borderRadius: 20, fontSize: 12, color: "#000", fontFamily: "Trebuchet MS", textDecoration: "none", fontWeight: "bold" }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                    Spotify
+                  </a>
+                  <a
+                    href="https://podcasts.apple.com/search?term=Každopádně+Kladně+Zámyslník"
+                    target="_blank" rel="noopener noreferrer"
+                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, fontSize: 12, color: "rgba(255,255,255,0.7)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
+                  >
+                    Apple Podcasts
+                  </a>
+                </div>
               </div>
+              <div style={{ borderRadius: 16, overflow: "hidden" }}>
+                <iframe
+                  src="https://open.spotify.com/embed/show/4eDcqMArBDuEFbLKPzCqH2?utm_source=generator&theme=0"
+                  width="100%"
+                  height="352"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  style={{ display: "block" }}
+                />
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Kód Moudrosti – coming soon */}
+          <Reveal delay={0.2}>
+            <div style={{
+              background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "28px 28px",
+              border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16,
+            }}>
+              <div>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>MODEROVANÝ PODCAST S HOSTY</div>
+                <h3 style={{ fontSize: 20, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>Kód Moudrosti</h3>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>Hloubkové rozhovory o moudrosti, životě a proměně. Kick off Květen 2026.</p>
+              </div>
+              <div style={{ fontSize: 9, background: "rgba(201,168,76,0.2)", color: C.gold, padding: "6px 16px", borderRadius: 12, fontFamily: "Trebuchet MS", border: `1px solid rgba(201,168,76,0.3)`, whiteSpace: "nowrap" }}>BRZY</div>
             </div>
           </Reveal>
         </div>
