@@ -580,33 +580,60 @@ export default function App() {
   const width = useWindowWidth();
   const isMobile = width < 768;
   const isTablet = width < 1024;
-  const [activeSection, setActiveSection] = useState("hero");
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
+  const [navDarkness, setNavDarkness] = useState(1); // 1=dark, 0=light, floats in between
 
-  // Track active section via IntersectionObserver
+  // Smooth scroll-based nav color interpolation
   useEffect(() => {
-    const sectionIds = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "videa", "podcast", "kontakt"];
-    const observers: IntersectionObserver[] = [];
-    sectionIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setActiveSection(id); }, { threshold: 0.3 });
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach(o => o.disconnect());
+    const darkSet = new Set(["hero", "vycvik", "podcast"]);
+    const sections = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "videa", "podcast", "kontakt"];
+    const BLEND = 120; // px blend zone around section boundary
+    const NAV_H = 58;
+    let raf: number;
+
+    const update = () => {
+      let darkness = 1;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= NAV_H) {
+          const curDark = darkSet.has(sections[i]) ? 1 : 0;
+          const nextId = sections[i + 1];
+          if (nextId) {
+            const nextEl = document.getElementById(nextId);
+            if (nextEl) {
+              const nextDark = darkSet.has(nextId) ? 1 : 0;
+              const dist = nextEl.getBoundingClientRect().top - NAV_H;
+              if (dist > -BLEND && dist < BLEND) {
+                const t = (dist + BLEND) / (BLEND * 2);
+                darkness = curDark * t + nextDark * (1 - t);
+              } else { darkness = curDark; }
+            } else { darkness = curDark; }
+          } else { darkness = curDark; }
+          break;
+        }
+      }
+      setNavDarkness(darkness);
+    };
+
+    const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, []);
 
-  // Map section id → navbar bg + text colors
-  const darkSections = new Set(["hero", "vycvik", "podcast"]);
-  const navDark = darkSections.has(activeSection);
-  const navBg = navDark ? "rgba(44,44,62,0.97)" : "rgba(250,248,244,0.97)";
-  const navText = navDark ? "rgba(255,255,255,0.8)" : C.muted;
-  const navBorder = navDark ? "rgba(255,255,255,0.07)" : C.sand;
+  // Interpolate nav colors continuously
+  const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
+  const nr = lerp(250, 44, navDarkness); const ng = lerp(248, 44, navDarkness); const nb = lerp(244, 62, navDarkness);
+  const navBg = `rgba(${nr},${ng},${nb},0.78)`;
+  const navBorder = `rgba(${lerp(201, 255, navDarkness)},${lerp(192, 255, navDarkness)},${lerp(168, 255, navDarkness)},${0.1 + navDarkness * 0.05})`;
+  const navText = `rgba(${lerp(80, 255, navDarkness)},${lerp(80, 255, navDarkness)},${lerp(80, 255, navDarkness)},${0.65 + navDarkness * 0.2})`;
+  const navLogoColor = `rgba(${lerp(44, 255, navDarkness)},${lerp(44, 255, navDarkness)},${lerp(62, 255, navDarkness)},1)`;
+  const hamburgerColor = `rgba(${lerp(44, 255, navDarkness)},${lerp(44, 255, navDarkness)},${lerp(62, 255, navDarkness)},1)`;
 
   const scrollTo = (id: string) => {
     const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
@@ -624,10 +651,10 @@ export default function App() {
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: menuOpen ? "rgba(250,248,244,0.98)" : navBg,
-        backdropFilter: "blur(12px)",
+        background: menuOpen ? "rgba(250,248,244,0.95)" : navBg,
+        backdropFilter: "blur(24px) saturate(180%)",
+        WebkitBackdropFilter: "blur(24px) saturate(180%)",
         borderBottom: `1px solid ${menuOpen ? C.sand : navBorder}`,
-        transition: "background 0.4s, border-color 0.4s",
         padding: `0 ${px}`,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         height: 58,
@@ -636,7 +663,7 @@ export default function App() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
           <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
           <div>
-            <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? C.dark : (navDark ? C.white : C.dark), letterSpacing: "0.03em", transition: "color 0.4s" }}>Iveta Clarke</div>
+            <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? C.dark : navLogoColor, letterSpacing: "0.03em" }}>Iveta Clarke</div>
             {!isMobile && <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif" }}>INSPIRING CONVERSATION</div>}
           </div>
         </div>
@@ -649,8 +676,7 @@ export default function App() {
                 style={{
                   background: "none", border: "none", cursor: "pointer",
                   fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
-                  color: navText,
-                  transition: "color 0.2s", padding: "4px 0",
+                  color: navText, padding: "4px 0",
                 }}
                 onMouseEnter={e => e.currentTarget.style.color = C.gold}
                 onMouseLeave={e => e.currentTarget.style.color = navText}
@@ -669,8 +695,8 @@ export default function App() {
             {[0,1,2].map(i => (
               <div key={i} style={{
                 width: 24, height: 2, borderRadius: 2,
-                background: menuOpen ? C.dark : (navDark ? C.white : C.dark),
-                transition: "all 0.3s",
+                background: menuOpen ? C.dark : hamburgerColor,
+                transition: "transform 0.3s, opacity 0.3s",
                 transform: menuOpen
                   ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
                   : i === 2 ? "rotate(-45deg) translate(5px, -5px)"
