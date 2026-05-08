@@ -859,7 +859,7 @@ export default function App() {
             style={{
               position: "absolute",
               top: -80,
-              left: "80%",
+              left: "20%",
               transform: "translateX(-10%)",
               width: 420,
               pointerEvents: "none",
