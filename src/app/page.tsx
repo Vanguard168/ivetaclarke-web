@@ -671,7 +671,7 @@ export default function App() {
           <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
           <div>
             <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? "transparent" : navLogoColor, letterSpacing: "0.03em" }}>Iveta Clarke</div>
-            {!isMobile && <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif" }}>INSPIRING CONVERSATION</div>}
+            <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", opacity: menuOpen ? 0 : 1 }}>INSPIRING CONVERSATION</div>
           </div>
         </div>
 
@@ -720,7 +720,10 @@ export default function App() {
         }}>
           {/* Top bar inside overlay */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 58, flexShrink: 0 }}>
-            <div style={{ fontSize: 20, color: "#ffffff", letterSpacing: "0.04em", fontFamily: "Georgia, serif" }}>Iveta Clarke</div>
+            <div>
+              <div style={{ fontSize: 20, color: "#ffffff", letterSpacing: "0.04em", fontFamily: "Georgia, serif" }}>Iveta Clarke</div>
+              <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif" }}>INSPIRING CONVERSATION</div>
+            </div>
             {/* Close X */}
             <button onClick={() => setMenuOpen(false)} style={{
               background: "none", border: "none", cursor: "pointer", padding: 8,
