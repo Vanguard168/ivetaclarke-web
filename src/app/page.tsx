@@ -850,7 +850,25 @@ export default function App() {
       </section>
 
       {/* ── O MNĚ ────────────────────────────────────────────────────────── */}
-      <section id="o-mne" style={{ padding: isMobile ? "64px 24px" : `80px ${px}` }}>
+      <section id="o-mne" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, position: "relative", overflow: "visible" }}>
+        {!isMobile && (
+          <img
+            src="/points.png"
+            alt=""
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: -160,
+              left: "50%",
+              transform: "translateX(-10%)",
+              width: 420,
+              pointerEvents: "none",
+              zIndex: 5,
+              mixBlendMode: "multiply",
+              opacity: 0.9,
+            }}
+          />
+        )}
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 80, alignItems: "center" }}>
           <Reveal>
