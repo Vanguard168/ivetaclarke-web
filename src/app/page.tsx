@@ -1194,8 +1194,8 @@ export default function App() {
             <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "28px", border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
               <div>
                 <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>MODEROVANÝ PODCAST S HOSTY</div>
-                <h3 style={{ fontSize: 20, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>Kód Moudrosti</h3>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>Hloubkové rozhovory o moudrosti, životě a proměně. Kick off Květen 2026.</p>
+                <h3 style={{ fontSize: 20, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>Zámyslník 2.0.</h3>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.</p>
               </div>
               <div style={{ fontSize: 9, background: "rgba(201,168,76,0.2)", color: C.gold, padding: "6px 16px", borderRadius: 12, fontFamily: "Trebuchet MS", border: `1px solid rgba(201,168,76,0.3)`, whiteSpace: "nowrap" }}>BRZY</div>
             </div>
