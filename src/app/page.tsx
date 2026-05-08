@@ -670,8 +670,8 @@ export default function App() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
           {!isMobile && <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />}
           <div>
-            <div style={{ fontSize: isMobile ? 20 : 15, fontFamily: isMobile ? "Georgia, serif" : undefined, color: menuOpen ? "transparent" : navLogoColor, letterSpacing: isMobile ? "0.04em" : "0.03em" }}>Iveta Clarke</div>
-            <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", opacity: menuOpen ? 0 : 1 }}>INSPIRING CONVERSATION</div>
+            <div style={{ fontSize: isMobile ? 20 : 17, fontFamily: isMobile ? "Georgia, serif" : undefined, color: menuOpen ? "transparent" : navLogoColor, letterSpacing: isMobile ? "0.04em" : "0.03em" }}>Iveta Clarke</div>
+            <div style={{ fontSize: isMobile ? 8 : 9, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", opacity: menuOpen ? 0 : 1 }}>INSPIRING CONVERSATION</div>
           </div>
         </div>
 
@@ -682,7 +682,7 @@ export default function App() {
               <button key={item} onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
                 style={{
                   background: "none", border: "none", cursor: "pointer",
-                  fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                  fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
                   color: navText, padding: "4px 0",
                 }}
                 onMouseEnter={e => e.currentTarget.style.color = C.gold}
