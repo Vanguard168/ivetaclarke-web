@@ -859,7 +859,7 @@ export default function App() {
             style={{
               position: "absolute",
               top: -20,
-              left: "55%",
+              left: "35%",
               transform: "translateX(-50%)",
               animation: "pointsReveal 6s cubic-bezier(0.16,1,0.3,1) forwards",
               width: 420,
