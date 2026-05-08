@@ -858,8 +858,8 @@ export default function App() {
             aria-hidden
             style={{
               position: "absolute",
-              top: -160,
-              left: "50%",
+              top: -80,
+              left: "80%",
               transform: "translateX(-10%)",
               width: 420,
               pointerEvents: "none",
