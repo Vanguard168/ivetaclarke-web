@@ -71,6 +71,14 @@ const consultationData = {
   ],
 };
 
+const youtubeVideos = [
+  { id: "uyxU4th8LEI", title: "The Midlife Passage ft. Iveta Clarke" },
+  { id: "bpg5dfhYkYU", title: "Životní koučka: Krize středního věku není váš konec" },
+  { id: "Qu2mKbF3zDw", title: "Iveta Clarke | Nevzdávejte to" },
+  { id: "0Gq_aJLfjPs", title: "Podcast Evolucionáři: Iveta Clarke" },
+  { id: "kNZncv6sAiM", title: "Stýská se mi po krásných staromódních slovech" },
+];
+
 const videoSeries = [
   { title: "Midlife – kompetence a postoje k životu ve středním věku", episodes: 6, free: 1 },
   { title: "Kultivace moudrosti", episodes: 6, free: 1 },
@@ -994,8 +1002,36 @@ export default function App() {
       <section id="videa" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.cream }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
-            <SectionLabel>INSPIRATIVNÍ VIDEA</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Série krátkých přednášek</h2>
+            <SectionLabel>VIDEA</SectionLabel>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Iveta v rozhovorech a pořadech</h2>
+            <Divider />
+          </Reveal>
+
+          {/* YouTube videa */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24, marginBottom: 64 }}>
+            {youtubeVideos.map((v, i) => (
+              <Reveal key={v.id} delay={i * 0.08}>
+                <div style={{ borderRadius: 14, overflow: "hidden", background: C.dark, boxShadow: "0 4px 24px rgba(44,44,62,0.12)" }}>
+                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+                    <iframe
+                      src={`https://www.youtube.com/embed/${v.id}`}
+                      title={v.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                    />
+                  </div>
+                  <div style={{ padding: "14px 16px", fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>{v.title}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Video série */}
+          <Reveal>
+            <SectionLabel>SÉRIE PŘEDNÁŠEK</SectionLabel>
+            <h2 style={{ fontSize: "clamp(24px, 2.5vw, 34px)", fontWeight: "normal", margin: "0 0 8px" }}>Série krátkých přednášek</h2>
             <Divider />
             <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, maxWidth: 560, marginBottom: 48 }}>
               Mini přednášky o tématech, která hýbají našimi životy. První video každé série zdarma.
