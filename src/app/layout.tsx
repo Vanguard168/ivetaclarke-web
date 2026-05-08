@@ -12,6 +12,13 @@ export const metadata: Metadata = {
     siteName: "Iveta Clarke",
     locale: "cs_CZ",
     type: "website",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Iveta Clarke – Rozhovor s přesahem",
+    description: "Profesionální kouč, mentor a supervizor s více než 25 lety zkušeností.",
+    images: ["/opengraph-image"],
   },
   metadataBase: new URL("https://ivetaclarke.com"),
 };
