@@ -882,8 +882,8 @@ export default function App() {
             aria-hidden
             style={{
               position: "absolute",
-              top: isMobile ? 0 : 30,
-              left: isMobile ? "50%" : "35%",
+              top: isMobile ? 40 : 30,
+              left: isMobile ? "55%" : "35%",
               transform: "translateX(-50%)",
               animation: "pointsReveal 6s cubic-bezier(0.16,1,0.3,1) forwards",
               width: isMobile ? 280 : 420,
