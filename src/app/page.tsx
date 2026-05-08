@@ -533,6 +533,31 @@ function Fingerprints({ size = 280 }: { size?: number }) {
   );
 }
 
+// ── CountUp ───────────────────────────────────────────────────────────────────
+function CountUp({ target, suffix = "", duration = 1800 }: { target: number; suffix?: string; duration?: number }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        setVal(Math.round(ease * target));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, { threshold: 0.5 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [target, duration]);
+  return <span ref={ref}>{val}{suffix}</span>;
+}
+
 // ── Gold divider ──────────────────────────────────────────────────────────────
 function Divider({ width = 48 }: { width?: number }) {
   return <div style={{ width, height: 2, background: C.gold, borderRadius: 1, margin: "0 0 28px" }} />;
@@ -885,9 +910,15 @@ export default function App() {
               <p key={i} style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 16 }}>{p}</p>
             ))}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginTop: 32 }}>
-              {aboutData.stats.map(([num, label]) => (
+              {([
+                { target: 25, suffix: "+", label: "let zkušeností" },
+                { target: 500, suffix: "+", label: "klientů" },
+                { target: 3, suffix: "", label: "specializace" },
+              ]).map(({ target, suffix, label }) => (
                 <div key={label} style={{ textAlign: "center", padding: "20px 12px", background: C.warm, borderRadius: 12, border: `1px solid ${C.sand}` }}>
-                  <div style={{ fontSize: 28, color: C.gold, marginBottom: 4 }}>{num}</div>
+                  <div style={{ fontSize: 28, color: C.gold, marginBottom: 4 }}>
+                    <CountUp target={target} suffix={suffix} duration={1800} />
+                  </div>
                   <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{label}</div>
                 </div>
               ))}
