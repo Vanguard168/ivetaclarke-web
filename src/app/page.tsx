@@ -633,10 +633,14 @@ export default function App() {
   const navAlpha = Math.min(1, Math.max(0, (scrollY - heroFadeStart) / 120));
   const nr = lerp(250, 44, navDarkness); const ng = lerp(248, 44, navDarkness); const nb = lerp(244, 62, navDarkness);
   const navBg = `rgba(${nr},${ng},${nb},${(0.78 * navAlpha).toFixed(2)})`;
-  const navBorder = `rgba(${lerp(201, 255, navDarkness)},${lerp(192, 255, navDarkness)},${lerp(168, 255, navDarkness)},${((0.1 + navDarkness * 0.05) * navAlpha).toFixed(2)})`;
-  const navText = `rgba(255,255,255,${navAlpha < 0.1 ? 0.85 : (0.65 + navDarkness * 0.2)})`;
-  const navLogoColor = `rgba(255,255,255,${navAlpha < 0.1 ? 1 : lerp(44, 255, navDarkness) / 255})`;
-  const hamburgerColor = `rgba(255,255,255,${navAlpha < 0.1 ? 1 : lerp(44, 255, navDarkness) / 255})`;
+  const navBorder = `rgba(${lerp(201, 255, navDarkness)},${lerp(192, 255, navDarkness)},${lerp(168, 255, navDarkness)},${((0.12) * navAlpha).toFixed(2)})`;
+  // Text: interpolate RGB dark(80,70,55) ↔ white(255,255,255), fully white when hero transparent
+  const tr = navAlpha < 0.05 ? 255 : lerp(80, 255, navDarkness);
+  const tg = navAlpha < 0.05 ? 255 : lerp(70, 255, navDarkness);
+  const tb = navAlpha < 0.05 ? 255 : lerp(55, 255, navDarkness);
+  const navText = `rgba(${tr},${tg},${tb},0.85)`;
+  const navLogoColor = navAlpha < 0.05 ? "#ffffff" : `rgb(${lerp(44, 255, navDarkness)},${lerp(44, 255, navDarkness)},${lerp(62, 255, navDarkness)})`;
+  const hamburgerColor = navLogoColor;
 
   const scrollTo = (id: string) => {
     const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
