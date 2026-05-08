@@ -668,9 +668,9 @@ export default function App() {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-          <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
+          {!isMobile && <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />}
           <div>
-            <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? "transparent" : navLogoColor, letterSpacing: "0.03em" }}>Iveta Clarke</div>
+            <div style={{ fontSize: isMobile ? 20 : 15, fontFamily: isMobile ? "Georgia, serif" : undefined, color: menuOpen ? "transparent" : navLogoColor, letterSpacing: isMobile ? "0.04em" : "0.03em" }}>Iveta Clarke</div>
             <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", opacity: menuOpen ? 0 : 1 }}>INSPIRING CONVERSATION</div>
           </div>
         </div>
