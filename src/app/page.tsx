@@ -1286,14 +1286,19 @@ export default function App() {
           )}
 
           <div style={{ display: "flex", gap: 12 }}>
-            {["Facebook", "LinkedIn", "Instagram"].map(s => (
-              <div key={s} style={{
+            {[
+              { label: "Facebook", url: "https://www.facebook.com/iveta.clarke.9" },
+              { label: "LinkedIn", url: "https://www.linkedin.com/in/ivetaclarke" },
+              { label: "Instagram", url: "https://www.instagram.com/ivetaclarke" },
+            ].map(s => (
+              <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" style={{
                 padding: "8px 16px", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20,
                 fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS", cursor: "pointer",
+                textDecoration: "none", transition: "border-color 0.2s",
               }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = C.gold}
-                onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"}
-              >{s}</div>
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.borderColor = C.gold}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)"}
+              >{s.label}</a>
             ))}
           </div>
         </div>
