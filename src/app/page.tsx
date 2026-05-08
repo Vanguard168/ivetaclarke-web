@@ -883,7 +883,7 @@ export default function App() {
             aria-hidden
             style={{
               position: "absolute",
-              top: 80,
+              top: 30,
               left: "35%",
               transform: "translateX(-50%)",
               animation: "pointsReveal 6s cubic-bezier(0.16,1,0.3,1) forwards",
