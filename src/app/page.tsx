@@ -809,7 +809,7 @@ export default function App() {
           <p style={{ fontSize: isMobile ? 16 : 18, color: "rgba(255,255,255,0.85)", lineHeight: 1.75, maxWidth: 520, margin: "0 0 14px", opacity: 0, animation: "fadeUp 0.8s ease 0.7s forwards" }}>
             {heroData.subtitle}
           </p>
-          <p style={{ fontSize: isMobile ? 14 : 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.8, fontStyle: "italic", maxWidth: 480, margin: "0 0 40px", opacity: 0, animation: "fadeUp 0.8s ease 0.78s forwards" }}>
+          <p style={{ fontSize: isMobile ? 14 : 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.8, fontStyle: "italic", maxWidth: 480, margin: isMobile ? "0 0 40px" : "0 0 80px", opacity: 0, animation: "fadeUp 0.8s ease 0.78s forwards" }}>
             {heroData.mission}
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", opacity: 0, animation: "fadeUp 0.8s ease 0.85s forwards" }}>
