@@ -657,11 +657,11 @@ export default function App() {
 
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
       <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: menuOpen ? "rgba(250,248,244,0.95)" : navBg,
-        backdropFilter: "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: "blur(24px) saturate(180%)",
-        borderBottom: `1px solid ${menuOpen ? C.sand : navBorder}`,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: menuOpen ? 201 : 100,
+        background: menuOpen ? "transparent" : navBg,
+        backdropFilter: menuOpen ? "none" : "blur(24px) saturate(180%)",
+        WebkitBackdropFilter: menuOpen ? "none" : "blur(24px) saturate(180%)",
+        borderBottom: menuOpen ? "none" : `1px solid ${navBorder}`,
         padding: `0 ${px}`,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         height: 58,
@@ -670,7 +670,7 @@ export default function App() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
           <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
           <div>
-            <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? C.dark : navLogoColor, letterSpacing: "0.03em" }}>Iveta Clarke</div>
+            <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? "transparent" : navLogoColor, letterSpacing: "0.03em" }}>Iveta Clarke</div>
             {!isMobile && <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif" }}>INSPIRING CONVERSATION</div>}
           </div>
         </div>
@@ -693,49 +693,94 @@ export default function App() {
           </div>
         )}
 
-        {/* Mobile hamburger */}
-        {isMobile && (
-          <button onClick={() => setMenuOpen(o => !o)} style={{
+        {/* Mobile hamburger – hidden when overlay is open (overlay has its own X) */}
+        {isMobile && !menuOpen && (
+          <button onClick={() => setMenuOpen(true)} style={{
             background: "none", border: "none", cursor: "pointer", padding: 8,
             display: "flex", flexDirection: "column", gap: 5,
           }}>
             {[0,1,2].map(i => (
               <div key={i} style={{
                 width: 24, height: 2, borderRadius: 2,
-                background: menuOpen ? C.dark : hamburgerColor,
-                transition: "transform 0.3s, opacity 0.3s",
-                transform: menuOpen
-                  ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
-                  : i === 2 ? "rotate(-45deg) translate(5px, -5px)"
-                  : "scaleX(0)"
-                  : "none",
-                opacity: menuOpen && i === 1 ? 0 : 1,
+                background: hamburgerColor,
               }} />
             ))}
           </button>
         )}
       </nav>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile menu overlay – full screen, hero colours */}
       {isMobile && menuOpen && (
         <div style={{
-          position: "fixed", top: 58, left: 0, right: 0, zIndex: 99,
-          background: "rgba(250,248,244,0.98)", backdropFilter: "blur(12px)",
-          borderBottom: `1px solid ${C.sand}`,
-          padding: "16px 24px 24px",
-          display: "flex", flexDirection: "column", gap: 4,
+          position: "fixed", inset: 0, zIndex: 200,
+          background: `linear-gradient(160deg, ${C.darker} 0%, #3A2C4E 55%, ${C.dark} 100%)`,
+          display: "flex", flexDirection: "column",
+          padding: "0 32px 40px",
+          overflowY: "auto",
         }}>
-          {navItems.map(item => (
-            <button key={item} onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
-              style={{
-                background: "none", border: "none", cursor: "pointer", textAlign: "left",
-                fontSize: 17, fontFamily: "Georgia, serif", color: C.dark,
-                padding: "12px 0", borderBottom: `1px solid ${C.sand}`,
-              }}
-            >{item}</button>
-          ))}
-          <div style={{ paddingTop: 16 }}>
-            <Btn onClick={() => scrollTo("konzultace")}>Rezervovat konzultaci</Btn>
+          {/* Top bar inside overlay */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 58, flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
+              <div style={{ fontSize: 14, color: "#ffffff", letterSpacing: "0.03em" }}>Iveta Clarke</div>
+            </div>
+            {/* Close X */}
+            <button onClick={() => setMenuOpen(false)} style={{
+              background: "none", border: "none", cursor: "pointer", padding: 8,
+              display: "flex", flexDirection: "column", gap: 5,
+            }}>
+              {[0, 2].map(i => (
+                <div key={i} style={{
+                  width: 24, height: 2, borderRadius: 2, background: "#ffffff",
+                  transform: i === 0 ? "rotate(45deg) translate(5px, 5px)" : "rotate(-45deg) translate(5px, -5px)",
+                }} />
+              ))}
+            </button>
+          </div>
+
+          {/* Gold divider */}
+          <div style={{ height: 1, background: `linear-gradient(to right, ${C.gold}, transparent)`, marginBottom: 40, animation: "menuLineIn 0.5s ease forwards" }} />
+
+          {/* Nav items */}
+          <nav style={{ display: "flex", flexDirection: "column", gap: 0, flex: 1 }}>
+            {navItems.map((item, i) => (
+              <button key={item}
+                onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
+                style={{
+                  background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                  fontSize: "clamp(26px, 8vw, 36px)", fontFamily: "Georgia, serif",
+                  color: "#ffffff", fontWeight: "normal",
+                  padding: "14px 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.08)",
+                  opacity: 0,
+                  animation: `menuItemIn 0.45s ease ${0.08 + i * 0.07}s forwards`,
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.gold)}
+                onMouseLeave={e => (e.currentTarget.style.color = "#ffffff")}
+              >
+                {item}
+                <span style={{ color: C.gold, fontSize: "0.5em", opacity: 0.7 }}>→</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* CTA */}
+          <div style={{ marginTop: 40, opacity: 0, animation: `menuItemIn 0.45s ease ${0.08 + navItems.length * 0.07}s forwards` }}>
+            <button onClick={() => scrollTo("konzultace")} style={{
+              width: "100%", padding: "18px 0",
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+              color: C.darker, border: "none", borderRadius: 8,
+              fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
+              letterSpacing: "0.08em", cursor: "pointer", fontWeight: "bold",
+            }}>
+              REZERVOVAT KONZULTACI
+            </button>
+          </div>
+
+          {/* Tagline */}
+          <div style={{ marginTop: 24, fontSize: 10, color: "rgba(255,255,255,0.25)", letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", opacity: 0, animation: `menuItemIn 0.45s ease ${0.15 + navItems.length * 0.07}s forwards` }}>
+            INSPIRING CONVERSATION
           </div>
         </div>
       )}
@@ -1360,6 +1405,14 @@ export default function App() {
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes menuItemIn {
+          from { opacity: 0; transform: translateX(-32px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes menuLineIn {
+          from { transform: scaleX(0); transform-origin: left; }
+          to   { transform: scaleX(1); transform-origin: left; }
         }
         * { box-sizing: border-box; }
         button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
