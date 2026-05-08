@@ -880,10 +880,6 @@ export default function App() {
                 />
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
-              {/* Fingerprint motif */}
-              <div style={{ position: "absolute", top: -40, right: -40, opacity: 0.5, pointerEvents: "none" }}>
-                <Fingerprints size={200} />
-              </div>
             </div>
           </Reveal>
         </div>
