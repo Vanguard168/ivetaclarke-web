@@ -877,10 +877,6 @@ export default function App() {
 
           <Reveal delay={0.2}>
             <div style={{ position: "relative" }}>
-              {/* Dot circles motif */}
-              <div style={{ position: "absolute", top: -50, right: -60, pointerEvents: "none", zIndex: 2 }}>
-                <Fingerprints size={240} />
-              </div>
               {/* Photo */}
               <div style={{
                 width: "100%", aspectRatio: "3/4", borderRadius: 20,
