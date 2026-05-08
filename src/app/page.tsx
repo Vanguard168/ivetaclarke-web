@@ -1053,7 +1053,7 @@ export default function App() {
           <Reveal delay={0.1}>
             <div style={{ marginBottom: 40 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>ZÁMYSLNÍK</div>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>ZÁMYSLNÍK IVETY CLARKE</div>
                 <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1079,7 +1079,7 @@ export default function App() {
                     {activeEpisode === ep.id && (
                       <div style={{ borderRadius: "0 0 12px 12px", overflow: "hidden", border: "1px solid rgba(201,168,76,0.3)", borderTop: "none" }}>
                         <iframe
-                          src={`https://open.spotify.com/embed/episode/${ep.id}?utm_source=generator&theme=0`}
+                          src={`https://open.spotify.com/embed/episode/${ep.id}?utm_source=generator&theme=0&autoplay=1`}
                           width="100%" height="152" frameBorder="0"
                           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                           style={{ display: "block" }}
@@ -1096,7 +1096,7 @@ export default function App() {
           <Reveal delay={0.15}>
             <div style={{ marginBottom: 40 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>EPIZODY S HOSTY</div>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>ZÁMYSLNÍK S HOSTY</div>
                 <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1122,7 +1122,7 @@ export default function App() {
                     {activeEpisode === ep.id && (
                       <div style={{ borderRadius: "0 0 12px 12px", overflow: "hidden", border: "1px solid rgba(201,168,76,0.3)", borderTop: "none" }}>
                         <iframe
-                          src={`https://open.spotify.com/embed/episode/${ep.id}?utm_source=generator&theme=0`}
+                          src={`https://open.spotify.com/embed/episode/${ep.id}?utm_source=generator&theme=0&autoplay=1`}
                           width="100%" height="152" frameBorder="0"
                           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                           style={{ display: "block" }}
