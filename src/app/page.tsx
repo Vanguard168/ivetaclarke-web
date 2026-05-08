@@ -876,25 +876,23 @@ export default function App() {
 
       {/* ── O MNĚ ────────────────────────────────────────────────────────── */}
       <section id="o-mne" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, position: "relative", overflow: "visible" }}>
-        {!isMobile && (
-          <img
+        <img
             src="/points.png"
             alt=""
             aria-hidden
             style={{
               position: "absolute",
-              top: 30,
-              left: "35%",
+              top: isMobile ? 0 : 30,
+              left: isMobile ? "50%" : "35%",
               transform: "translateX(-50%)",
               animation: "pointsReveal 6s cubic-bezier(0.16,1,0.3,1) forwards",
-              width: 420,
+              width: isMobile ? 280 : 420,
               pointerEvents: "none",
               zIndex: 5,
               mixBlendMode: "multiply",
               opacity: 0.9,
             }}
           />
-        )}
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 80, alignItems: "center" }}>
           <Reveal>
@@ -917,7 +915,7 @@ export default function App() {
               ]).map(({ target, suffix, label }) => (
                 <div key={label} style={{ textAlign: "center", padding: "20px 12px", background: C.warm, borderRadius: 12, border: `1px solid ${C.sand}` }}>
                   <div style={{ fontSize: 28, color: C.gold, marginBottom: 4 }}>
-                    <CountUp target={target} suffix={suffix} duration={1800} />
+                    <CountUp target={target} suffix={suffix} duration={3200} />
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{label}</div>
                 </div>
