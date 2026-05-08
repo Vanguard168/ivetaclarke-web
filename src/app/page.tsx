@@ -679,7 +679,7 @@ export default function App() {
         {!isMobile && (
           <div style={{ display: "flex", gap: isTablet ? 18 : 28, alignItems: "center" }}>
             {navItems.map(item => (
-              <button key={item} onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
+              <button key={item} onClick={() => scrollTo(item.toLowerCase())}
                 style={{
                   background: "none", border: "none", cursor: "pointer",
                   fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
@@ -745,7 +745,7 @@ export default function App() {
           <nav style={{ display: "flex", flexDirection: "column", gap: 0, flex: 1 }}>
             {navItems.map((item, i) => (
               <button key={item}
-                onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
+                onClick={() => scrollTo(item.toLowerCase())}
                 style={{
                   background: "none", border: "none", cursor: "pointer", textAlign: "left",
                   fontSize: "clamp(26px, 8vw, 36px)", fontFamily: "Georgia, serif",
@@ -1368,7 +1368,7 @@ export default function App() {
           {!isMobile && (
             <div style={{ display: "flex", gap: 32 }}>
               {navItems.map(item => (
-                <button key={item} onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
+                <button key={item} onClick={() => scrollTo(item.toLowerCase())}
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontFamily: "Trebuchet MS", color: "rgba(255,255,255,0.35)" }}
                   onMouseEnter={e => e.currentTarget.style.color = C.gold}
                   onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}
