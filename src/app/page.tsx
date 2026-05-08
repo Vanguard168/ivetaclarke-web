@@ -919,18 +919,18 @@ export default function App() {
       </section>
 
       {/* ── VÝCVIK ───────────────────────────────────────────────────────── */}
-      <section id="vycvik" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: isMobile ? C.dark : C.warm }}>
+      <section id="vycvik" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.dark }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
             <SectionLabel>PRO KOUČE</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: isMobile ? C.white : C.dark }}>Výcvik</h2>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Výcvik</h2>
             <Divider />
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div style={{ background: isMobile ? "transparent" : C.dark, borderRadius: isMobile ? 0 : 24, overflow: "hidden" }}>
-              <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, #E8C96A)` }} />
-              <div style={{ padding: isMobile ? "32px 0" : "40px 44px" }}>
+            <div style={{ background: "transparent" }}>
+              <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, #E8C96A)`, marginBottom: 40, borderRadius: 2 }} />
+              <div style={{ padding: 0 }}>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 32 : 48, alignItems: "start" }}>
                   <div>
                     <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS", marginBottom: 12 }}>WORKSHOP PRO PROFESIONÁLNÍ KOUČE</div>
