@@ -866,6 +866,17 @@ export default function App() {
 
           <Reveal delay={0.2}>
             <div style={{ position: "relative" }}>
+              {/* Points motif */}
+              <img
+                src="/points.png"
+                alt=""
+                aria-hidden
+                style={{
+                  position: "absolute", top: -60, right: -50, width: 260,
+                  mixBlendMode: "multiply", opacity: 0.85,
+                  pointerEvents: "none", zIndex: 2,
+                }}
+              />
               {/* Photo */}
               <div style={{
                 width: "100%", aspectRatio: "3/4", borderRadius: 20,
