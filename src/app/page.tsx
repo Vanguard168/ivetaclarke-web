@@ -657,7 +657,7 @@ export default function App() {
 
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
       <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: menuOpen ? 201 : 100,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: menuOpen ? 50 : 100,
         background: menuOpen ? "transparent" : navBg,
         backdropFilter: menuOpen ? "none" : "blur(24px) saturate(180%)",
         WebkitBackdropFilter: menuOpen ? "none" : "blur(24px) saturate(180%)",
@@ -720,10 +720,7 @@ export default function App() {
         }}>
           {/* Top bar inside overlay */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 58, flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
-              <div style={{ fontSize: 14, color: "#ffffff", letterSpacing: "0.03em" }}>Iveta Clarke</div>
-            </div>
+            <div style={{ fontSize: 20, color: "#ffffff", letterSpacing: "0.04em", fontFamily: "Georgia, serif" }}>Iveta Clarke</div>
             {/* Close X */}
             <button onClick={() => setMenuOpen(false)} style={{
               background: "none", border: "none", cursor: "pointer", padding: 8,
