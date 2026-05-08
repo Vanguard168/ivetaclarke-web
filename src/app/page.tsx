@@ -57,16 +57,16 @@ const consultationData = {
   ],
   packages: [
     {
-      id: "3m", title: "Krátkodobá spolupráce", duration: "3 měsíce", price: "25 990 Kč", priceNote: "vč. DPH / 21 479 Kč bez DPH", available: true,
-      desc: "Neomezený počet setkání dle vaší potřeby (předpoklad 3 sezení), délka setkání 90 minut. Online nebo osobní dle dohody. Vhodné pro prozkoumání dilemat, vyhodnocení postojů a osvojení relevantních konceptů.",
+      id: "3m", title: "Krátkodobá spolupráce", duration: "3 měsíce", price: "24 990 Kč", priceNote: "vč. DPH / 20 653 Kč bez DPH", available: true,
+      desc: "Neomezený počet setkání dle vaší potřeby, délka setkání 90 minut. Online nebo osobní dle dohody. Vhodné pro prozkoumání dilemat, vyhodnocení postojů a osvojení relevantních konceptů.",
     },
     {
-      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "50 990 Kč", priceNote: "vč. DPH / 42 141 Kč bez DPH", available: true,
-      desc: "Neomezený počet setkání (předpoklad 6 sezení), délka 90 minut. Online nebo dle dohody. Umožňuje jít do větší hloubky, pracujeme s ověřenými koncepty a nástroji vedoucími ke zklidnění, úlevě a obnově energie.",
+      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "44 990 Kč", priceNote: "vč. DPH / 37 182 Kč bez DPH", available: true,
+      desc: "Neomezený počet setkání, délka 90 minut. Online nebo dle dohody. Umožňuje jít do větší hloubky, pracujeme s ověřenými koncepty a nástroji vedoucími ke zklidnění, úlevě a obnově energie.",
     },
     {
-      id: "12m", title: "Roční spolupráce", duration: "12 měsíců", price: "99 990 Kč", priceNote: "vč. DPH / 82 636 Kč bez DPH", available: true,
-      desc: "Osobní provázení vaším životním kontextem a profesionální mentoring. Neomezený počet setkání (předpoklad 12 sezení) v délce 90 minut. Online nebo dle dohody. V tomto balíčku budujeme vztah – jsem vaším životním sparring partnerem.",
+      id: "12m", title: "Roční spolupráce", duration: "12 měsíců", price: "74 990 Kč", priceNote: "vč. DPH / 61 975 Kč bez DPH", available: true,
+      desc: "Osobní provázení vaším životním kontextem a profesionální mentoring. Neomezený počet setkání v délce 90 minut. Online nebo dle dohody. V tomto balíčku budujeme vztah – jsem vaším životním sparring partnerem.",
     },
   ],
 };
@@ -104,8 +104,8 @@ const supervisionData = {
   ],
   qualification: "Prošla jsem odborným supervizním výcvikem (CSA London) a mezinárodním akreditačním procesem u profesní organizace EMCC (level ESIA Senior Practitioner). ESIA ověřuje reálnou praxi v supervizi, schopnost reflektovat vlastní práci, dodržování etiky profese a kontinuální profesní rozvoj.",
   packages: [
-    { title: "Ochutnávka supervize", sessions: "Jednorázové online setkání", duration: "45 min", price: "4 000 Kč", icon: "◈" },
-    { title: "Supervizní balíček", sessions: "6 supervizí", duration: "60 min / sezení", price: "30 000 Kč", icon: "◉" },
+    { title: "Ochutnávka supervize", sessions: "Jednorázové online setkání", duration: "45 min", price: "4 890 Kč", priceNote: "vč. DPH / 4 041 Kč bez DPH", icon: "◈" },
+    { title: "Supervizní balíček", sessions: "6 supervizí", duration: "60 min / sezení", price: "35 990 Kč", priceNote: "vč. DPH / 29 744 Kč bez DPH", icon: "◉" },
   ],
   workshop: {
     title: "Průvodcem v midlife®",
@@ -114,16 +114,16 @@ const supervisionData = {
     date: "Nejbližší termín: 9.–10. 10. 2026",
     earlyBird: "Early bird sleva 15 % do konce července 2026",
     maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční",
-    pricing: [
-      { label: "Základní program (2 dny)", price: "36 000 Kč" },
-      { label: "S bonusem Kultivace moudrosti", price: "50 000 Kč" },
-      { label: "S bonusem Midlife supervize", price: "42 000 Kč" },
-      { label: "Plný program včetně obou bonusů", price: "56 000 Kč" },
+    base: { label: "Základní program (2 dny)", price: "43 590 Kč", priceNote: "vč. DPH / 36 025 Kč bez DPH" },
+    bonuses: [
+      { label: "S bonusem Midlife supervize", price: "50 890 Kč", priceNote: "vč. DPH / 42 058 Kč bez DPH" },
+      { label: "S bonusem Kultivace moudrosti", price: "59 990 Kč", priceNote: "vč. DPH / 49 579 Kč bez DPH" },
     ],
+    full: { label: "Plný program včetně obou bonusů", price: "66 990 Kč", priceNote: "vč. DPH / 55 364 Kč bez DPH" },
   },
 };
 
-const navItems = ["O mně", "Konzultace", "Pro kouče", "Videa", "Podcast", "Kontakt"];
+const navItems = ["O mně", "Konzultace", "Supervize", "Výcvik", "Videa", "Podcast", "Kontakt"];
 
 // ── Hooks ────────────────────────────────────────────────────────────────────
 function useScrollY() {
@@ -159,6 +159,309 @@ function Reveal({ children, delay = 0, style = {} }: { children: React.ReactNode
     }}>
       {children}
     </div>
+  );
+}
+
+// ── Dandelion canvas animation ────────────────────────────────────────────────
+function DandelionCanvas({ targetRef }: { targetRef?: React.RefObject<HTMLDivElement> }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let raf = 0;
+
+    const start = (W: number, H: number) => {
+      cancelAnimationFrame(raf);
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const N = 28;
+      const sc = Math.min(W, H);
+      const cx      = W > 600 ? W * 0.75  : W * 0.74;
+      // desktop: květ těsně pod menu; mobil: o kousek níž
+      const cy      = W > 600 ? H * 0.40  : H * 0.34;
+      const stemR   = W > 600 ? sc * 0.13 : sc * 0.21;
+      const groundY = W > 600 ? H * 0.90  : H * 0.80;
+      const stemLen = groundY - cy;
+
+      // Stébla trávy — x offset od cx, výška, fáze, amplituda
+      const grass = [
+        { dx: -sc*0.09, h: sc*0.13,  phase: 0.0,  amp: sc*0.020 },
+        { dx: -sc*0.06, h: sc*0.17,  phase: 0.7,  amp: sc*0.026 },
+        { dx: -sc*0.03, h: sc*0.11,  phase: 1.4,  amp: sc*0.016 },
+        { dx:  sc*0.01, h: sc*0.15,  phase: 0.3,  amp: sc*0.024 },
+        { dx:  sc*0.04, h: sc*0.12,  phase: 1.1,  amp: sc*0.020 },
+        { dx:  sc*0.07, h: sc*0.18,  phase: 0.5,  amp: sc*0.028 },
+        { dx:  sc*0.10, h: sc*0.10,  phase: 1.8,  amp: sc*0.017 },
+        { dx: -sc*0.12, h: sc*0.12,  phase: 0.9,  amp: sc*0.018 },
+        { dx:  sc*0.13, h: sc*0.14,  phase: 2.1,  amp: sc*0.022 },
+        { dx: -sc*0.005,h: sc*0.16,  phase: 1.6,  amp: sc*0.023 },
+      ];
+
+      interface FSeed { x: number; y: number; vx: number; vy: number; rot: number; vr: number; opacity: number; aimed: boolean; }
+      interface LSeed { x: number; y: number; phase: number; }
+      const attached = Array(N).fill(true);
+      const flying: FSeed[] = [];
+      const landed: LSeed[] = [];
+      let attachedN = N;
+      let timer = 0;
+      let nextAt = 1.6;
+      let frameCount = 0;
+      let launched = 0;    // počet vypuštěných celkem
+      let aimedSoFar = 0;  // počet těch, co letí na tlačítko
+
+      // Pozice tlačítka (aktualizuje se v loopě)
+      let btn = { cx: W * 0.15, top: groundY, halfW: 90 };
+      const readBtn = () => {
+        if (!targetRef?.current) return;
+        const br = targetRef.current.getBoundingClientRect();
+        const cr = canvas.getBoundingClientRect();
+        if (br.width === 0) return;
+        btn = {
+          cx:    br.left + br.width / 2 - cr.left,
+          top:   br.top  - cr.top,
+          halfW: br.width / 2,
+        };
+      };
+      // první čtení po renderu
+      setTimeout(readBtn, 600);
+      setTimeout(readBtn, 1500);
+
+      const drawSeed = (x: number, y: number, rot: number, alpha: number) => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, alpha);
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        ctx.beginPath();
+        ctx.ellipse(0, sc * 0.008, sc * 0.003, sc * 0.01, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(230,210,170,0.95)";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, -sc * 0.001);
+        ctx.lineTo(0, -sc * 0.036);
+        ctx.strokeStyle = "rgba(255,255,255,0.6)";
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+        const py = -sc * 0.036;
+        const fl = sc * 0.032;
+        for (let j = 0; j < 14; j++) {
+          const a = ((j / 14) - 0.5) * Math.PI * 1.15;
+          ctx.beginPath();
+          ctx.moveTo(0, py);
+          ctx.lineTo(Math.sin(a) * fl, py - Math.cos(a) * fl * 0.72);
+          ctx.strokeStyle = "rgba(255,255,255,0.35)";
+          ctx.lineWidth = 0.4;
+          ctx.stroke();
+        }
+        ctx.restore();
+      };
+
+      let last = performance.now();
+      const loop = (now: number) => {
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
+        timer += dt;
+        frameCount++;
+        // aktualizuj pozici tlačítka každých 90 snímků
+        if (frameCount % 90 === 0) readBtn();
+        ctx.clearRect(0, 0, W, H);
+
+        if (timer >= nextAt && attachedN > 0) {
+          const cands = Array.from({ length: N }, (_, i) => i).filter(i => attached[i]);
+          const idx = cands[Math.floor(Math.random() * cands.length)];
+          attached[idx] = false;
+          attachedN--;
+          const a = (idx / N) * Math.PI * 2;
+          const sx = cx + Math.cos(a) * stemR;
+          const sy = cy + Math.sin(a) * stemR;
+
+          // přesně 6 semínek poletí na tlačítko, rovnoměrně rozloženo
+          launched++;
+          const remaining = N - launched;
+          const aimedNeeded = 6 - aimedSoFar;
+          const aimed = aimedNeeded > 0 && (aimedNeeded > remaining || Math.random() < aimedNeeded / (remaining + 1));
+          if (aimed) aimedSoFar++;
+          let vx: number, vy: number;
+          if (aimed) {
+            const tx = btn.cx + (Math.random() - 0.5) * btn.halfW * 1.2;
+            const ty = btn.top;
+            const frames = 220 + Math.random() * 100; // pomalejší, přirozenější let
+            vx = (tx - sx) / frames;
+            vy = (ty - sy) / frames;
+          } else {
+            const windA = W > 600
+              ? a - Math.PI * 0.65 + (Math.random() - 0.3) * 1.1
+              : a - Math.PI * 0.3  + (Math.random() - 0.5) * 1.0;
+            const spd = sc * (W > 600 ? 0.0012 + Math.random() * 0.0007 : 0.0009 + Math.random() * 0.0006);
+            vx = Math.cos(windA) * spd;
+            vy = Math.sin(windA) * spd - sc * 0.0003;
+          }
+
+          flying.push({ x: sx, y: sy, vx, vy, rot: a + Math.PI / 2, vr: (Math.random() - 0.5) * 0.016, opacity: 1, aimed });
+          nextAt = timer + 0.45 + Math.random() * 0.45;
+        }
+
+        if (attachedN === 0 && flying.every(s => s.opacity <= 0)) {
+          for (let i = 0; i < N; i++) attached[i] = true;
+          flying.length = 0;
+          landed.length = 0;
+          attachedN = N;
+          timer = 0;
+          nextAt = 2.2;
+          frameCount = 0;
+          launched = 0;
+          aimedSoFar = 0;
+        }
+
+        // Tráva pod stonkem
+        for (const b of grass) {
+          const sway = Math.sin(timer * 1.4 + b.phase) * b.amp;
+          const bx = cx + b.dx;
+          ctx.beginPath();
+          ctx.moveTo(bx, groundY);
+          ctx.quadraticCurveTo(bx + sway * 0.4, groundY - b.h * 0.55, bx + sway, groundY - b.h);
+          ctx.strokeStyle = "rgba(160,190,110,0.32)";
+          ctx.lineWidth = 1.1;
+          ctx.lineCap = "round";
+          ctx.stroke();
+        }
+
+        // Stonek
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx, groundY);
+        ctx.strokeStyle = "rgba(201,168,76,0.38)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Střed - zlatý glow
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, sc * 0.028);
+        g.addColorStop(0, "rgba(201,168,76,0.9)");
+        g.addColorStop(1, "rgba(201,168,76,0)");
+        ctx.beginPath();
+        ctx.arc(cx, cy, sc * 0.028, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        // Přichycená semínka
+        for (let i = 0; i < N; i++) {
+          if (!attached[i]) continue;
+          const a = (i / N) * Math.PI * 2;
+          const ex = cx + Math.cos(a) * stemR;
+          const ey = cy + Math.sin(a) * stemR;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(ex, ey);
+          ctx.strokeStyle = "rgba(255,255,255,0.18)";
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+          drawSeed(ex, ey, a + Math.PI / 2, 0.75);
+        }
+
+        // Letící semínka
+        for (const s of flying) {
+          if (s.opacity <= 0) continue;
+
+          s.x += s.vx;
+          s.y += s.vy;
+
+          if (s.aimed) {
+            // Plynulá rotace stéblem dolů (rot → 0 = pappus nahoru, stéblo dolů)
+            let diff = (0 - s.rot) % (Math.PI * 2);
+            if (diff > Math.PI)  diff -= Math.PI * 2;
+            if (diff < -Math.PI) diff += Math.PI * 2;
+            s.rot += diff * 0.025;
+
+            if (s.y >= btn.top) {
+              const lx = Math.max(btn.cx - btn.halfW + 6, Math.min(btn.cx + btn.halfW - 6, s.x));
+              landed.push({ x: lx, y: btn.top, phase: Math.random() * Math.PI * 2 });
+              s.opacity = 0;
+            }
+          } else {
+            s.rot += s.vr;
+            s.vy -= sc * 0.000003;
+            s.opacity -= W > 600 ? 0.0009 : 0.0013;
+            if (s.y >= groundY) { s.opacity = 0; continue; }
+          }
+
+          if (s.opacity > 0) drawSeed(s.x, s.y, s.rot, s.opacity);
+        }
+
+        // Zapíchnutá semínka — kývají se jako tráva
+        // stemAbove + pappus musí odpovídat výšce letícího semínka (beak + filament)
+        const stemAbove = sc * 0.036; // = délka beaku letícího semínka
+        const stemBelow = sc * 0.012; // zapíchnutá část
+        for (const l of landed) {
+          const sway = Math.sin(timer * 1.5 + l.phase) * 0.13; // úhel kývání
+          ctx.save();
+          ctx.globalAlpha = 1.0;
+          ctx.translate(l.x, l.y);
+          ctx.rotate(sway);
+
+          // Zapíchnutá část (dolů do tlačítka)
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, stemBelow);
+          ctx.strokeStyle = "rgba(230,210,170,0.5)";
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+
+          // Stéblo nad tlačítkem (nahoru)
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, -stemAbove);
+          ctx.strokeStyle = "rgba(255,255,255,0.75)";
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+
+          // Tělo semínka (achene) tam kde vstupuje do povrchu
+          ctx.beginPath();
+          ctx.ellipse(0, 0, sc * 0.003, sc * 0.009, 0, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(235,215,175,1)";
+          ctx.fill();
+
+          // Pappus — chmýří na vrcholu stébla
+          const py = -stemAbove;
+          const fl = sc * 0.030;
+          for (let j = 0; j < 14; j++) {
+            const fa = ((j / 14) - 0.5) * Math.PI * 1.25;
+            ctx.beginPath();
+            ctx.moveTo(0, py);
+            ctx.lineTo(Math.sin(fa) * fl, py - Math.cos(fa) * fl * 0.75);
+            ctx.strokeStyle = "rgba(255,255,255,0.88)";
+            ctx.lineWidth = 0.55;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    };
+
+    const resize = () => {
+      const W = canvas.parentElement?.offsetWidth || window.innerWidth;
+      const H = canvas.parentElement?.offsetHeight || window.innerHeight;
+      start(W, H);
+    };
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    if (canvas.parentElement) ro.observe(canvas.parentElement);
+
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+    />
   );
 }
 
@@ -261,9 +564,10 @@ export default function App() {
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [playingPodcast, setPlayingPodcast] = useState<string | null>(null);
+  const reserveBtnRef = useRef<HTMLDivElement>(null);
 
   const scrollTo = (id: string) => {
-    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "pro kouče": "pro-kouce", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
+    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
     const el = document.getElementById(map[id.toLowerCase()] || id.toLowerCase().replace(/\s/g, "-").replace(/[^\w-]/g, ""));
     el?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
@@ -368,11 +672,9 @@ export default function App() {
         background: `linear-gradient(160deg, ${C.darker} 0%, #3A2C4E 50%, ${C.dark} 100%)`,
       }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }} />
-        {!isMobile && (
-          <div style={{ position: "absolute", right: "-5%", top: "5%", opacity: 0.35, pointerEvents: "none" }}>
-            <Fingerprints size={560} />
-          </div>
-        )}
+        <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none", opacity: 0.65 }}>
+          <DandelionCanvas targetRef={reserveBtnRef} />
+        </div>
         <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(to bottom, transparent, ${C.gold}, transparent)` }} />
 
         <div style={{ position: "relative", zIndex: 2, padding: isMobile ? "100px 24px 72px" : `120px ${px} 80px`, maxWidth: isMobile ? "100%" : 700 }}>
@@ -392,7 +694,9 @@ export default function App() {
             {heroData.mission}
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", opacity: 0, animation: "fadeUp 0.8s ease 0.85s forwards" }}>
-            <Btn onClick={() => scrollTo("konzultace")}>Rezervovat konzultaci</Btn>
+            <div ref={reserveBtnRef} style={{ display: "inline-block" }}>
+              <Btn onClick={() => scrollTo("konzultace")}>Rezervovat konzultaci</Btn>
+            </div>
             <Btn primary={false} onClick={() => scrollTo("videa")}>Prozkoumat videa →</Btn>
           </div>
         </div>
@@ -497,7 +801,7 @@ export default function App() {
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                     <div>
                       <div style={{ fontSize: 24, color: C.dark }}>{item.price}</div>
-                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS" }}>{item.priceNote}</div>
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginTop: 4 }}>{item.priceNote}</div>
                     </div>
                     <Btn small onClick={() => alert("→ Přesměrování na kalendář rezervací")}>Rezervovat</Btn>
                   </div>
@@ -508,7 +812,7 @@ export default function App() {
 
           {/* Packages */}
           <Reveal delay={0.15}>
-            <h3 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 20px" }}>Balíčky spolupráce</h3>
+            <h3 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 20px" }}>Možnosti spolupráce</h3>
           </Reveal>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: 20 }}>
             {consultationData.packages.map((pkg, i) => (
@@ -545,17 +849,16 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── PRO KOUČE ────────────────────────────────────────────────────── */}
-      <section id="pro-kouce" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.cream }}>
+      {/* ── SUPERVIZE ────────────────────────────────────────────────────── */}
+      <section id="supervize" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.cream }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
             <SectionLabel>PRO KOUČE</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Supervize & výcvik</h2>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Supervize</h2>
             <Divider />
           </Reveal>
 
-          {/* Supervision intro */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 60, marginBottom: 56 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 60 }}>
             <Reveal>
               <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 16px" }}>Co je supervize?</h3>
               <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 24 }}>{supervisionData.intro}</p>
@@ -584,7 +887,8 @@ export default function App() {
                       <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS" }}>{pkg.sessions} · {pkg.duration}</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 20, color: C.dark, marginBottom: 8 }}>{pkg.price}</div>
+                      <div style={{ fontSize: 20, color: C.dark }}>{pkg.price}</div>
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginTop: 4, marginBottom: 8 }}>{pkg.priceNote}</div>
                       <Btn small onClick={() => alert("→ Rezervovat supervizi")}>Rezervovat</Btn>
                     </div>
                   </div>
@@ -592,8 +896,18 @@ export default function App() {
               </div>
             </Reveal>
           </div>
+        </div>
+      </section>
 
-          {/* Workshop */}
+      {/* ── VÝCVIK ───────────────────────────────────────────────────────── */}
+      <section id="vycvik" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.warm }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Reveal>
+            <SectionLabel>PRO KOUČE</SectionLabel>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Výcvik</h2>
+            <Divider />
+          </Reveal>
+
           <Reveal delay={0.1}>
             <div style={{ background: C.dark, borderRadius: 24, overflow: "hidden" }}>
               <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, #E8C96A)` }} />
@@ -615,13 +929,42 @@ export default function App() {
                   </div>
                   <div>
                     <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 16 }}>VARIANTY ÚČASTI</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {supervisionData.workshop.pricing.map(p => (
-                        <div key={p.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(255,255,255,0.05)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.07)" }}>
-                          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{p.label}</span>
-                          <span style={{ fontSize: 16, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS" }}>{p.price}</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {/* Základní program */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(201,168,76,0.12)", borderRadius: 10, border: `1px solid rgba(201,168,76,0.3)` }}>
+                        <span style={{ fontSize: 13, color: C.white, fontWeight: "bold" }}>{supervisionData.workshop.base.label}</span>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 16, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS" }}>{supervisionData.workshop.base.price}</div>
+                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", marginTop: 4 }}>{supervisionData.workshop.base.priceNote}</div>
                         </div>
-                      ))}
+                      </div>
+                      {/* Nástavby */}
+                      <div style={{ paddingLeft: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", letterSpacing: "0.12em", marginBottom: 2 }}>+ VOLITELNÝ BONUS</div>
+                        {supervisionData.workshop.bonuses.map(b => (
+                          <div key={b.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "rgba(255,255,255,0.05)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.gold, flexShrink: 0 }} />
+                              <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.7)" }}>{b.label}</span>
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontSize: 15, color: C.gold, fontFamily: "Trebuchet MS", fontWeight: "bold" }}>{b.price}</div>
+                              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS", marginTop: 4 }}>{b.priceNote}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Plný program */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(255,255,255,0.08)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", marginTop: 2 }}>
+                        <div>
+                          <span style={{ fontSize: 13, color: C.white }}>{supervisionData.workshop.full.label}</span>
+                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", marginTop: 2 }}>Základní program + oba bonusy</div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 16, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS" }}>{supervisionData.workshop.full.price}</div>
+                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS", marginTop: 4 }}>{supervisionData.workshop.full.priceNote}</div>
+                        </div>
+                      </div>
                     </div>
                     <div style={{ marginTop: 24 }}>
                       <Btn onClick={() => alert("→ Přihláška na workshop")}>Mám zájem o účast</Btn>
@@ -837,7 +1180,7 @@ export default function App() {
           )}
 
           <div style={{ display: "flex", gap: 12 }}>
-            {["LinkedIn", "Instagram"].map(s => (
+            {["Facebook", "LinkedIn", "Instagram"].map(s => (
               <div key={s} style={{
                 padding: "8px 16px", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20,
                 fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS", cursor: "pointer",
@@ -850,7 +1193,6 @@ export default function App() {
         </div>
         <div style={{ maxWidth: 1100, margin: "24px auto 0", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "Trebuchet MS" }}>© 2025 Iveta Clarke · ivetaclarke.com</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "Trebuchet MS" }}>⚠️ Testovací demo · Texty © Iveta Clarke</div>
         </div>
       </footer>
 
