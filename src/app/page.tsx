@@ -628,12 +628,14 @@ export default function App() {
 
   // Interpolate nav colors continuously
   const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
+  // Fade in the glass panel after scrolling past 80px (hero fade zone 80–180px)
+  const navAlpha = Math.min(1, Math.max(0, (scrollY - 80) / 100));
   const nr = lerp(250, 44, navDarkness); const ng = lerp(248, 44, navDarkness); const nb = lerp(244, 62, navDarkness);
-  const navBg = `rgba(${nr},${ng},${nb},0.78)`;
-  const navBorder = `rgba(${lerp(201, 255, navDarkness)},${lerp(192, 255, navDarkness)},${lerp(168, 255, navDarkness)},${0.1 + navDarkness * 0.05})`;
-  const navText = `rgba(${lerp(80, 255, navDarkness)},${lerp(80, 255, navDarkness)},${lerp(80, 255, navDarkness)},${0.65 + navDarkness * 0.2})`;
-  const navLogoColor = `rgba(${lerp(44, 255, navDarkness)},${lerp(44, 255, navDarkness)},${lerp(62, 255, navDarkness)},1)`;
-  const hamburgerColor = `rgba(${lerp(44, 255, navDarkness)},${lerp(44, 255, navDarkness)},${lerp(62, 255, navDarkness)},1)`;
+  const navBg = `rgba(${nr},${ng},${nb},${(0.78 * navAlpha).toFixed(2)})`;
+  const navBorder = `rgba(${lerp(201, 255, navDarkness)},${lerp(192, 255, navDarkness)},${lerp(168, 255, navDarkness)},${((0.1 + navDarkness * 0.05) * navAlpha).toFixed(2)})`;
+  const navText = `rgba(255,255,255,${navAlpha < 0.1 ? 0.85 : (0.65 + navDarkness * 0.2)})`;
+  const navLogoColor = `rgba(255,255,255,${navAlpha < 0.1 ? 1 : lerp(44, 255, navDarkness) / 255})`;
+  const hamburgerColor = `rgba(255,255,255,${navAlpha < 0.1 ? 1 : lerp(44, 255, navDarkness) / 255})`;
 
   const scrollTo = (id: string) => {
     const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
