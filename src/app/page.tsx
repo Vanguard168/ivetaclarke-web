@@ -580,12 +580,33 @@ export default function App() {
   const width = useWindowWidth();
   const isMobile = width < 768;
   const isTablet = width < 1024;
-  const [activeSection, setActiveSection] = useState("O mně");
+  const [activeSection, setActiveSection] = useState("hero");
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
+
+  // Track active section via IntersectionObserver
+  useEffect(() => {
+    const sectionIds = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "videa", "podcast", "kontakt"];
+    const observers: IntersectionObserver[] = [];
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setActiveSection(id); }, { threshold: 0.3 });
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach(o => o.disconnect());
+  }, []);
+
+  // Map section id → navbar bg + text colors
+  const darkSections = new Set(["hero", "vycvik", "podcast"]);
+  const navDark = darkSections.has(activeSection);
+  const navBg = navDark ? "rgba(44,44,62,0.97)" : "rgba(250,248,244,0.97)";
+  const navText = navDark ? "rgba(255,255,255,0.8)" : C.muted;
+  const navBorder = navDark ? "rgba(255,255,255,0.07)" : C.sand;
 
   const scrollTo = (id: string) => {
     const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
@@ -603,19 +624,19 @@ export default function App() {
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: navScrolled || menuOpen ? "rgba(250,248,244,0.98)" : "transparent",
-        backdropFilter: navScrolled || menuOpen ? "blur(12px)" : "none",
-        borderBottom: navScrolled || menuOpen ? `1px solid ${C.sand}` : "none",
-        transition: "all 0.3s",
+        background: menuOpen ? "rgba(250,248,244,0.98)" : navBg,
+        backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${menuOpen ? C.sand : navBorder}`,
+        transition: "background 0.4s, border-color 0.4s",
         padding: `0 ${px}`,
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        height: navScrolled ? 58 : 68,
+        height: 58,
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
           <div style={{ width: 3, height: 24, background: C.gold, borderRadius: 2 }} />
           <div>
-            <div style={{ fontSize: isMobile ? 14 : 15, color: navScrolled || menuOpen ? C.dark : C.white, letterSpacing: "0.03em", transition: "color 0.3s" }}>Iveta Clarke</div>
+            <div style={{ fontSize: isMobile ? 14 : 15, color: menuOpen ? C.dark : (navDark ? C.white : C.dark), letterSpacing: "0.03em", transition: "color 0.4s" }}>Iveta Clarke</div>
             {!isMobile && <div style={{ fontSize: 8, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif" }}>INSPIRING CONVERSATION</div>}
           </div>
         </div>
@@ -628,11 +649,11 @@ export default function App() {
                 style={{
                   background: "none", border: "none", cursor: "pointer",
                   fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
-                  color: navScrolled ? C.muted : "rgba(255,255,255,0.8)",
+                  color: navText,
                   transition: "color 0.2s", padding: "4px 0",
                 }}
                 onMouseEnter={e => e.currentTarget.style.color = C.gold}
-                onMouseLeave={e => e.currentTarget.style.color = navScrolled ? C.muted : "rgba(255,255,255,0.8)"}
+                onMouseLeave={e => e.currentTarget.style.color = navText}
               >{item}</button>
             ))}
             <Btn small onClick={() => scrollTo("konzultace")}>Rezervovat</Btn>
@@ -648,7 +669,7 @@ export default function App() {
             {[0,1,2].map(i => (
               <div key={i} style={{
                 width: 24, height: 2, borderRadius: 2,
-                background: navScrolled || menuOpen ? C.dark : C.white,
+                background: menuOpen ? C.dark : (navDark ? C.white : C.dark),
                 transition: "all 0.3s",
                 transform: menuOpen
                   ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
@@ -687,7 +708,7 @@ export default function App() {
       )}
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section style={{
+      <section id="hero" style={{
         minHeight: "100vh", position: "relative", overflow: "hidden",
         display: "flex", alignItems: "center",
         background: `linear-gradient(160deg, ${C.darker} 0%, #3A2C4E 50%, ${C.dark} 100%)`,
