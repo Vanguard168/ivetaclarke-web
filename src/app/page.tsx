@@ -796,7 +796,7 @@ export default function App() {
           <DandelionCanvas targetRef={reserveBtnRef} />
         </div>
 
-        <div style={{ position: "relative", zIndex: 2, padding: isMobile ? "100px 24px 72px" : `120px ${px} 80px`, maxWidth: isMobile ? "100%" : 700 }}>
+        <div style={{ position: "relative", zIndex: 2, padding: isMobile ? "100px 24px 72px" : `calc(120px - 6vh) ${px} 80px`, maxWidth: isMobile ? "100%" : 700 }}>
           <div style={{ fontSize: isMobile ? 10 : 11, letterSpacing: "0.3em", color: C.gold, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 20, opacity: 0, animation: "fadeUp 0.8s ease 0.2s forwards" }}>
             {heroData.tagline}
           </div>
