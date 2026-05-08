@@ -486,38 +486,49 @@ function DandelionCanvas({ targetRef }: { targetRef?: React.RefObject<HTMLDivEle
   );
 }
 
-// ── Fingerprint circles (Iveta's visual motif) ───────────────────────────────
-function Fingerprints({ size = 320 }: { size?: number }) {
-  const circles = [
-    { cx: "38%", cy: "42%", r: "38%", color: C.gold, op: 0.18 },
-    { cx: "55%", cy: "35%", r: "34%", color: "#8B6FA0", op: 0.13 },
-    { cx: "48%", cy: "58%", r: "32%", color: "#6B9E8A", op: 0.13 },
-    { cx: "65%", cy: "52%", r: "30%", color: "#C47A5A", op: 0.12 },
-    { cx: "28%", cy: "60%", r: "28%", color: "#5A7AC4", op: 0.10 },
+// ── Dot circles motif (Iveta's visual identity) ──────────────────────────────
+function Fingerprints({ size = 280 }: { size?: number }) {
+  const S = size;
+  const R = S * 0.36;
+  const configs = [
+    { cx: S * 0.30, cy: S * 0.42, color: "#888888" },
+    { cx: S * 0.55, cy: S * 0.38, color: "#B0292A" },
+    { cx: S * 0.68, cy: S * 0.60, color: "#D4C44A" },
   ];
+  const seededRand = (seed: number) => {
+    let s = seed;
+    return () => { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
+  };
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" style={{ overflow: "visible" }}>
-      {circles.map((c, i) => (
-        <circle key={i} cx={c.cx} cy={c.cy} r={c.r}
-          fill="none" stroke={c.color} strokeWidth="0.8" opacity={c.op * 6}
-          style={{ filter: "blur(0.3px)" }}
-        />
-      ))}
-      {circles.map((c, i) => (
-        <g key={`rings-${i}`}>
-          {[1,2,3].map(j => (
-            <circle key={j} cx={c.cx} cy={c.cy}
-              r={`${parseFloat(c.r) * (0.6 + j * 0.14)}%`}
-              fill="none" stroke={c.color} strokeWidth="0.4" opacity={c.op * 3}
-            />
-          ))}
-        </g>
-      ))}
-      {circles.map((c, i) => (
-        <circle key={`fill-${i}`} cx={c.cx} cy={c.cy} r={`${parseFloat(c.r) * 0.25}%`}
-          fill={c.color} opacity={c.op * 2.5}
-        />
-      ))}
+    <svg width={S} height={S * 0.75} viewBox={`0 0 ${S} ${S * 0.75}`} style={{ overflow: "visible" }}>
+      <defs>
+        {configs.map((c, i) => (
+          <clipPath key={i} id={`clip-${i}`}>
+            <circle cx={c.cx} cy={c.cy} r={R} />
+          </clipPath>
+        ))}
+      </defs>
+      {configs.map((c, i) => {
+        const rand = seededRand(i * 999 + 42);
+        const dots: { x: number; y: number }[] = [];
+        let attempts = 0;
+        while (dots.length < 420 && attempts < 8000) {
+          attempts++;
+          const angle = rand() * Math.PI * 2;
+          const dist = Math.sqrt(rand()) * R * 0.97;
+          const x = c.cx + Math.cos(angle) * dist;
+          const y = c.cy + Math.sin(angle) * dist;
+          const tooClose = dots.some(d => Math.hypot(d.x - x, d.y - y) < 4.2);
+          if (!tooClose) dots.push({ x, y });
+        }
+        return (
+          <g key={i} clipPath={`url(#clip-${i})`}>
+            {dots.map((d, j) => (
+              <circle key={j} cx={d.x} cy={d.y} r={1.9} fill={c.color} opacity={0.82} />
+            ))}
+          </g>
+        );
+      })}
     </svg>
   );
 }
@@ -866,17 +877,10 @@ export default function App() {
 
           <Reveal delay={0.2}>
             <div style={{ position: "relative" }}>
-              {/* Points motif */}
-              <img
-                src="/points.png"
-                alt=""
-                aria-hidden
-                style={{
-                  position: "absolute", top: -60, right: -50, width: 260,
-                  mixBlendMode: "multiply", opacity: 0.85,
-                  pointerEvents: "none", zIndex: 2,
-                }}
-              />
+              {/* Dot circles motif */}
+              <div style={{ position: "absolute", top: -50, right: -60, pointerEvents: "none", zIndex: 2 }}>
+                <Fingerprints size={240} />
+              </div>
               {/* Photo */}
               <div style={{
                 width: "100%", aspectRatio: "3/4", borderRadius: 20,
