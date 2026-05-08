@@ -795,7 +795,6 @@ export default function App() {
         <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none", opacity: 0.65 }}>
           <DandelionCanvas targetRef={reserveBtnRef} />
         </div>
-        {!isMobile && <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(to bottom, transparent, ${C.gold}, transparent)` }} />}
 
         <div style={{ position: "relative", zIndex: 2, padding: isMobile ? "100px 24px 72px" : `120px ${px} 80px`, maxWidth: isMobile ? "100%" : 700 }}>
           <div style={{ fontSize: isMobile ? 10 : 11, letterSpacing: "0.3em", color: C.gold, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 20, opacity: 0, animation: "fadeUp 0.8s ease 0.2s forwards" }}>
