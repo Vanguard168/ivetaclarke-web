@@ -629,7 +629,7 @@ export default function App() {
   // Interpolate nav colors continuously
   const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
   // Glass panel invisible on hero, fades in smoothly after scrolling ~40% of viewport
-  const heroFadeStart = typeof window !== "undefined" ? window.innerHeight * 0.35 : 300;
+  const heroFadeStart = typeof window !== "undefined" ? window.innerHeight * 0.25 : 300;
   const navAlpha = Math.min(1, Math.max(0, (scrollY - heroFadeStart) / 120));
   const nr = lerp(250, 44, navDarkness); const ng = lerp(248, 44, navDarkness); const nb = lerp(244, 62, navDarkness);
   const navBg = `rgba(${nr},${ng},${nb},${(0.78 * navAlpha).toFixed(2)})`;
