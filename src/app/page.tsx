@@ -902,16 +902,14 @@ export default function App() {
               <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 28 }}>{supervisionData.qualification}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {supervisionData.packages.map(pkg => (
-                  <div key={pkg.title} style={{ background: C.white, borderRadius: 14, padding: "20px 22px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-                    <div>
+                  <div key={pkg.title} style={{ background: C.white, borderRadius: 14, padding: "22px 24px", border: `1px solid ${C.sand}` }}>
+                    <div style={{ marginBottom: 16 }}>
                       <div style={{ fontSize: 15, color: C.dark, marginBottom: 4 }}>{pkg.title}</div>
                       <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS" }}>{pkg.sessions} · {pkg.duration}</div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 20, color: C.dark }}>{pkg.price}</div>
-                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginTop: 4, marginBottom: 8 }}>{pkg.priceNote}</div>
-                      <Btn small onClick={() => alert("→ Rezervovat supervizi")}>Rezervovat</Btn>
-                    </div>
+                    <div style={{ fontSize: 26, color: C.dark, marginBottom: 4 }}>{pkg.price}</div>
+                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginBottom: 16 }}>{pkg.priceNote}</div>
+                    <Btn small onClick={() => alert("→ Rezervovat supervizi")}>Rezervovat</Btn>
                   </div>
                 ))}
               </div>
