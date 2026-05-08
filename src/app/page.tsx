@@ -859,8 +859,9 @@ export default function App() {
             style={{
               position: "absolute",
               top: -20,
-              left: "25%",
+              left: "75%",
               transform: "translateX(-50%)",
+              animation: "pointsReveal 1.8s cubic-bezier(0.16,1,0.3,1) forwards",
               width: 420,
               pointerEvents: "none",
               zIndex: 5,
@@ -1429,6 +1430,10 @@ export default function App() {
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pointsReveal {
+          from { opacity: 0; transform: translateX(-50%) scale(0.15); }
+          to   { opacity: 0.9; transform: translateX(-50%) scale(1); }
         }
         @keyframes menuItemIn {
           from { opacity: 0; transform: translateX(-32px); }
