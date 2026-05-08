@@ -78,6 +78,19 @@ const videoSeries = [
   { title: "Jak mluvit s lidmi (aby vás poslouchali)", episodes: 6, free: 1 },
 ];
 
+const episodes = [
+  { id: "5UOTFpRcoCr12Dg0mEgxAO", title: "O prostoru", type: "Zámyslník" },
+  { id: "4cjorrCTJGRyJlT1lmFNaG", title: "Quo Vadis muži?", type: "Epizoda s hosty" },
+  { id: "1vL2y8ceBSq2VjnFvHMXWH", title: "Rady od protinožce", type: "Zámyslník" },
+  { id: "6M7NwThiTCbSeDhRrc63ll", title: "Zrání mužů v Čechách", type: "Zámyslník" },
+  { id: "2s5AiSTTa5FnZVvZSmNhLE", title: "Láska a úcta III", type: "Zámyslník" },
+  { id: "1IM2wmBq6ohfZ3JiasdjBc", title: "Láska a úcta II", type: "Zámyslník" },
+  { id: "3UtPggQJvQ5tmXxbTQ28yR", title: "Porovnejme své matky", type: "Zámyslník" },
+  { id: "1ymZDgA21ekMu92z45Tzns", title: "Operace mého srdce", type: "Zámyslník" },
+  { id: "4L2dQmwuM3sqRzWKAB8ROL", title: "O zoomové intimitě", type: "Zámyslník" },
+  { id: "3UmWXe8NlsFsU4tHY3Zd0P", title: "Rozprostřenost Pavla Rataje", type: "Epizoda s hosty" },
+];
+
 const podcasts = [
   {
     name: "Každopádně Kladně - Zámyslník 1.0",
@@ -563,6 +576,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
 
   const scrollTo = (id: string) => {
@@ -1027,59 +1041,118 @@ export default function App() {
 
       {/* ── PODCAST ──────────────────────────────────────────────────────── */}
       <section id="podcast" style={{ background: C.dark, padding: isMobile ? "64px 24px" : `80px ${px}` }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <Reveal>
             <SectionLabel>PODCAST</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Autorské epizody</h2>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Každopádně Kladně – Zámyslník 1.0</h2>
             <Divider />
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 32, fontFamily: "Trebuchet MS" }}>Inspirativní přemýšlení nahlas o tématech, která hýbají našimi životy.</p>
           </Reveal>
 
-          {/* Každopádně Kladně – Spotify embed */}
+          {/* Zámyslník epizody */}
           <Reveal delay={0.1}>
-            <div style={{ marginBottom: 32 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>AUTORSKÝ PODCAST</div>
-                  <h3 style={{ fontSize: 22, color: C.white, fontWeight: "normal", margin: 0 }}>Každopádně Kladně – Zámyslník 1.0</h3>
-                </div>
-                <div style={{ display: "flex", gap: 10 }}>
-                  <a
-                    href="https://open.spotify.com/show/4eDcqMArBDuEFbLKPzCqH2"
-                    target="_blank" rel="noopener noreferrer"
-                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", background: "#1DB954", borderRadius: 20, fontSize: 12, color: "#000", fontFamily: "Trebuchet MS", textDecoration: "none", fontWeight: "bold" }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-                    Spotify
-                  </a>
-                  <a
-                    href="https://podcasts.apple.com/search?term=Každopádně+Kladně+Zámyslník"
-                    target="_blank" rel="noopener noreferrer"
-                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, fontSize: 12, color: "rgba(255,255,255,0.7)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
-                  >
-                    Apple Podcasts
-                  </a>
-                </div>
+            <div style={{ marginBottom: 40 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>ZÁMYSLNÍK</div>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
               </div>
-              <div style={{ borderRadius: 16, overflow: "hidden" }}>
-                <iframe
-                  src="https://open.spotify.com/embed/show/4eDcqMArBDuEFbLKPzCqH2?utm_source=generator&theme=0"
-                  width="100%"
-                  height="352"
-                  frameBorder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  style={{ display: "block" }}
-                />
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {episodes.filter(e => e.type === "Zámyslník").map((ep, i) => (
+                  <div key={ep.id}>
+                    <button
+                      onClick={() => setActiveEpisode(activeEpisode === ep.id ? null : ep.id)}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 14,
+                        background: activeEpisode === ep.id ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${activeEpisode === ep.id ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.07)"}`,
+                        borderRadius: activeEpisode === ep.id ? "12px 12px 0 0" : 12,
+                        padding: "14px 18px", cursor: "pointer", textAlign: "left",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: activeEpisode === ep.id ? C.gold : "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }}>
+                        <span style={{ fontSize: 10, color: activeEpisode === ep.id ? "#000" : "rgba(255,255,255,0.5)" }}>{activeEpisode === ep.id ? "▼" : "▶"}</span>
+                      </div>
+                      <span style={{ fontSize: 15, color: C.white, fontWeight: "normal", flex: 1 }}>{ep.title}</span>
+                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS" }}>EP {episodes.indexOf(ep) + 1}</span>
+                    </button>
+                    {activeEpisode === ep.id && (
+                      <div style={{ borderRadius: "0 0 12px 12px", overflow: "hidden", border: "1px solid rgba(201,168,76,0.3)", borderTop: "none" }}>
+                        <iframe
+                          src={`https://open.spotify.com/embed/episode/${ep.id}?utm_source=generator&theme=0`}
+                          width="100%" height="152" frameBorder="0"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          style={{ display: "block" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </Reveal>
 
-          {/* Kód Moudrosti – coming soon */}
+          {/* Epizody s hosty */}
+          <Reveal delay={0.15}>
+            <div style={{ marginBottom: 40 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>EPIZODY S HOSTY</div>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {episodes.filter(e => e.type === "Epizoda s hosty").map((ep) => (
+                  <div key={ep.id}>
+                    <button
+                      onClick={() => setActiveEpisode(activeEpisode === ep.id ? null : ep.id)}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 14,
+                        background: activeEpisode === ep.id ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${activeEpisode === ep.id ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.07)"}`,
+                        borderRadius: activeEpisode === ep.id ? "12px 12px 0 0" : 12,
+                        padding: "14px 18px", cursor: "pointer", textAlign: "left",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: activeEpisode === ep.id ? C.gold : "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }}>
+                        <span style={{ fontSize: 10, color: activeEpisode === ep.id ? "#000" : "rgba(255,255,255,0.5)" }}>{activeEpisode === ep.id ? "▼" : "▶"}</span>
+                      </div>
+                      <span style={{ fontSize: 15, color: C.white, fontWeight: "normal", flex: 1 }}>{ep.title}</span>
+                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS" }}>EP {episodes.indexOf(ep) + 1}</span>
+                    </button>
+                    {activeEpisode === ep.id && (
+                      <div style={{ borderRadius: "0 0 12px 12px", overflow: "hidden", border: "1px solid rgba(201,168,76,0.3)", borderTop: "none" }}>
+                        <iframe
+                          src={`https://open.spotify.com/embed/episode/${ep.id}?utm_source=generator&theme=0`}
+                          width="100%" height="152" frameBorder="0"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          style={{ display: "block" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Odkazy na platformy + Kód Moudrosti */}
           <Reveal delay={0.2}>
-            <div style={{
-              background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "28px 28px",
-              border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16,
-            }}>
+            <div style={{ display: "flex", gap: 10, marginBottom: 40, flexWrap: "wrap" }}>
+              <a href="https://open.spotify.com/show/4eDcqMArBDuEFbLKPzCqH2" target="_blank" rel="noopener noreferrer"
+                style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", background: "#1DB954", borderRadius: 20, fontSize: 12, color: "#000", fontFamily: "Trebuchet MS", textDecoration: "none", fontWeight: "bold" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                Poslouchat na Spotify
+              </a>
+              <a href="https://podcasts.apple.com/search?term=Každopádně+Kladně+Zámyslník" target="_blank" rel="noopener noreferrer"
+                style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, fontSize: 12, color: "rgba(255,255,255,0.7)", fontFamily: "Trebuchet MS", textDecoration: "none" }}>
+                Apple Podcasts
+              </a>
+            </div>
+          </Reveal>
+
+          {/* Kód Moudrosti – coming soon */}
+          <Reveal delay={0.25}>
+            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "28px", border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
               <div>
                 <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>MODEROVANÝ PODCAST S HOSTY</div>
                 <h3 style={{ fontSize: 20, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>Kód Moudrosti</h3>
