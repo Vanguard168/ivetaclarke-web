@@ -167,8 +167,8 @@ const supervisionData = {
       modalDesc: "Jednorázové online setkání v rozsahu 45 minut.",
       result: "",
       format: "Online · jednorázové setkání · 45 minut",
-      price: "—",
-      priceNote: "Cena bude upřesněna",
+      price: "4 890 Kč",
+      priceNote: "vč. DPH / 4 041 Kč bez DPH",
     },
     {
       id: "sup-6x",
@@ -178,8 +178,8 @@ const supervisionData = {
       modalDesc: "6 osobních nebo online setkání v rozsahu 60 minut.",
       result: "",
       format: "6 setkání · 60 min / setkání · online nebo osobně",
-      price: "—",
-      priceNote: "Cena bude upřesněna",
+      price: "35 990 Kč",
+      priceNote: "vč. DPH / 29 744 Kč bez DPH",
     },
   ],
   workshop: {
