@@ -654,7 +654,8 @@ function CheckoutModal({ pkg, onClose, onBack }: {
   onClose: () => void;
   onBack: () => void;
 }) {
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", company: "", ico: "" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", street: "", city: "", zip: "", company: "", ico: "" });
+  const [payMethod, setPayMethod] = useState<"CARD_CZ" | "APPLEPAY_REDIRECT" | "GOOGLEPAY_REDIRECT">("CARD_CZ");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -672,14 +673,54 @@ function CheckoutModal({ pkg, onClose, onBack }: {
     width: "100%", padding: "11px 14px", borderRadius: 10,
     border: `1px solid ${C.sand}`, background: C.cream,
     fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
-    outline: "none", boxSizing: "border-box",
-    transition: "border-color 0.2s",
+    outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
   };
+
+  const Label = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>
+      {children}
+    </label>
+  );
+
+  const payMethods: { id: typeof payMethod; label: string; icon: React.ReactNode }[] = [
+    {
+      id: "CARD_CZ",
+      label: "Karta",
+      icon: (
+        <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+          <rect x="0.5" y="0.5" width="21" height="15" rx="2.5" stroke="currentColor" strokeOpacity="0.4"/>
+          <rect y="4" width="22" height="3" fill="currentColor" fillOpacity="0.25"/>
+          <rect x="2" y="10" width="5" height="2" rx="1" fill="currentColor" fillOpacity="0.5"/>
+        </svg>
+      ),
+    },
+    {
+      id: "APPLEPAY_REDIRECT",
+      label: "Apple Pay",
+      icon: (
+        <svg width="18" height="22" viewBox="0 0 814 1000" fill="currentColor">
+          <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-161.5-107.8C140 389.6 80.2 246.4 80.2 109.7c0-110.7 37.5-213.5 111.3-289.7 70.4-72.5 170.5-114.3 265.1-114.3 97 0 174.6 45.2 233.4 45.2 55.4 0 142-48.3 252.3-48.3zM545 113.5c24.2-28.7 41.3-67.9 41.3-107.2 0-5.4-.4-10.9-1.3-15.4-39.1 1.5-85.8 26.1-113.7 57.3-22.7 25.6-43.2 64.8-43.2 104.6 0 6 1 12 1.5 14.1 2.4.4 6.3 1 10.2 1 35.1 0 79.3-23.3 105.2-54.4z"/>
+        </svg>
+      ),
+    },
+    {
+      id: "GOOGLEPAY_REDIRECT",
+      label: "Google Pay",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+          <path d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" fill="#EA4335"/>
+          <path d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" fill="#4285F4"/>
+          <path d="M10.53 28.59c-.48-1.37-.76-2.83-.76-4.59s.27-3.22.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" fill="#FBBC05"/>
+          <path d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" fill="#34A853"/>
+        </svg>
+      ),
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.firstName || !form.lastName || !form.email) {
-      setError("Vyplňte prosím jméno, příjmení a e-mail.");
+    if (!form.firstName || !form.lastName || !form.email || !form.phone || !form.street || !form.city || !form.zip) {
+      setError("Vyplňte prosím všechna povinná pole.");
       return;
     }
     setLoading(true);
@@ -691,10 +732,15 @@ function CheckoutModal({ pkg, onClose, onBack }: {
         body: JSON.stringify({
           packageId:    pkg.id,
           packageTitle: pkg.title,
-          name:  `${form.firstName} ${form.lastName}`,
-          email:  form.email,
-          company: form.company,
-          ico:     form.ico,
+          name:    `${form.firstName} ${form.lastName}`,
+          email:    form.email,
+          phone:    form.phone,
+          street:   form.street,
+          city:     form.city,
+          zip:      form.zip,
+          company:  form.company,
+          ico:      form.ico,
+          method:   payMethod,
         }),
       });
       const data = await res.json();
@@ -736,29 +782,18 @@ function CheckoutModal({ pkg, onClose, onBack }: {
         <div style={{ padding: "28px 32px 36px" }}>
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-            <button
-              onClick={onBack}
-              style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 18, padding: "0 6px 0 0", lineHeight: 1 }}
-              title="Zpět"
-            >←</button>
+            <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 18, padding: "0 6px 0 0", lineHeight: 1 }} title="Zpět">←</button>
             <div>
               <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif" }}>OBJEDNÁVKA</div>
               <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>{pkg.title}</h3>
             </div>
-            <button
-              onClick={onClose}
-              style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 20, lineHeight: 1, width: 32, height: 32, borderRadius: "50%", transition: "background 0.15s" }}
+            <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 20, lineHeight: 1, width: 32, height: 32, borderRadius: "50%", transition: "background 0.15s" }}
               onMouseEnter={e => (e.currentTarget.style.background = C.sand)}
-              onMouseLeave={e => (e.currentTarget.style.background = "none")}
-            >×</button>
+              onMouseLeave={e => (e.currentTarget.style.background = "none")}>×</button>
           </div>
 
           {/* Order summary */}
-          <div style={{
-            background: C.warm, borderRadius: 12, padding: "14px 18px",
-            border: `1px solid ${C.sand}`, marginBottom: 24,
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-          }}>
+          <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 13, color: C.text, fontFamily: "Georgia, serif" }}>{pkg.title}</div>
               <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>{pkg.priceNote}</div>
@@ -768,54 +803,102 @@ function CheckoutModal({ pkg, onClose, onBack }: {
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
+
+            {/* Name row */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
-                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JMÉNO *</label>
-                <input value={form.firstName} onChange={set("firstName")} placeholder="Jana" required
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = C.gold)}
-                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+                <Label>JMÉNO *</Label>
+                <input value={form.firstName} onChange={set("firstName")} placeholder="Jana" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>PŘÍJMENÍ *</label>
-                <input value={form.lastName} onChange={set("lastName")} placeholder="Nováková" required
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = C.gold)}
-                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+                <Label>PŘÍJMENÍ *</Label>
+                <input value={form.lastName} onChange={set("lastName")} placeholder="Nováková" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
               </div>
             </div>
 
+            {/* Email + phone */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <Label>E-MAIL *</Label>
+                <input type="email" value={form.email} onChange={set("email")} placeholder="jana@example.cz" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div>
+                <Label>TELEFON *</Label>
+                <input type="tel" value={form.phone} onChange={set("phone")} placeholder="+420 777 123 456" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+            </div>
+
+            {/* Street */}
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>E-MAIL *</label>
-              <input type="email" value={form.email} onChange={set("email")} placeholder="jana@example.cz" required
-                style={inputStyle}
-                onFocus={e => (e.target.style.borderColor = C.gold)}
-                onBlur={e => (e.target.style.borderColor = C.sand)} />
+              <Label>ULICE A ČÍSLO POPISNÉ *</Label>
+              <input value={form.street} onChange={set("street")} placeholder="Václavské náměstí 1" required style={inputStyle}
+                onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, marginBottom: 20 }}>
+            {/* City + ZIP */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 12 }}>
               <div>
-                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>FIRMA <span style={{ opacity: 0.6 }}>(nepovinné)</span></label>
-                <input value={form.company} onChange={set("company")} placeholder="ReDefine s.r.o."
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = C.gold)}
-                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+                <Label>MĚSTO *</Label>
+                <input value={form.city} onChange={set("city")} placeholder="Praha" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
               </div>
-              <div style={{ minWidth: 110 }}>
-                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>IČO <span style={{ opacity: 0.6 }}>(nepovinné)</span></label>
-                <input value={form.ico} onChange={set("ico")} placeholder="12345678"
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = C.gold)}
-                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+              <div>
+                <Label>PSČ *</Label>
+                <input value={form.zip} onChange={set("zip")} placeholder="110 00" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+            </div>
+
+            {/* Company + IČO */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 20 }}>
+              <div>
+                <Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label>
+                <input value={form.company} onChange={set("company")} placeholder="ReDefine s.r.o." style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div>
+                <Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label>
+                <input value={form.ico} onChange={set("ico")} placeholder="12345678" style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+            </div>
+
+            {/* Payment method selector */}
+            <div style={{ marginBottom: 20 }}>
+              <Label>ZPŮSOB PLATBY</Label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                {payMethods.map(m => {
+                  const active = payMethod === m.id;
+                  return (
+                    <button
+                      key={m.id} type="button" onClick={() => setPayMethod(m.id)}
+                      style={{
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                        padding: "12px 8px", borderRadius: 12, cursor: "pointer",
+                        border: `2px solid ${active ? C.gold : C.sand}`,
+                        background: active ? "rgba(201,168,76,0.08)" : C.cream,
+                        color: active ? C.gold : C.muted,
+                        transition: "all 0.18s",
+                      }}
+                      onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = C.muted; } }}
+                      onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = C.sand; } }}
+                    >
+                      {m.icon}
+                      <span style={{ fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", fontWeight: active ? "bold" : "normal" }}>{m.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {error && (
-              <div style={{
-                background: "rgba(200,80,80,0.08)", border: "1px solid rgba(200,80,80,0.25)",
-                borderRadius: 10, padding: "10px 14px", marginBottom: 16,
-                fontSize: 13, color: "#C85050", fontFamily: "Trebuchet MS, sans-serif",
-              }}>{error}</div>
+              <div style={{ background: "rgba(200,80,80,0.08)", border: "1px solid rgba(200,80,80,0.25)", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#C85050", fontFamily: "Trebuchet MS, sans-serif" }}>
+                {error}
+              </div>
             )}
 
             <button

@@ -11,17 +11,22 @@ const PRICES: Record<string, number> = {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { packageId, packageTitle, name, email, company, ico } = body as {
-    packageId: string;
-    packageTitle: string;
-    name: string;
-    email: string;
-    company?: string;
-    ico?: string;
+  const {
+    packageId, packageTitle,
+    name, email, phone,
+    street, city, zip,
+    company, ico,
+    method = "CARD_CZ",
+  } = body as {
+    packageId: string; packageTitle: string;
+    name: string; email: string; phone: string;
+    street: string; city: string; zip: string;
+    company?: string; ico?: string;
+    method?: string;
   };
 
   // Basic validation
-  if (!packageId || !name || !email) {
+  if (!packageId || !name || !email || !phone || !street || !city || !zip) {
     return NextResponse.json({ error: "Vyplňte prosím všechna povinná pole." }, { status: 400 });
   }
 
@@ -33,7 +38,6 @@ export async function POST(req: NextRequest) {
   const merchant = process.env.COMGATE_MERCHANT;
   const secret   = process.env.COMGATE_SECRET;
 
-  // If ComGate is not yet configured, return a friendly placeholder
   if (!merchant || !secret) {
     return NextResponse.json(
       { error: "Platební brána není ještě nakonfigurována. Brzy bude spuštěna." },
@@ -44,21 +48,29 @@ export async function POST(req: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
   const refId   = `IC-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
-  // Build ComGate payment request
+  const [firstName, ...lastParts] = name.split(" ");
+  const lastName = lastParts.join(" ");
+
   const params = new URLSearchParams({
     merchant,
     secret,
-    price:       price.toString(),
-    curr:        "CZK",
-    label:       packageTitle,
+    price:        price.toString(),
+    curr:         "CZK",
+    label:        packageTitle,
     refId,
-    method:      "ALL",
+    method,
     email,
-    prepareOnly: "true",
-    returnUrl:   `${baseUrl}/dekujeme?ref=${refId}&status=paid`,
-    notifUrl:    `${baseUrl}/api/comgate/notify`,
-    // Optional customer name (appears on ComGate page)
-    ...(name    && { firstName: name.split(" ")[0], lastName: name.split(" ").slice(1).join(" ") }),
+    phone,
+    prepareOnly:  "true",
+    returnUrl:    `${baseUrl}/dekujeme?ref=${refId}&status=paid`,
+    notifUrl:     `${baseUrl}/api/comgate/notify`,
+    // Customer billing details (used for invoice)
+    firstName,
+    lastName,
+    street,
+    city,
+    postalCode:   zip,
+    country:      "CZ",
     ...(company && { companyName: company }),
     ...(ico     && { companyId: ico }),
   });
@@ -70,7 +82,6 @@ export async function POST(req: NextRequest) {
   });
 
   const text   = await cgRes.text();
-  // ComGate responds with URL-encoded string: code=0&message=OK&transId=xxx&redirect=https://...
   const result = Object.fromEntries(new URLSearchParams(text));
 
   if (result.code !== "0") {
