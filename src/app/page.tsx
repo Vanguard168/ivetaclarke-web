@@ -150,31 +150,73 @@ const podcasts = [
 
 const supervisionData = {
   intro: "Supervize je prostor k profesní i osobní reflexi a k učení z vlastních zkušeností a vhledů.",
+  introSub: "Má tři základní funkce:",
   functions: [
-    { label: "Normativní", desc: "Zaměřuje se na kvalitu a standardy práce. \u201eDělám svou práci správně?\u201c" },
-    { label: "Formativní", desc: "Zaměřuje se na učení a profesní růst. \u201eJak se můžu zlepšit?\u201c" },
-    { label: "Restorativní", desc: "Zaměřuje se na psychickou pohodu a zvládání zátěže. \u201eJak u toho vydržím v rovnováze?\u201c" },
+    { label: "Normativní (kontrolní)", desc: "Zaměřuje se na kvalitu a standardy práce. „Dělám svou práci správně?“" },
+    { label: "Formativní (rozvojová)", desc: "Zaměřuje se na učení a profesní růst. „Jak se můžu zlepšit?“" },
+    { label: "Restorativní (podpůrná)", desc: "Zaměřuje se na psychickou pohodu a zvládání zátěže. „Jak u toho vydržím v rovnováze?“" },
   ],
-  qualification: "Prošla jsem odborným supervizním výcvikem (CSA London) a mezinárodním akreditačním procesem u profesní organizace EMCC (level ESIA Senior Practitioner). ESIA ověřuje reálnou praxi v supervizi, schopnost reflektovat vlastní práci, dodržování etiky profese a kontinuální profesní rozvoj.",
+  qualification: "Supervizní práce je pro mě způsob, jak mohu neustále zvyšovat úroveň a profesionalitu oboru, ve kterém působím téměř čtvrt století. Proto jsem prošla odborným supervizním výcvikem (CSA London) a mezinárodním akreditačním procesem u profesní organizace EMCC (level ESIA Senior Practitioner).",
+  qualificationSub: "ESIA (European Supervision Individual Accreditation) ověřuje reálnou praxi v supervizi, schopnost reflektovat vlastní práci, dodržování etiky profese a kontinuální profesní rozvoj.",
   packages: [
-    { title: "Ochutnávka supervize", sessions: "Jednorázové online setkání", duration: "45 min", price: "4 890 Kč", priceNote: "vč. DPH / 4 041 Kč bez DPH", icon: "◈" },
-    { title: "Supervizní balíček", sessions: "6 supervizí", duration: "60 min / sezení", price: "35 990 Kč", priceNote: "vč. DPH / 29 744 Kč bez DPH", icon: "◉" },
+    {
+      id: "sup-1x",
+      title: "Ochutnávka supervize",
+      tagline: "Osobní zkušenost s hodnotou reflektivní práce.",
+      cardDesc: "Jednorázovou konzultací získáte osobní zkušenost, pochopíte přidanou hodnotu reflektivní práce a zároveň ověříme vzájemnou kompatibilitu.",
+      modalDesc: "Jednorázové online setkání v rozsahu 45 minut.",
+      result: "",
+      format: "Online · jednorázové setkání · 45 minut",
+      price: "—",
+      priceNote: "Cena bude upřesněna",
+    },
+    {
+      id: "sup-6x",
+      title: "Supervizní balíček",
+      tagline: "Pravidelná reflektivní práce nad vaší koučovací praxí.",
+      cardDesc: "Pravidelné reflektivní setkávání nad vašimi myšlenkami ohledně koučování; o vás, o vašich klientech, a o tom jak s nimi vstupujete do interakce.",
+      modalDesc: "6 osobních nebo online setkání v rozsahu 60 minut.",
+      result: "",
+      format: "6 setkání · 60 min / setkání · online nebo osobně",
+      price: "—",
+      priceNote: "Cena bude upřesněna",
+    },
   ],
   workshop: {
     title: "Průvodcem v midlife®",
     subtitle: "Výcvikový a supervizní workshop pro kouče",
-    desc: "Workshop pro kouče, kteří ve své klientské praxi pracují s lidmi ve zlomovém životním období středního věku. Nabízím know-how z Modern Elder Academy – první školy moudrosti na světě – doplněné vším, co vím o midlife z vlastní praxe.",
+    descParagraphs: [
+      "Workshop pro kouče, kteří ve své klientské praxi pracují s lidmi ve zlomovém životním období středního věku.",
+      "Lidé v tomto období procházejí významným životním přechodem (midlife), který je charakterizován transformací na mnoha úrovních jejich života. Co přesně se děje a jak tyto jevy ovlivňují naše klienty?",
+      "Ve workshopu nabízím, co jsem se naučila v Modern Elder Academy, první školy moudrosti na světě, a co získávám ze zdrojů, ke kterým mám jako MEA alumni přístup. Přidám navíc vše, co vím o midlife z vlastní praxe i ze svého života. Své zkušenosti a znalosti jsem sestavila do přehledných bloků, které poskytnou strukturu pro práci s lidmi v tomto období životní tranzice.",
+      "Workshop je určen pro uzavřenou skupinu profesionálních koučů, kteří chtějí lépe porozumět specifické cílové skupině svých klientů a seznámit se s nástroji i koncepty, které nejsou v běžných koučovacích výcvicích dostupné.",
+    ],
+    learns: [
+      { title: "O cílové skupině", items: ["Jaký má tento věk specifika? Čím lidé v tomto období skutečně procházejí?", "Co skutečně potřebují? A co z toho vyplývá pro pozici kouče v rozhovoru?"] },
+      { title: "O procesu", items: ["Jak se liší přechodové stádium midlife od ostatních životních tranzicí?", "Jaké spouštěče a signály provázejí toto období? Jak probíhá proces zrání?", "Jaká stádia lze v období midlife očekávat a jak je rozpoznáme?"] },
+      { title: "O přístupu a metodice", items: ["V čem tkví úspěšná dialogická práce s lidmi v životním přechodu?", "V čem se může lišit od klasického koučování?"] },
+      { title: "O nástrojích", items: ["Jaké klasické koučovací nástroje a přístupy v tomto kontextu selhávají?", "A jaké fungují?"] },
+    ],
+    day1: { title: "Den 1 – Klient", items: ["Životní přechody a jejich specifika relevantní pro pomáhající profese.", "Midlife mýty a předsudky.", "Potřeby lidí v midlife.", "Midlife kompetence."] },
+    day2: { title: "Den 2 – Kouč", items: ["Kompetence kouče pro práci s midlifery.", "Práce s vizí a cíli v midlife.", "Emoce v midlife."] },
+    bonuses: [
+      { id: "b1", label: "Bonus 1", name: "Kultivace moudrosti", desc: "3 hodinový online workshop o tom, co je lidská moudrost, jak se liší od zkušenosti a jak se dá kultivovat. Nástavba kurzu Průvodcem midlife." },
+      { id: "b2", label: "Bonus 2", name: "Midlife coaching supervize", desc: "2 hodiny supervizní práce s tématy midlife. Reflektivní prostor pro kouče jako nástavba kurzu Průvodcem midlife." },
+    ],
+    note: "Exkluzivita obsahu workshopu je důvodem k tomu, že kurz není akreditován žádnou profesní organizací. Účastníkům vystavím potvrzení o absolvování aktuálního počtu hodin supervizní práce, která je součástí workshopu. Potvrzení lze použít pro re-akreditaci v ICF.",
+    preCondition: "Účasti na workshopu předchází individuální rozhovor, ve kterém si ujasníme relevanci obsahu k vaší současné koučovací praxi.",
     date: "Nejbližší termín: 9.–10. 10. 2026",
     earlyBird: "Early bird sleva 15 % do konce července 2026",
-    maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční",
-    base: { label: "Základní program (2 dny)", price: "43 590 Kč", priceNote: "vč. DPH / 36 025 Kč bez DPH" },
-    bonuses: [
-      { label: "S bonusem Midlife supervize", price: "50 890 Kč", priceNote: "vč. DPH / 42 058 Kč bez DPH" },
-      { label: "S bonusem Kultivace moudrosti", price: "59 990 Kč", priceNote: "vč. DPH / 49 579 Kč bez DPH" },
+    maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční · 2× ročně",
+    hours: "Časová dotace: 12 hodin výcviku – 2 dny",
+    base: { label: "Základní program (2 dny)", price: "36 000 Kč", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
+    bonusPrices: [
+      { label: "S Bonusem 1 – Kultivace moudrosti", price: "50 000 Kč" },
+      { label: "S Bonusem 2 – Midlife coaching supervize", price: "42 000 Kč" },
     ],
-    full: { label: "Plný program včetně obou bonusů", price: "66 990 Kč", priceNote: "vč. DPH / 55 364 Kč bez DPH" },
+    full: { label: "Plný program včetně obou bonusů", price: "56 000 Kč" },
   },
-};
+}
 
 const navItems = ["O mně", "Pro veřejnost", "Pro Kouče", "Pro Bono", "Videa", "Podcast", "Kontakt"];
 const proVerejnostItems = ["Konzultace", "Kurzy"];
@@ -1523,7 +1565,8 @@ export default function App() {
 
       {/* ── KONZULTACE ───────────────────────────────────────────────────── */}
       {openModal && (() => {
-        const pkg = consultationData.packages.find(p => p.id === openModal);
+        const allPkgs = [...consultationData.packages, ...supervisionData.packages];
+        const pkg = allPkgs.find(p => p.id === openModal);
         return pkg ? (
           <ConsultationModal
             pkg={pkg}
@@ -1699,18 +1742,20 @@ export default function App() {
             <Divider />
           </Reveal>
 
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 60 }}>
+          {/* Info grid */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 60, marginBottom: 52 }}>
             <Reveal>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 16px" }}>Co je supervize?</h3>
-              <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 24 }}>{supervisionData.intro}</p>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 20 }}>{supervisionData.introSub}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {supervisionData.functions.map(f => (
                   <div key={f.label} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(201,168,76,0.1)", border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: C.gold, flexShrink: 0, fontFamily: "Trebuchet MS", fontWeight: "bold" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(201,168,76,0.1)", border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: C.gold, flexShrink: 0, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold" }}>
                       {f.label[0]}
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: "bold", color: C.dark, fontFamily: "Trebuchet MS", marginBottom: 2 }}>{f.label}</div>
+                      <div style={{ fontSize: 12, fontWeight: "bold", color: C.dark, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 2 }}>{f.label}</div>
                       <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{f.desc}</div>
                     </div>
                   </div>
@@ -1719,21 +1764,40 @@ export default function App() {
             </Reveal>
             <Reveal delay={0.15}>
               <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 16px" }}>Moje kvalifikace</h3>
-              <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 28 }}>{supervisionData.qualification}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {supervisionData.packages.map(pkg => (
-                  <div key={pkg.title} style={{ background: C.white, borderRadius: 14, padding: "22px 24px", border: `1px solid ${C.sand}` }}>
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontSize: 15, color: C.dark, marginBottom: 4 }}>{pkg.title}</div>
-                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS" }}>{pkg.sessions} · {pkg.duration}</div>
-                    </div>
-                    <div style={{ fontSize: 26, color: C.dark, marginBottom: 4 }}>{pkg.price}</div>
-                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginBottom: 16 }}>{pkg.priceNote}</div>
-                    <Btn small onClick={() => alert("→ Rezervovat supervizi")}>Rezervovat</Btn>
-                  </div>
-                ))}
-              </div>
+              <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 12 }}>{supervisionData.qualification}</p>
+              <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 20 }}>{supervisionData.qualificationSub}</p>
+              <a href="https://www.linkedin.com/in/ivetaclarke" target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.muted, textDecoration: "none", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.gold)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                Certifikáty na LinkedIn →
+              </a>
             </Reveal>
+          </div>
+
+          {/* Package cards */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
+            {supervisionData.packages.map((pkg, i) => (
+              <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
+                <div style={{
+                  background: C.white, borderRadius: 20, padding: "28px 32px",
+                  border: `1px solid ${C.sand}`,
+                  boxShadow: "0 4px 32px rgba(44,44,62,0.06)",
+                  display: "flex", flexDirection: "column", height: "100%",
+                }}>
+                  <div style={{ width: 4, height: 3, background: C.gold, borderRadius: 2, marginBottom: 16 }} />
+                  <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>{pkg.format?.toUpperCase()}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 8px" }}>{pkg.title}</h3>
+                  <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 12px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
+                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
+                  <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
+                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -1747,68 +1811,117 @@ export default function App() {
             <Divider />
           </Reveal>
 
+          <Reveal delay={0.08}>
+            {/* Header */}
+            <div style={{ marginBottom: 36 }}>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 10 }}>WORKSHOP PRO PROFESIONÁLNÍ KOUČE</div>
+              <h3 style={{ fontSize: 28, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>{supervisionData.workshop.title}</h3>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 24 }}>{supervisionData.workshop.subtitle}</div>
+              {supervisionData.workshop.descParagraphs.map((p, i) => (
+                <p key={i} style={{ fontSize: 14.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.85, marginBottom: 14 }}>{p}</p>
+              ))}
+            </div>
+          </Reveal>
+
+          {/* Ve workshopu se dozvíte */}
           <Reveal delay={0.1}>
-            <div style={{ background: "transparent" }}>
-              <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, #E8C96A)`, marginBottom: 40, borderRadius: 2 }} />
-              <div style={{ padding: 0 }}>
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 32 : 48, alignItems: "start" }}>
-                  <div>
-                    <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS", marginBottom: 12 }}>WORKSHOP PRO PROFESIONÁLNÍ KOUČE</div>
-                    <h3 style={{ fontSize: 26, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>{supervisionData.workshop.title}</h3>
-                    <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS", marginBottom: 20 }}>{supervisionData.workshop.subtitle}</div>
-                    <p style={{ fontSize: 14.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.8, marginBottom: 20 }}>{supervisionData.workshop.desc}</p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {[supervisionData.workshop.date, supervisionData.workshop.earlyBird, supervisionData.workshop.maxParticipants].map(info => (
-                        <div key={info} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                          <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.gold, flexShrink: 0 }} />
-                          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", fontFamily: "Trebuchet MS" }}>{info}</span>
-                        </div>
+            <div style={{ marginBottom: 40 }}>
+              <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 16 }}>VE WORKSHOPU SE DOZVÍTE</div>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
+                {supervisionData.workshop.learns.map(area => (
+                  <div key={area.title} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "18px 20px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div style={{ fontSize: 12, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", marginBottom: 10 }}>{area.title.toUpperCase()}</div>
+                    <ul style={{ margin: 0, padding: "0 0 0 16px" }}>
+                      {area.items.map((item, j) => (
+                        <li key={j} style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.7, marginBottom: 4 }}>{item}</li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
-                  <div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 16 }}>VARIANTY ÚČASTI</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {/* Základní program */}
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(201,168,76,0.12)", borderRadius: 10, border: `1px solid rgba(201,168,76,0.3)` }}>
-                        <span style={{ fontSize: 13, color: C.white, fontWeight: "bold" }}>{supervisionData.workshop.base.label}</span>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontSize: 16, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS" }}>{supervisionData.workshop.base.price}</div>
-                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", marginTop: 4 }}>{supervisionData.workshop.base.priceNote}</div>
-                        </div>
-                      </div>
-                      {/* Nástavby */}
-                      <div style={{ paddingLeft: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", letterSpacing: "0.12em", marginBottom: 2 }}>+ VOLITELNÝ BONUS</div>
-                        {supervisionData.workshop.bonuses.map(b => (
-                          <div key={b.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "rgba(255,255,255,0.05)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.gold, flexShrink: 0 }} />
-                              <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.7)" }}>{b.label}</span>
-                            </div>
-                            <div style={{ textAlign: "right" }}>
-                              <div style={{ fontSize: 15, color: C.gold, fontFamily: "Trebuchet MS", fontWeight: "bold" }}>{b.price}</div>
-                              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS", marginTop: 4 }}>{b.priceNote}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {/* Plný program */}
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(255,255,255,0.08)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", marginTop: 2 }}>
-                        <div>
-                          <span style={{ fontSize: 13, color: C.white }}>{supervisionData.workshop.full.label}</span>
-                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", marginTop: 2 }}>Základní program + oba bonusy</div>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontSize: 16, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS" }}>{supervisionData.workshop.full.price}</div>
-                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS", marginTop: 4 }}>{supervisionData.workshop.full.priceNote}</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: 24 }}>
-                      <Btn onClick={() => alert("→ Přihláška na workshop")}>Mám zájem o účast</Btn>
-                    </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Curriculum + Bonusy */}
+          <Reveal delay={0.12}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 16, marginBottom: 40 }}>
+              {/* Den 1 */}
+              <div style={{ background: "rgba(201,168,76,0.08)", borderRadius: 12, padding: "18px 20px", border: "1px solid rgba(201,168,76,0.2)" }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", marginBottom: 10 }}>{supervisionData.workshop.day1.title.toUpperCase()}</div>
+                {supervisionData.workshop.day1.items.map((item, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 6 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.gold, marginTop: 7, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>{item}</span>
                   </div>
+                ))}
+              </div>
+              {/* Den 2 */}
+              <div style={{ background: "rgba(201,168,76,0.08)", borderRadius: 12, padding: "18px 20px", border: "1px solid rgba(201,168,76,0.2)" }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", marginBottom: 10 }}>{supervisionData.workshop.day2.title.toUpperCase()}</div>
+                {supervisionData.workshop.day2.items.map((item, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 6 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.gold, marginTop: 7, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Bonusy */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {supervisionData.workshop.bonuses.map(b => (
+                  <div key={b.id} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 18px", border: "1px solid rgba(255,255,255,0.1)", flex: 1 }}>
+                    <div style={{ fontSize: 10, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 6 }}>{b.label.toUpperCase()}</div>
+                    <div style={{ fontSize: 13, color: C.white, marginBottom: 6 }}>{b.name}</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{b.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Logistics + Pricing */}
+          <Reveal delay={0.14}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 32 : 48 }}>
+              {/* Logistics */}
+              <div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>ORGANIZAČNÍ INFORMACE</div>
+                {[supervisionData.workshop.date, supervisionData.workshop.earlyBird, supervisionData.workshop.maxParticipants, supervisionData.workshop.hours].map(info => (
+                  <div key={info} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.gold, flexShrink: 0, marginTop: 6 }} />
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.5 }}>{info}</span>
+                  </div>
+                ))}
+                <div style={{ marginTop: 20, padding: "14px 16px", background: "rgba(255,255,255,0.04)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, margin: "0 0 8px" }}>{supervisionData.workshop.note}</p>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>{supervisionData.workshop.preCondition}</p>
+                </div>
+              </div>
+              {/* Pricing */}
+              <div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>VARIANTY ÚČASTI</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(201,168,76,0.12)", borderRadius: 10, border: "1px solid rgba(201,168,76,0.3)" }}>
+                    <div>
+                      <div style={{ fontSize: 13, color: C.white, fontWeight: "bold" }}>{supervisionData.workshop.base.label}</div>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>{supervisionData.workshop.base.note}</div>
+                    </div>
+                    <div style={{ fontSize: 18, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif", whiteSpace: "nowrap", marginLeft: 16 }}>{supervisionData.workshop.base.price}</div>
+                  </div>
+                  <div style={{ paddingLeft: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.12em", marginBottom: 2 }}>+ VOLITELNÝ BONUS</div>
+                    {supervisionData.workshop.bonusPrices.map(b => (
+                      <div key={b.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "rgba(255,255,255,0.05)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.7)" }}>{b.label}</span>
+                        <span style={{ fontSize: 15, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap", marginLeft: 12 }}>{b.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(255,255,255,0.08)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", marginTop: 2 }}>
+                    <span style={{ fontSize: 13, color: C.white }}>{supervisionData.workshop.full.label}</span>
+                    <span style={{ fontSize: 18, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif", whiteSpace: "nowrap", marginLeft: 16 }}>{supervisionData.workshop.full.price}</span>
+                  </div>
+                </div>
+                <div style={{ marginTop: 24 }}>
+                  <Btn onClick={() => alert("→ Přihláška na workshop bude brzy k dispozici")}>Mám zájem o účast</Btn>
                 </div>
               </div>
             </div>
