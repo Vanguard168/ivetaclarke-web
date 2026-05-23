@@ -144,7 +144,12 @@ const supervisionData = {
 };
 
 const navItems = ["O mně", "Pro veřejnost", "Pro Kouče", "Pro Bono", "Videa", "Podcast", "Kontakt"];
+const proVerejnostItems = ["Konzultace", "Kurzy"];
 const proKouceItems = ["Supervize", "Výcvik"];
+const seduoCourses = [
+  { title: "Umění rozhovoru", url: "https://www.seduo.cz/umeni-rozhovoru", desc: "Online kurz zaměřený na umění dialogu, naslouchání a vedení smysluplných rozhovorů." },
+  { title: "Umění Zranitelnosti – Posilovna emoční odvahy", url: "https://www.seduo.cz/umeni-zranitelnosti-posilovna-emocni-odvahy", desc: "Kurz o zranitelnosti, emoční odvaze a cestě k autentickému životu." },
+];
 
 // ── Hooks ────────────────────────────────────────────────────────────────────
 function useScrollY() {
@@ -618,6 +623,7 @@ export default function App() {
   const isTablet = width < 1024;
   const [menuOpen, setMenuOpen] = useState(false);
   const [proKouceOpen, setProKouceOpen] = useState(false);
+  const [proVerejnostOpen, setProVerejnostOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
@@ -681,7 +687,7 @@ export default function App() {
   const hamburgerColor = navLogoColor;
 
   const scrollTo = (id: string) => {
-    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
+    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "kurzy": "kurzy", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
     const el = document.getElementById(map[id.toLowerCase()] || id.toLowerCase().replace(/\s/g, "-").replace(/[^\w-]/g, ""));
     el?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
@@ -716,7 +722,7 @@ export default function App() {
         {/* Desktop nav */}
         {!isMobile && (
           <div style={{ display: "flex", gap: isTablet ? 18 : 28, alignItems: "center" }}>
-            {navItems.map(item => item === "Pro Kouče" ? (
+            {navItems.map(item => (item === "Pro Kouče" || item === "Pro veřejnost") ? (
               <div key={item} style={{ position: "relative" }}
                 onMouseEnter={e => (e.currentTarget.querySelector(".dropdown") as HTMLElement | null)?.style && ((e.currentTarget.querySelector(".dropdown") as HTMLElement).style.display = "flex")}
                 onMouseLeave={e => (e.currentTarget.querySelector(".dropdown") as HTMLElement | null)?.style && ((e.currentTarget.querySelector(".dropdown") as HTMLElement).style.display = "none")}
@@ -736,7 +742,7 @@ export default function App() {
                   padding: "8px 0", flexDirection: "column", minWidth: 140, zIndex: 200,
                   boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
                 }}>
-                  {proKouceItems.map(sub => (
+                  {(item === "Pro Kouče" ? proKouceItems : proVerejnostItems).map(sub => (
                     <button key={sub} onClick={() => scrollTo(sub.toLowerCase())}
                       style={{
                         background: "none", border: "none", cursor: "pointer", textAlign: "left",
@@ -814,27 +820,27 @@ export default function App() {
 
           {/* Nav items */}
           <nav style={{ display: "flex", flexDirection: "column", gap: 0, flex: 1 }}>
-            {navItems.map((item, i) => item === "Pro Kouče" ? (
+            {navItems.map((item, i) => (item === "Pro Kouče" || item === "Pro veřejnost") ? (
               <div key={item} style={{ opacity: 0, animation: `menuItemIn 0.45s ease ${0.08 + i * 0.07}s forwards` }}>
-                {/* Pro Kouče toggle */}
+                {/* Dropdown toggle */}
                 <button
-                  onClick={() => setProKouceOpen(o => !o)}
+                  onClick={() => item === "Pro Kouče" ? setProKouceOpen(o => !o) : setProVerejnostOpen(o => !o)}
                   style={{
                     background: "none", border: "none", cursor: "pointer", textAlign: "left",
                     fontSize: "clamp(26px, 8vw, 36px)", fontFamily: "Georgia, serif",
                     color: "#ffffff", fontWeight: "normal",
                     padding: "14px 0", width: "100%",
-                    borderBottom: proKouceOpen ? "none" : "1px solid rgba(255,255,255,0.08)",
+                    borderBottom: (item === "Pro Kouče" ? proKouceOpen : proVerejnostOpen) ? "none" : "1px solid rgba(255,255,255,0.08)",
                     display: "flex", alignItems: "center", justifyContent: "space-between",
                   }}
                 >
                   {item}
-                  <span style={{ color: C.gold, fontSize: "0.55em", transition: "transform 0.25s", display: "inline-block", transform: proKouceOpen ? "rotate(90deg)" : "none" }}>▾</span>
+                  <span style={{ color: C.gold, fontSize: "0.55em", transition: "transform 0.25s", display: "inline-block", transform: (item === "Pro Kouče" ? proKouceOpen : proVerejnostOpen) ? "rotate(90deg)" : "none" }}>▾</span>
                 </button>
                 {/* Submenu */}
-                {proKouceOpen && (
+                {(item === "Pro Kouče" ? proKouceOpen : proVerejnostOpen) && (
                   <div style={{ paddingLeft: 20, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                    {proKouceItems.map(sub => (
+                    {(item === "Pro Kouče" ? proKouceItems : proVerejnostItems).map(sub => (
                       <button key={sub}
                         onClick={() => scrollTo(sub.toLowerCase())}
                         style={{
@@ -1092,6 +1098,44 @@ export default function App() {
               </p>
             </div>
           </Reveal>
+
+          {/* ── KURZY ── */}
+          <div id="kurzy" style={{ marginTop: 64 }}>
+            <Reveal>
+              <SectionLabel>ONLINE KURZY</SectionLabel>
+              <h2 style={{ fontSize: "clamp(24px, 2.5vw, 36px)", fontWeight: "normal", margin: "0 0 8px" }}>Kurzy na Seduo</h2>
+              <Divider />
+            </Reveal>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24, marginTop: 8 }}>
+              {seduoCourses.map((course, i) => (
+                <Reveal key={i} delay={0.1 + i * 0.1}>
+                  <a href={course.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                    <div style={{
+                      background: C.white, borderRadius: 16, padding: "28px 28px",
+                      border: `1px solid ${C.sand}`,
+                      boxShadow: "0 4px 24px rgba(44,44,62,0.05)",
+                      position: "relative", overflow: "hidden",
+                      transition: "box-shadow 0.2s, transform 0.2s",
+                      cursor: "pointer",
+                    }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 40px rgba(44,44,62,0.13)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(44,44,62,0.05)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}
+                    >
+                      <div style={{ width: 3, height: "100%", position: "absolute", left: 0, top: 0, background: C.gold }} />
+                      <div style={{ paddingLeft: 4 }}>
+                        <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 8 }}>SEDUO.CZ</div>
+                        <div style={{ fontSize: 18, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{course.title}</div>
+                        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: "0 0 20px" }}>{course.desc}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS" }}>
+                          Přejít na kurz <span>→</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
