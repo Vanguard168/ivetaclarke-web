@@ -624,6 +624,8 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [proKouceOpen, setProKouceOpen] = useState(false);
   const [proVerejnostOpen, setProVerejnostOpen] = useState(false);
+  const [proKouceHover, setProKouceHover] = useState(false);
+  const [proVerejnostHover, setProVerejnostHover] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
@@ -722,50 +724,66 @@ export default function App() {
         {/* Desktop nav */}
         {!isMobile && (
           <div style={{ display: "flex", gap: isTablet ? 18 : 28, alignItems: "center" }}>
-            {navItems.map(item => (item === "Pro Kouče" || item === "Pro veřejnost") ? (
-              <div key={item} style={{ position: "relative" }}
-                onMouseEnter={e => (e.currentTarget.querySelector(".dropdown") as HTMLElement | null)?.style && ((e.currentTarget.querySelector(".dropdown") as HTMLElement).style.display = "flex")}
-                onMouseLeave={e => (e.currentTarget.querySelector(".dropdown") as HTMLElement | null)?.style && ((e.currentTarget.querySelector(".dropdown") as HTMLElement).style.display = "none")}
-              >
-                <button style={{
-                  background: "none", border: "none", cursor: "pointer",
-                  fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
-                  color: navText, padding: "4px 0", display: "flex", alignItems: "center", gap: 4,
-                }}>
-                  {item} <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
-                </button>
-                <div className="dropdown" style={{
-                  display: "none", position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
-                  marginTop: 8, background: `rgba(${nr},${ng},${nb},0.96)`,
-                  backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-                  border: `1px solid ${navBorder}`, borderRadius: 10,
-                  padding: "8px 0", flexDirection: "column", minWidth: 140, zIndex: 200,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
-                }}>
-                  {(item === "Pro Kouče" ? proKouceItems : proVerejnostItems).map(sub => (
-                    <button key={sub} onClick={() => scrollTo(sub.toLowerCase())}
-                      style={{
-                        background: "none", border: "none", cursor: "pointer", textAlign: "left",
-                        fontSize: 14, fontFamily: "Trebuchet MS, sans-serif",
-                        color: navText, padding: "10px 18px", whiteSpace: "nowrap",
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.color = C.gold}
-                      onMouseLeave={e => e.currentTarget.style.color = navText}
-                    >{sub}</button>
-                  ))}
+            {navItems.map(item => {
+              const isDropdown = item === "Pro Kouče" || item === "Pro veřejnost";
+              const isHovered = item === "Pro Kouče" ? proKouceHover : proVerejnostHover;
+              const setHovered = item === "Pro Kouče" ? setProKouceHover : setProVerejnostHover;
+              const subItems = item === "Pro Kouče" ? proKouceItems : proVerejnostItems;
+              if (isDropdown) return (
+                <div key={item} style={{ position: "relative" }}
+                  onMouseEnter={() => setHovered(true)}
+                  onMouseLeave={() => setHovered(false)}
+                >
+                  <button style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
+                    color: isHovered ? C.gold : navText,
+                    padding: "4px 0", display: "flex", alignItems: "center", gap: 5,
+                    transition: "color 0.2s",
+                  }}>
+                    {item}
+                    <span style={{ fontSize: 9, opacity: 0.7, display: "inline-block", transform: isHovered ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+                  </button>
+                  {/* Dropdown panel — always rendered, toggled by opacity */}
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 4px)", left: "50%", transform: "translateX(-50%)",
+                    background: `rgba(${nr},${ng},${nb},0.97)`,
+                    backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+                    border: `1px solid ${navBorder}`, borderRadius: 12,
+                    padding: "6px 0", flexDirection: "column", minWidth: 160, zIndex: 300,
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.18)",
+                    display: "flex",
+                    opacity: isHovered ? 1 : 0,
+                    pointerEvents: isHovered ? "auto" : "none",
+                    transition: "opacity 0.18s ease",
+                  }}>
+                    {subItems.map(sub => (
+                      <button key={sub} onClick={() => scrollTo(sub.toLowerCase())}
+                        style={{
+                          background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                          fontSize: 14, fontFamily: "Trebuchet MS, sans-serif",
+                          color: navText, padding: "11px 20px", whiteSpace: "nowrap",
+                          transition: "color 0.15s",
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.color = C.gold}
+                        onMouseLeave={e => e.currentTarget.style.color = navText}
+                      >{sub}</button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button key={item} onClick={() => scrollTo(item.toLowerCase())}
-                style={{
-                  background: "none", border: "none", cursor: "pointer",
-                  fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
-                  color: navText, padding: "4px 0",
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = C.gold}
-                onMouseLeave={e => e.currentTarget.style.color = navText}
-              >{item}</button>
-            ))}
+              );
+              return (
+                <button key={item} onClick={() => scrollTo(item.toLowerCase())}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
+                    color: navText, padding: "4px 0",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = C.gold}
+                  onMouseLeave={e => e.currentTarget.style.color = navText}
+                >{item}</button>
+              );
+            })}
             <Btn small onClick={() => scrollTo("pro veřejnost")}>Rezervovat</Btn>
           </div>
         )}
