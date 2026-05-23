@@ -52,9 +52,20 @@ const consultationData = {
       cardDesc: "Tento formát je vhodný pro lidi, kteří se potřebují především rychle zorientovat ve vlastní situaci. Čekejte zasazení do širšího kontextu, pojmenování základních otázek, definování vašich témat, a ošetření emocí.",
       modalDesc: "Jednorázovou konzultací získáte osobní zkušenost a pochopíte přidanou hodnotu práce s mentorem.",
       result: "Výsledkem je vhled do situace, nasměrování a zklidnění.",
-      format: null,
-      price: "—",
-      priceNote: "Cena bude upřesněna",
+      format: "Online · 60 minut",
+      price: "5 990 Kč",
+      priceNote: "vč. DPH / 4 950 Kč bez DPH",
+    },
+    {
+      id: "1x-personal",
+      title: "Konzultace osobní",
+      tagline: "Hloubkový rozhovor s přesahem, tváří v tvář.",
+      cardDesc: "Osobní setkání v mé kanceláři v centru Prahy. Prostor pro reflexi, zasazení do širšího kontextu a konkrétní impulzy pro váš život. Intenzivnější formát vhodný pro klíčová životní rozhodnutí.",
+      modalDesc: "Osobní setkání vytváří hlubší prostor pro kontakt a reflexi. Přijďte, jak jste – a odejdete s novým vhledem.",
+      result: "Výsledkem je vhled do situace, nasměrování a zklidnění.",
+      format: "Osobně · Praha · 90 minut",
+      price: "8 990 Kč",
+      priceNote: "vč. DPH / 7 430 Kč bez DPH",
     },
     {
       id: "3m",
@@ -64,8 +75,8 @@ const consultationData = {
       modalDesc: "S tímto balíčkem máte k dispozici neomezený počet setkání dle vaší potřeby, každé v délce 90 minut, po dobu 3 měsíců.",
       result: "Výsledkem je lepší orientace ve vašem terénu.",
       format: "Neomezený počet setkání · 90 min / setkání · 3 měsíce",
-      price: "—",
-      priceNote: "Cena bude upřesněna",
+      price: "24 990 Kč",
+      priceNote: "vč. DPH / 20 653 Kč bez DPH",
     },
     {
       id: "6m",
@@ -75,8 +86,8 @@ const consultationData = {
       modalDesc: "S tímto balíčkem máte k dispozici neomezený počet setkání dle vaší potřeby, každé v délce 90 minut, po dobu 6 měsíců.",
       result: "Výsledkem je udržitelné zklidnění, úleva, obnova energie a akceschopnosti.",
       format: "Neomezený počet setkání · 90 min / setkání · 6 měsíců",
-      price: "—",
-      priceNote: "Cena bude upřesněna",
+      price: "44 990 Kč",
+      priceNote: "vč. DPH / 37 182 Kč bez DPH",
     },
     {
       id: "12m",
@@ -86,8 +97,8 @@ const consultationData = {
       modalDesc: "Máte k dispozici neomezený počet setkání, každé v délce 90 minut, po dobu jednoho ročního cyklu.",
       result: "Jsem vaším důvěrným partnerem, průvodcem, podporovatelem, rádcem a vyzyvatelem.",
       format: "Neomezený počet setkání · 90 min / setkání · 12 měsíců",
-      price: "—",
-      priceNote: "Cena bude upřesněna",
+      price: "74 990 Kč",
+      priceNote: "vč. DPH / 61 975 Kč bez DPH",
     },
   ],
 };
@@ -754,7 +765,7 @@ function ConsultationModal({ pkg, onClose }: {
             onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
             onClick={() => alert("→ Platební brána bude brzy dostupná")}
           >
-            TO CHCI – ZAPLATIT
+            ZAPLATIT
           </button>
 
           {/* Calendar link */}
@@ -1243,7 +1254,7 @@ export default function App() {
 
           {/* Intro text */}
           <Reveal delay={0.05}>
-            <div style={{ maxWidth: 700, marginBottom: 52 }}>
+            <div style={{ marginBottom: 52 }}>
               {consultationData.intro.map((para, i) => (
                 <p key={i} style={{
                   fontSize: i === 0 ? 18 : 15,
