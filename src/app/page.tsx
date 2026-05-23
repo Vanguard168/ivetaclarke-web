@@ -26,13 +26,12 @@ const heroData = {
 };
 
 const aboutData = {
-  shortBio: "Jsem zkušený certifikovaný kouč, mentor a supervizor s mezinárodní praxí a více než 25 lety zkušeností v oboru dialogické práce s lidmi. Pracuji s inteligentními a zralými lidmi, kteří více než dosažení cíle potřebují novou navigaci. Ve společném dialogu hledáme nové podněty, zdroje, směr, energii nebo impuls.",
+  shortBio: "Jsem certifikovaný kouč, mentor a supervizor s mezinárodní praxí a více než 25 lety zkušeností v oboru dialogické práce s lidmi. Pracuji s inteligentními a zralými lidmi, kteří více než dosažení cíle potřebují novou navigaci.  Ve společném dialogu hledáme nové podněty, zdroje, směr, energii nebo impuls.",
   longBio: [
-    "Jsem kvalifikovaným průvodcem lidem v labyrintu přechodových životních fází (Life Transitions) – specificky v období midlife, nebo v období významných životních zlomů (Life-Quakes).",
-    "Častými průvodními jevy nebo spouštěči těchto tranzicí jsou nejistota, ztráta smyslu a směru, absence plánu nebo vize, potřeba obnovy, nové role, náročné emoce, kolapsy dlouholetých vztahů, únava oborem, kariérní strop a kariérní exit, nebo rodinná generační komplexita.",
-    "Jsem také kvalifikovaným odborníkem na témata týkající se lidského studu, zranitelnosti, odvahy a práce s mocí.",
-    "Ve své práci používám principy a kompetence profesionálního koučování, aplikuji supervizní a reflektivní techniky a modely, vycházím z teorie chování systémů, přináším moderní nástroje navigace v životních přechodech a sdílím vlastní zkušenosti a příběhy. Pro své klienty jsem současně podporovatelem a vyzyvatelem.",
-    "Aktivně se vzdělávám nejen ve svém oboru, ale i v oborech, které pomáhají rozšiřovat kapacitu vědomí – studuji ezoterickou filosofii, kvantovou fyziku, lidské dějiny a aspekty moderní spirituality. Zabývám se intenzivně studiem lidské moudrosti a možnostmi její kultivace.",
+    "Ve své práci používám principy a kompetence profesionálního koučování, aplikuji supervizní a reflektivní techniky a modely, vycházím z teorie chování systémů, přináším moderní nástroje navigace v životních přechodech a sdílím vlastní zkušenosti a příběhy.",
+    "Aktivně se vzdělávám nejen ve svém oboru, ale i v oborech, které pomáhají mě i mým klientům rozšiřovat kapacitu našeho vědomí - studuji ezoterickou filosofii, kvantovou fyziku, lidské dějiny a aspekty moderní spirituality.  Zabývám se intenzivně studiem lidské moudrosti a možnostmi její kultivace.",
+    "Všechno, co umím, co studuji a co vím o životě, utváří, kým jsem a kým se postupně stávám.",
+    "A to vše je k dispozici lidem, s kterými pracuji.",
   ],
   stats: [["25+", "let zkušeností"], ["500+", "klientů"], ["3", "specializace"]],
 };
@@ -904,7 +903,7 @@ export default function App() {
             <p style={{ fontSize: 15.5, color: C.muted, lineHeight: 1.9, marginBottom: 20 }}>
               {aboutData.shortBio}
             </p>
-            {aboutData.longBio.slice(0, 2).map((p, i) => (
+            {aboutData.longBio.map((p, i) => (
               <p key={i} style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 16 }}>{p}</p>
             ))}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginTop: 32 }}>
