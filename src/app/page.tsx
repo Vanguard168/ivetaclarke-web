@@ -648,6 +648,204 @@ function Btn({ children, primary = true, onClick, small = false }: { children: R
   );
 }
 
+// ── Checkout Modal ────────────────────────────────────────────────────────────
+function CheckoutModal({ pkg, onClose, onBack }: {
+  pkg: typeof consultationData.packages[0];
+  onClose: () => void;
+  onBack: () => void;
+}) {
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", company: "", ico: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm(f => ({ ...f, [field]: e.target.value }));
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "11px 14px", borderRadius: 10,
+    border: `1px solid ${C.sand}`, background: C.cream,
+    fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
+    outline: "none", boxSizing: "border-box",
+    transition: "border-color 0.2s",
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.firstName || !form.lastName || !form.email) {
+      setError("Vyplňte prosím jméno, příjmení a e-mail.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageId:    pkg.id,
+          packageTitle: pkg.title,
+          name:  `${form.firstName} ${form.lastName}`,
+          email:  form.email,
+          company: form.company,
+          ico:     form.ico,
+        }),
+      });
+      const data = await res.json();
+      if (data.redirect) {
+        window.location.href = data.redirect;
+      } else {
+        setError(data.error || "Nastala chyba. Zkuste to prosím znovu.");
+      }
+    } catch {
+      setError("Chyba připojení. Zkontrolujte internet a zkuste znovu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 600,
+        background: "rgba(28,28,40,0.78)",
+        backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "24px 16px",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: C.cream, borderRadius: 24, maxWidth: 520, width: "100%",
+          maxHeight: "92vh", overflowY: "auto",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.36)",
+          position: "relative",
+        }}
+      >
+        {/* Gold top bar */}
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+
+        <div style={{ padding: "28px 32px 36px" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <button
+              onClick={onBack}
+              style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 18, padding: "0 6px 0 0", lineHeight: 1 }}
+              title="Zpět"
+            >←</button>
+            <div>
+              <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif" }}>OBJEDNÁVKA</div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>{pkg.title}</h3>
+            </div>
+            <button
+              onClick={onClose}
+              style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 20, lineHeight: 1, width: 32, height: 32, borderRadius: "50%", transition: "background 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.background = C.sand)}
+              onMouseLeave={e => (e.currentTarget.style.background = "none")}
+            >×</button>
+          </div>
+
+          {/* Order summary */}
+          <div style={{
+            background: C.warm, borderRadius: 12, padding: "14px 18px",
+            border: `1px solid ${C.sand}`, marginBottom: 24,
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            <div>
+              <div style={{ fontSize: 13, color: C.text, fontFamily: "Georgia, serif" }}>{pkg.title}</div>
+              <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>{pkg.priceNote}</div>
+            </div>
+            <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>{pkg.price}</div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JMÉNO *</label>
+                <input value={form.firstName} onChange={set("firstName")} placeholder="Jana" required
+                  style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)}
+                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>PŘÍJMENÍ *</label>
+                <input value={form.lastName} onChange={set("lastName")} placeholder="Nováková" required
+                  style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)}
+                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>E-MAIL *</label>
+              <input type="email" value={form.email} onChange={set("email")} placeholder="jana@example.cz" required
+                style={inputStyle}
+                onFocus={e => (e.target.style.borderColor = C.gold)}
+                onBlur={e => (e.target.style.borderColor = C.sand)} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, marginBottom: 20 }}>
+              <div>
+                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>FIRMA <span style={{ opacity: 0.6 }}>(nepovinné)</span></label>
+                <input value={form.company} onChange={set("company")} placeholder="ReDefine s.r.o."
+                  style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)}
+                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div style={{ minWidth: 110 }}>
+                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>IČO <span style={{ opacity: 0.6 }}>(nepovinné)</span></label>
+                <input value={form.ico} onChange={set("ico")} placeholder="12345678"
+                  style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)}
+                  onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+            </div>
+
+            {error && (
+              <div style={{
+                background: "rgba(200,80,80,0.08)", border: "1px solid rgba(200,80,80,0.25)",
+                borderRadius: 10, padding: "10px 14px", marginBottom: 16,
+                fontSize: 13, color: "#C85050", fontFamily: "Trebuchet MS, sans-serif",
+              }}>{error}</div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%", padding: "15px 0",
+                background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+                border: "none", borderRadius: 12,
+                color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif",
+                fontWeight: "bold", letterSpacing: "0.08em",
+                cursor: loading ? "not-allowed" : "pointer",
+                transition: "opacity 0.2s",
+              }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = "0.88"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+            >
+              {loading ? "Přesměrování na platební bránu…" : `ZAPLATIT ${pkg.price}`}
+            </button>
+
+            <p style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", marginTop: 14, lineHeight: 1.6 }}>
+              Platba je zpracována bezpečně přes ComGate.<br />Po zaplacení obdržíte e-mailem potvrzení a fakturu.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function useWindowWidth() {
   const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
   useEffect(() => {
@@ -659,9 +857,10 @@ function useWindowWidth() {
 }
 
 // ── Consultation Modal ────────────────────────────────────────────────────────
-function ConsultationModal({ pkg, onClose }: {
+function ConsultationModal({ pkg, onClose, onPay }: {
   pkg: typeof consultationData.packages[0];
   onClose: () => void;
+  onPay: () => void;
 }) {
   // Close on Escape
   useEffect(() => {
@@ -763,7 +962,7 @@ function ConsultationModal({ pkg, onClose }: {
             }}
             onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
             onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-            onClick={() => alert("→ Platební brána bude brzy dostupná")}
+            onClick={onPay}
           >
             ZAPLATIT
           </button>
@@ -806,6 +1005,7 @@ export default function App() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState<string | null>(null);
+  const [checkoutPkg, setCheckoutPkg] = useState<typeof consultationData.packages[0] | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
   const [navDarkness, setNavDarkness] = useState(1); // 1=dark, 0=light, floats in between
 
@@ -1241,8 +1441,22 @@ export default function App() {
       {/* ── KONZULTACE ───────────────────────────────────────────────────── */}
       {openModal && (() => {
         const pkg = consultationData.packages.find(p => p.id === openModal);
-        return pkg ? <ConsultationModal pkg={pkg} onClose={() => setOpenModal(null)} /> : null;
+        return pkg ? (
+          <ConsultationModal
+            pkg={pkg}
+            onClose={() => setOpenModal(null)}
+            onPay={() => { setCheckoutPkg(pkg); setOpenModal(null); }}
+          />
+        ) : null;
       })()}
+
+      {checkoutPkg && (
+        <CheckoutModal
+          pkg={checkoutPkg}
+          onClose={() => setCheckoutPkg(null)}
+          onBack={() => { setOpenModal(checkoutPkg.id); setCheckoutPkg(null); }}
+        />
+      )}
 
       <section id="konzultace" style={{ background: C.warm, padding: isMobile ? "64px 24px" : `80px ${px}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
