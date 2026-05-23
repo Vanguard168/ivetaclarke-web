@@ -617,6 +617,7 @@ export default function App() {
   const isMobile = width < 768;
   const isTablet = width < 1024;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [proKouceOpen, setProKouceOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
@@ -627,6 +628,7 @@ export default function App() {
   useEffect(() => {
     const darkSet = new Set(["hero", "vycvik", "podcast"]);
     const sections = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "pro-bono", "videa", "podcast", "kontakt"];
+
     const BLEND = 120; // px blend zone around section boundary
     const NAV_H = 58;
     let raf: number;
@@ -812,7 +814,48 @@ export default function App() {
 
           {/* Nav items */}
           <nav style={{ display: "flex", flexDirection: "column", gap: 0, flex: 1 }}>
-            {navItems.map((item, i) => (
+            {navItems.map((item, i) => item === "Pro Kouče" ? (
+              <div key={item} style={{ opacity: 0, animation: `menuItemIn 0.45s ease ${0.08 + i * 0.07}s forwards` }}>
+                {/* Pro Kouče toggle */}
+                <button
+                  onClick={() => setProKouceOpen(o => !o)}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                    fontSize: "clamp(26px, 8vw, 36px)", fontFamily: "Georgia, serif",
+                    color: "#ffffff", fontWeight: "normal",
+                    padding: "14px 0", width: "100%",
+                    borderBottom: proKouceOpen ? "none" : "1px solid rgba(255,255,255,0.08)",
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                  }}
+                >
+                  {item}
+                  <span style={{ color: C.gold, fontSize: "0.55em", transition: "transform 0.25s", display: "inline-block", transform: proKouceOpen ? "rotate(90deg)" : "none" }}>▾</span>
+                </button>
+                {/* Submenu */}
+                {proKouceOpen && (
+                  <div style={{ paddingLeft: 20, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                    {proKouceItems.map(sub => (
+                      <button key={sub}
+                        onClick={() => scrollTo(sub.toLowerCase())}
+                        style={{
+                          background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                          fontSize: "clamp(18px, 5.5vw, 26px)", fontFamily: "Georgia, serif",
+                          color: "rgba(255,255,255,0.75)", fontWeight: "normal",
+                          padding: "10px 0", width: "100%",
+                          borderBottom: "1px solid rgba(255,255,255,0.05)",
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                        }}
+                        onTouchStart={e => (e.currentTarget.style.color = C.gold)}
+                        onTouchEnd={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+                      >
+                        {sub}
+                        <span style={{ color: C.gold, fontSize: "0.5em", opacity: 0.7 }}>→</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
               <button key={item}
                 onClick={() => scrollTo(item.toLowerCase())}
                 style={{
@@ -825,8 +868,8 @@ export default function App() {
                   animation: `menuItemIn 0.45s ease ${0.08 + i * 0.07}s forwards`,
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = C.gold)}
-                onMouseLeave={e => (e.currentTarget.style.color = "#ffffff")}
+                onTouchStart={e => (e.currentTarget.style.color = C.gold)}
+                onTouchEnd={e => (e.currentTarget.style.color = "#ffffff")}
               >
                 {item}
                 <span style={{ color: C.gold, fontSize: "0.5em", opacity: 0.7 }}>→</span>
@@ -1178,6 +1221,23 @@ export default function App() {
         </div>
       </section>
 
+      {/* ── PRO BONO ─────────────────────────────────────────────────────── */}
+      <section id="pro-bono" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.warm }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Reveal>
+            <SectionLabel>PRO BONO</SectionLabel>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Bezplatná podpora</h2>
+            <Divider />
+            <p style={{ fontSize: 15.5, color: C.muted, lineHeight: 1.9, maxWidth: 680 }}>
+              Obsah této sekce bude doplněn. Pokud máte zájem o více informací, neváhejte mě kontaktovat.
+            </p>
+            <div style={{ marginTop: 32 }}>
+              <Btn onClick={() => scrollTo("kontakt")}>Kontaktujte mě</Btn>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ── VIDEA ────────────────────────────────────────────────────────── */}
       <section id="videa" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.cream }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
@@ -1384,22 +1444,6 @@ export default function App() {
       </section>
 
       {/* ── PRO BONO ─────────────────────────────────────────────────────── */}
-      <section id="pro-bono" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.warm }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <Reveal>
-            <SectionLabel>PRO BONO</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Bezplatná podpora</h2>
-            <Divider />
-            <p style={{ fontSize: 15.5, color: C.muted, lineHeight: 1.9, maxWidth: 680 }}>
-              Obsah této sekce bude doplněn. Pokud máte zájem o více informací, neváhejte mě kontaktovat.
-            </p>
-            <div style={{ marginTop: 32 }}>
-              <Btn onClick={() => scrollTo("kontakt")}>Kontaktujte mě</Btn>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
       {/* ── KONTAKT ──────────────────────────────────────────────────────── */}
       <section id="kontakt" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.cream }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
