@@ -1268,28 +1268,61 @@ export default function App() {
             </div>
           </Reveal>
 
-          {/* Packages grid */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24 }}>
-            {consultationData.packages.map((pkg, i) => (
-              <Reveal key={pkg.id} delay={0.08 + i * 0.08}>
+          {/* Top 2 individual cards */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20, marginBottom: 32 }}>
+            {consultationData.packages.slice(0, 2).map((pkg, i) => (
+              <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
                 <div style={{
-                  background: C.white, borderRadius: 20, padding: "32px 28px",
+                  background: C.white, borderRadius: 20, padding: "28px 32px",
+                  border: `1px solid ${C.sand}`,
+                  boxShadow: "0 4px 32px rgba(44,44,62,0.06)",
+                  display: "flex", flexDirection: "column", height: "100%",
+                }}>
+                  <div style={{ width: 4, height: 3, background: C.gold, borderRadius: 2, marginBottom: 16 }} />
+                  <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>{pkg.format?.toUpperCase()}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{pkg.title}</h3>
+                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
+                  <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
+                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Bottom 3 package cards */}
+          <Reveal delay={0.15}>
+            <h3 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 20px" }}>Možnosti spolupráce</h3>
+          </Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: 20 }}>
+            {consultationData.packages.slice(2).map((pkg, i) => (
+              <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
+                <div style={{
+                  background: C.white, borderRadius: 16, padding: "28px 24px",
                   border: `1px solid ${C.sand}`,
                   boxShadow: "0 4px 24px rgba(44,44,62,0.05)",
                   position: "relative", overflow: "hidden",
                   display: "flex", flexDirection: "column", height: "100%",
-                  transition: "box-shadow 0.25s, transform 0.25s",
-                }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(44,44,62,0.12)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(44,44,62,0.05)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}
-                >
-                  {/* Left gold accent */}
-                  <div style={{ width: 3, position: "absolute", left: 0, top: 0, bottom: 0, background: C.gold, borderRadius: "20px 0 0 20px" }} />
-                  <div style={{ paddingLeft: 8, flex: 1, display: "flex", flexDirection: "column" }}>
-                    <h3 style={{ fontSize: 19, fontWeight: "normal", color: C.dark, margin: "0 0 8px", lineHeight: 1.3 }}>{pkg.title}</h3>
-                    <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 16px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
-                    <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.8, marginBottom: 28, flex: 1 }}>{pkg.cardDesc}</p>
-                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
+                }}>
+                  <div style={{ width: 3, height: "100%", position: "absolute", left: 0, top: 0, background: C.gold }} />
+                  <div style={{ paddingLeft: 4, flex: 1, display: "flex", flexDirection: "column" }}>
+                    <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 6 }}>
+                      {pkg.format?.split("·").pop()?.trim().toUpperCase()}
+                    </div>
+                    <div style={{ fontSize: 17, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{pkg.title}</div>
+                    <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, marginBottom: 20, flex: 1 }}>{pkg.cardDesc}</p>
+                    <button
+                      onClick={() => setOpenModal(pkg.id)}
+                      style={{
+                        width: "100%", padding: "11px 0",
+                        background: C.gold, border: "none", borderRadius: 32,
+                        color: C.dark, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif",
+                        fontWeight: "bold", cursor: "pointer", letterSpacing: "0.04em",
+                        transition: "background 0.2s",
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = C.goldLight)}
+                      onMouseLeave={e => (e.currentTarget.style.background = C.gold)}
+                    >Chci vědět více</button>
                   </div>
                 </div>
               </Reveal>
