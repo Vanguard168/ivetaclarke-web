@@ -143,7 +143,8 @@ const supervisionData = {
   },
 };
 
-const navItems = ["O mně", "Konzultace", "Supervize", "Výcvik", "Videa", "Podcast", "Kontakt"];
+const navItems = ["O mně", "Pro veřejnost", "Pro Kouče", "Pro Bono", "Videa", "Podcast", "Kontakt"];
+const proKouceItems = ["Supervize", "Výcvik"];
 
 // ── Hooks ────────────────────────────────────────────────────────────────────
 function useScrollY() {
@@ -625,7 +626,7 @@ export default function App() {
   // Smooth scroll-based nav color interpolation
   useEffect(() => {
     const darkSet = new Set(["hero", "vycvik", "podcast"]);
-    const sections = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "videa", "podcast", "kontakt"];
+    const sections = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "pro-bono", "videa", "podcast", "kontakt"];
     const BLEND = 120; // px blend zone around section boundary
     const NAV_H = 58;
     let raf: number;
@@ -678,7 +679,7 @@ export default function App() {
   const hamburgerColor = navLogoColor;
 
   const scrollTo = (id: string) => {
-    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
+    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
     const el = document.getElementById(map[id.toLowerCase()] || id.toLowerCase().replace(/\s/g, "-").replace(/[^\w-]/g, ""));
     el?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
@@ -713,7 +714,40 @@ export default function App() {
         {/* Desktop nav */}
         {!isMobile && (
           <div style={{ display: "flex", gap: isTablet ? 18 : 28, alignItems: "center" }}>
-            {navItems.map(item => (
+            {navItems.map(item => item === "Pro Kouče" ? (
+              <div key={item} style={{ position: "relative" }}
+                onMouseEnter={e => (e.currentTarget.querySelector(".dropdown") as HTMLElement | null)?.style && ((e.currentTarget.querySelector(".dropdown") as HTMLElement).style.display = "flex")}
+                onMouseLeave={e => (e.currentTarget.querySelector(".dropdown") as HTMLElement | null)?.style && ((e.currentTarget.querySelector(".dropdown") as HTMLElement).style.display = "none")}
+              >
+                <button style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 15, fontFamily: "Trebuchet MS, sans-serif",
+                  color: navText, padding: "4px 0", display: "flex", alignItems: "center", gap: 4,
+                }}>
+                  {item} <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
+                </button>
+                <div className="dropdown" style={{
+                  display: "none", position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
+                  marginTop: 8, background: `rgba(${nr},${ng},${nb},0.96)`,
+                  backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+                  border: `1px solid ${navBorder}`, borderRadius: 10,
+                  padding: "8px 0", flexDirection: "column", minWidth: 140, zIndex: 200,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+                }}>
+                  {proKouceItems.map(sub => (
+                    <button key={sub} onClick={() => scrollTo(sub.toLowerCase())}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                        fontSize: 14, fontFamily: "Trebuchet MS, sans-serif",
+                        color: navText, padding: "10px 18px", whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.color = C.gold}
+                      onMouseLeave={e => e.currentTarget.style.color = navText}
+                    >{sub}</button>
+                  ))}
+                </div>
+              </div>
+            ) : (
               <button key={item} onClick={() => scrollTo(item.toLowerCase())}
                 style={{
                   background: "none", border: "none", cursor: "pointer",
@@ -724,7 +758,7 @@ export default function App() {
                 onMouseLeave={e => e.currentTarget.style.color = navText}
               >{item}</button>
             ))}
-            <Btn small onClick={() => scrollTo("konzultace")}>Rezervovat</Btn>
+            <Btn small onClick={() => scrollTo("pro veřejnost")}>Rezervovat</Btn>
           </div>
         )}
 
@@ -1344,6 +1378,23 @@ export default function App() {
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.</p>
               </div>
               <div style={{ fontSize: 9, background: "rgba(201,168,76,0.2)", color: C.gold, padding: "6px 16px", borderRadius: 12, fontFamily: "Trebuchet MS", border: `1px solid rgba(201,168,76,0.3)`, whiteSpace: "nowrap" }}>BRZY</div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── PRO BONO ─────────────────────────────────────────────────────── */}
+      <section id="pro-bono" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.warm }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Reveal>
+            <SectionLabel>PRO BONO</SectionLabel>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Bezplatná podpora</h2>
+            <Divider />
+            <p style={{ fontSize: 15.5, color: C.muted, lineHeight: 1.9, maxWidth: 680 }}>
+              Obsah této sekce bude doplněn. Pokud máte zájem o více informací, neváhejte mě kontaktovat.
+            </p>
+            <div style={{ marginTop: 32 }}>
+              <Btn onClick={() => scrollTo("kontakt")}>Kontaktujte mě</Btn>
             </div>
           </Reveal>
         </div>
