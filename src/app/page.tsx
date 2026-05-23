@@ -1378,9 +1378,9 @@ export default function App() {
                       </div>
                       {/* Text content */}
                       <div style={{ padding: isMobile ? "22px 24px" : "14px 20px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
-                        <div style={{ fontSize: isMobile ? 16 : 15, color: C.dark, marginBottom: isMobile ? 10 : 0, lineHeight: 1.4, fontFamily: "Georgia, serif" }}>{course.title}</div>
-                        {isMobile && <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: "0 0 20px", flex: 1 }}>{course.desc}</p>}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS", letterSpacing: "0.05em", marginTop: isMobile ? 0 : 10 }}>
+                        <div style={{ fontSize: isMobile ? 16 : 15, color: C.dark, marginBottom: 10, lineHeight: 1.4, fontFamily: "Georgia, serif" }}>{course.title}</div>
+                        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: "0 0 14px", flex: 1 }}>{course.desc}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS", letterSpacing: "0.05em" }}>
                           Přejít na kurz <span>→</span>
                         </div>
                       </div>
