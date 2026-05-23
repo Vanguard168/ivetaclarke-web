@@ -37,35 +37,57 @@ const aboutData = {
 };
 
 const consultationData = {
-  note: "Setkání mohou být online anebo osobní, v mé kanceláři v centru Prahy. Plánujete si je sami v požadované frekvenci, dle mého plánovacího kalendáře. Ceny jsou uvedeny bez DPH. Balíčky jsou platné ode dne převodu platby na účet ReDefine s.r.o.",
-  individual: [
-    {
-      title: "Individuální konzultace online",
-      duration: "60 minut",
-      price: "5 990 Kč",
-      priceNote: "vč. DPH / 4 950 Kč bez DPH",
-      desc: "Tento formát je vhodný pro analýzu vaší současné situace, zasazení do širšího kontextu, pojmenování základních otázek, definování vašich témat, a ošetření emocí. Výsledkem je vhled do situace, nasměrování a zklidnění.",
-    },
-    {
-      title: "Individuální konzultace osobní",
-      duration: "90 minut",
-      price: "8 990 Kč",
-      priceNote: "vč. DPH / 7 430 Kč bez DPH",
-      desc: "Osobní setkání v mé kanceláři v centru Prahy. Prostor pro hloubkový rozhovor s přesahem, reflexi a konkrétní impulzy pro váš život.",
-    },
+  intro: [
+    "Věřím, že aby člověk mohl lépe přemýšlet, potřebuje s někým mluvit.",
+    "Jsem kvalifikovaným průvodcem lidem v labyrintu přechodových životních fází (Life Transitions) – specificky v období midlife, nebo v období významných životních zlomů (Life-Quakes).",
+    "Častými průvodními jevy nebo spouštěči těchto tranzicí jsou nejistota, ztráta smyslu a směru, absence plánu nebo vize, potřeba obnovy, nové role, náročné emoce, kolapsy dlouholetých vztahů, únava oborem, kariérní strop a kariérní exit, nebo rodinná generační komplexita.",
+    "Pro své klienty jsem současně podporovatelem a vyzyvatelem.",
   ],
+  note: "Setkání mohou být online anebo osobní, v mé kanceláři v centru Prahy. Plánujete si je sami v požadované frekvenci, dle mého plánovacího kalendáře, který budete mít po celou dobu spolupráce k dispozici. Ceny zahrnují 21 % DPH. Balíčky jsou platné ode dne převodu platby na účet ReDefine s.r.o",
   packages: [
     {
-      id: "3m", title: "Krátkodobá spolupráce", duration: "3 měsíce", price: "24 990 Kč", priceNote: "vč. DPH / 20 653 Kč bez DPH", available: true,
-      desc: "Neomezený počet setkání dle vaší potřeby, délka setkání 90 minut. Online nebo osobní dle dohody. Vhodné pro prozkoumání dilemat, vyhodnocení postojů a osvojení relevantních konceptů.",
+      id: "1x",
+      title: "Jednorázová konzultace",
+      tagline: "Vyzkoušejte sílu rozhovoru s kvalifikovaným mentorem.",
+      cardDesc: "Tento formát je vhodný pro lidi, kteří se potřebují především rychle zorientovat ve vlastní situaci. Čekejte zasazení do širšího kontextu, pojmenování základních otázek, definování vašich témat, a ošetření emocí.",
+      modalDesc: "Jednorázovou konzultací získáte osobní zkušenost a pochopíte přidanou hodnotu práce s mentorem.",
+      result: "Výsledkem je vhled do situace, nasměrování a zklidnění.",
+      format: null,
+      price: "—",
+      priceNote: "Cena bude upřesněna",
     },
     {
-      id: "6m", title: "Střednědobá spolupráce", duration: "6 měsíců", price: "44 990 Kč", priceNote: "vč. DPH / 37 182 Kč bez DPH", available: true,
-      desc: "Neomezený počet setkání, délka 90 minut. Online nebo dle dohody. Umožňuje jít do větší hloubky, pracujeme s ověřenými koncepty a nástroji vedoucími ke zklidnění, úlevě a obnově energie.",
+      id: "3m",
+      title: "Krátkodobá spolupráce",
+      tagline: "Pro zvídavé nováčky v osobní práci.",
+      cardDesc: "Tento formát je vhodný pro lidi, kteří se potřebují zklidnit, a efektivně vyhodnotit svoje další kroky a směr. Prozkoumání vašich současných dilemat, vyhodnocení vašich postojů a osvojení několika konceptů umožní vidět vaši situaci na přehlednější mapě.",
+      modalDesc: "S tímto balíčkem máte k dispozici neomezený počet setkání dle vaší potřeby, každé v délce 90 minut, po dobu 3 měsíců.",
+      result: "Výsledkem je lepší orientace ve vašem terénu.",
+      format: "Neomezený počet setkání · 90 min / setkání · 3 měsíce",
+      price: "—",
+      priceNote: "Cena bude upřesněna",
     },
     {
-      id: "12m", title: "Roční spolupráce", duration: "12 měsíců", price: "74 990 Kč", priceNote: "vč. DPH / 61 975 Kč bez DPH", available: true,
-      desc: "Osobní provázení vaším životním kontextem a profesionální mentoring. Neomezený počet setkání v délce 90 minut. Online nebo dle dohody. V tomto balíčku budujeme vztah – jsem vaším životním sparring partnerem.",
+      id: "6m",
+      title: "Střednědobá spolupráce",
+      tagline: "Pro lidi, kteří chtějí udržitelné usazení (grounding).",
+      cardDesc: "Tento formát umožňuje jít do větší hloubky, k podstatě dilemat a otázek, které si kladete. Ověřené koncepty a nástroje mohou pomoci v rozšíření vaší perspektivy a zprostředkují nové vhledy.",
+      modalDesc: "S tímto balíčkem máte k dispozici neomezený počet setkání dle vaší potřeby, každé v délce 90 minut, po dobu 6 měsíců.",
+      result: "Výsledkem je udržitelné zklidnění, úleva, obnova energie a akceschopnosti.",
+      format: "Neomezený počet setkání · 90 min / setkání · 6 měsíců",
+      price: "—",
+      priceNote: "Cena bude upřesněna",
+    },
+    {
+      id: "12m",
+      title: "Roční spolupráce",
+      tagline: "Pro lidi, kteří hledají udržitelný životní posun.",
+      cardDesc: "Dlouhodobé osobní provázení vaším životním kontextem a profesionální mentoring zahrnující informace, zkušenosti a nové mentální koncepty k osvojení. Budujeme vztah. Máme čas na nácvik a osvojení nových návyků a postojů.",
+      modalDesc: "Máte k dispozici neomezený počet setkání, každé v délce 90 minut, po dobu jednoho ročního cyklu.",
+      result: "Jsem vaším důvěrným partnerem, průvodcem, podporovatelem, rádcem a vyzyvatelem.",
+      format: "Neomezený počet setkání · 90 min / setkání · 12 měsíců",
+      price: "—",
+      priceNote: "Cena bude upřesněna",
     },
   ],
 };
@@ -625,6 +647,139 @@ function useWindowWidth() {
   return w;
 }
 
+// ── Consultation Modal ────────────────────────────────────────────────────────
+function ConsultationModal({ pkg, onClose }: {
+  pkg: typeof consultationData.packages[0];
+  onClose: () => void;
+}) {
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 500,
+        background: "rgba(28,28,40,0.72)",
+        backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "24px 16px",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: C.cream, borderRadius: 24, maxWidth: 560, width: "100%",
+          maxHeight: "90vh", overflowY: "auto",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.36)",
+          position: "relative",
+        }}
+      >
+        {/* Gold top bar */}
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+
+        <div style={{ padding: "32px 36px 36px" }}>
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            style={{
+              position: "absolute", top: 20, right: 20,
+              background: "none", border: "none", cursor: "pointer",
+              width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
+              color: C.muted, fontSize: 20, lineHeight: 1,
+              borderRadius: "50%", transition: "background 0.15s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = C.sand)}
+            onMouseLeave={e => (e.currentTarget.style.background = "none")}
+          >×</button>
+
+          {/* Title */}
+          <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 10 }}>
+            KONZULTACE & MENTORING
+          </div>
+          <h3 style={{ fontSize: 26, fontWeight: "normal", margin: "0 0 6px", color: C.dark }}>{pkg.title}</h3>
+          <p style={{ fontSize: 15, color: C.gold, fontStyle: "italic", margin: "0 0 24px", lineHeight: 1.5 }}>{pkg.tagline}</p>
+
+          <div style={{ height: 1, background: C.sand, marginBottom: 24 }} />
+
+          {/* Card description */}
+          <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.85, marginBottom: 16 }}>{pkg.cardDesc}</p>
+
+          {/* Modal teaser */}
+          <p style={{ fontSize: 14.5, color: C.text, lineHeight: 1.85, marginBottom: pkg.result ? 8 : 24 }}>{pkg.modalDesc}</p>
+
+          {/* Result */}
+          {pkg.result && (
+            <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, fontStyle: "italic", marginBottom: 24 }}>{pkg.result}</p>
+          )}
+
+          {/* Format */}
+          {pkg.format && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              background: C.warm, borderRadius: 10, padding: "12px 16px", marginBottom: 24,
+              border: `1px solid ${C.sand}`,
+            }}>
+              <div style={{ width: 3, height: 28, background: C.gold, borderRadius: 2, flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.6 }}>{pkg.format}</span>
+            </div>
+          )}
+
+          <div style={{ height: 1, background: C.sand, marginBottom: 24 }} />
+
+          {/* Price */}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
+            <div>
+              <div style={{ fontSize: 32, color: C.dark, lineHeight: 1 }}>{pkg.price}</div>
+              <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 6 }}>{pkg.priceNote}</div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <button
+            style={{
+              width: "100%", padding: "15px 0",
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+              border: "none", borderRadius: 12,
+              color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif",
+              fontWeight: "bold", letterSpacing: "0.08em", cursor: "pointer",
+              marginBottom: 14, transition: "opacity 0.2s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+            onClick={() => alert("→ Platební brána bude brzy dostupná")}
+          >
+            TO CHCI – ZAPLATIT
+          </button>
+
+          {/* Calendar link */}
+          <div style={{ textAlign: "center" }}>
+            <a
+              href="#kontakt"
+              onClick={e => { e.preventDefault(); onClose(); document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" }); }}
+              style={{
+                fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif",
+                textDecoration: "none", letterSpacing: "0.04em",
+                borderBottom: `1px solid ${C.sand}`, paddingBottom: 1,
+                transition: "color 0.2s, border-color 0.2s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.gold; (e.currentTarget as HTMLElement).style.borderBottomColor = C.gold; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; (e.currentTarget as HTMLElement).style.borderBottomColor = C.sand; }}
+            >
+              Naplánujte setkání zde →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
   const scrollY = useScrollY();
@@ -639,6 +794,7 @@ export default function App() {
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
+  const [openModal, setOpenModal] = useState<string | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
   const [navDarkness, setNavDarkness] = useState(1); // 1=dark, 0=light, floats in between
 
@@ -1072,6 +1228,11 @@ export default function App() {
       </section>
 
       {/* ── KONZULTACE ───────────────────────────────────────────────────── */}
+      {openModal && (() => {
+        const pkg = consultationData.packages.find(p => p.id === openModal);
+        return pkg ? <ConsultationModal pkg={pkg} onClose={() => setOpenModal(null)} /> : null;
+      })()}
+
       <section id="konzultace" style={{ background: C.warm, padding: isMobile ? "64px 24px" : `80px ${px}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
@@ -1080,54 +1241,44 @@ export default function App() {
             <Divider />
           </Reveal>
 
-          {/* Individual consultations */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20, marginBottom: 32 }}>
-            {consultationData.individual.map((item, i) => (
-              <Reveal key={i} delay={0.1 + i * 0.1}>
-                <div style={{
-                  background: C.white, borderRadius: 20, padding: "28px 32px",
-                  border: `1px solid ${C.sand}`,
-                  boxShadow: "0 4px 32px rgba(44,44,62,0.06)",
-                  display: "flex", flexDirection: "column", height: "100%",
-                }}>
-                  <div style={{ width: 4, height: 3, background: C.gold, borderRadius: 2, marginBottom: 16 }} />
-                  <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS", marginBottom: 8 }}>{item.duration.toUpperCase()}</div>
-                  <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{item.title}</h3>
-                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{item.desc}</p>
-                  <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 24, color: C.dark }}>{item.price}</div>
-                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginTop: 4 }}>{item.priceNote}</div>
-                    </div>
-                    <Btn small onClick={() => alert("→ Přesměrování na kalendář rezervací")}>Rezervovat</Btn>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* Packages */}
-          <Reveal delay={0.15}>
-            <h3 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 20px" }}>Možnosti spolupráce</h3>
+          {/* Intro text */}
+          <Reveal delay={0.05}>
+            <div style={{ maxWidth: 700, marginBottom: 52 }}>
+              {consultationData.intro.map((para, i) => (
+                <p key={i} style={{
+                  fontSize: i === 0 ? 18 : 15,
+                  color: i === 0 ? C.text : C.muted,
+                  lineHeight: 1.85,
+                  marginBottom: i === consultationData.intro.length - 1 ? 0 : 14,
+                  fontStyle: i === 0 ? "italic" : "normal",
+                  fontWeight: i === 0 ? "normal" : "normal",
+                }}>{para}</p>
+              ))}
+            </div>
           </Reveal>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: 20 }}>
+
+          {/* Packages grid */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24 }}>
             {consultationData.packages.map((pkg, i) => (
-              <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
+              <Reveal key={pkg.id} delay={0.08 + i * 0.08}>
                 <div style={{
-                  background: C.white, borderRadius: 16, padding: "28px 24px",
+                  background: C.white, borderRadius: 20, padding: "32px 28px",
                   border: `1px solid ${C.sand}`,
                   boxShadow: "0 4px 24px rgba(44,44,62,0.05)",
                   position: "relative", overflow: "hidden",
                   display: "flex", flexDirection: "column", height: "100%",
-                }}>
-                  <div style={{ width: 3, height: "100%", position: "absolute", left: 0, top: 0, background: C.gold }} />
-                  <div style={{ paddingLeft: 4, flex: 1, display: "flex", flexDirection: "column" }}>
-                    <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>{pkg.duration.toUpperCase()}</div>
-                    <div style={{ fontSize: 17, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{pkg.title}</div>
-                    <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, marginBottom: 20, flex: 1 }}>{pkg.desc}</p>
-                    <div style={{ fontSize: 22, color: C.dark, marginBottom: 4 }}>{pkg.price}</div>
-                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginBottom: 16 }}>{pkg.priceNote}</div>
-                    <Btn small onClick={() => alert("→ Rezervace balíčku")}>Vybrat balíček</Btn>
+                  transition: "box-shadow 0.25s, transform 0.25s",
+                }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(44,44,62,0.12)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(44,44,62,0.05)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}
+                >
+                  {/* Left gold accent */}
+                  <div style={{ width: 3, position: "absolute", left: 0, top: 0, bottom: 0, background: C.gold, borderRadius: "20px 0 0 20px" }} />
+                  <div style={{ paddingLeft: 8, flex: 1, display: "flex", flexDirection: "column" }}>
+                    <h3 style={{ fontSize: 19, fontWeight: "normal", color: C.dark, margin: "0 0 8px", lineHeight: 1.3 }}>{pkg.title}</h3>
+                    <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 16px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
+                    <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.8, marginBottom: 28, flex: 1 }}>{pkg.cardDesc}</p>
+                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
                   </div>
                 </div>
               </Reveal>
@@ -1136,8 +1287,8 @@ export default function App() {
 
           {/* Note */}
           <Reveal delay={0.3}>
-            <div style={{ marginTop: 28, padding: "16px 22px", background: C.cream, borderRadius: 10, border: `1px solid ${C.sand}` }}>
-              <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>
+            <div style={{ marginTop: 32, padding: "18px 24px", background: C.cream, borderRadius: 12, border: `1px solid ${C.sand}` }}>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: 0, fontStyle: "italic" }}>
                 {consultationData.note}
               </p>
             </div>
