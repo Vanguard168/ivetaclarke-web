@@ -147,8 +147,18 @@ const navItems = ["O mně", "Pro veřejnost", "Pro Kouče", "Pro Bono", "Videa",
 const proVerejnostItems = ["Konzultace", "Kurzy"];
 const proKouceItems = ["Supervize", "Výcvik"];
 const seduoCourses = [
-  { title: "Umění rozhovoru", url: "https://www.seduo.cz/umeni-rozhovoru", desc: "Online kurz zaměřený na umění dialogu, naslouchání a vedení smysluplných rozhovorů." },
-  { title: "Umění Zranitelnosti – Posilovna emoční odvahy", url: "https://www.seduo.cz/umeni-zranitelnosti-posilovna-emocni-odvahy", desc: "Kurz o zranitelnosti, emoční odvaze a cestě k autentickému životu." },
+  {
+    title: "Umění rozhovoru",
+    url: "https://www.seduo.cz/umeni-rozhovoru",
+    desc: "Online kurz zaměřený na umění dialogu, naslouchání a vedení smysluplných rozhovorů.",
+    image: "https://seduocz.educdn.cz/images/111322-iveta-clarke-umeni-rozhovoru-cz.jpg:preview3x",
+  },
+  {
+    title: "Umění Zranitelnosti – Posilovna emoční odvahy",
+    url: "https://www.seduo.cz/umeni-zranitelnosti-posilovna-emocni-odvahy",
+    desc: "Kurz o zranitelnosti, emoční odvaze a cestě k autentickému životu.",
+    image: "https://seduocz.educdn.cz/images/118563-b9cda10b-d9cd-4a33-9f04-246379de4067.jpg:preview3x",
+  },
 ];
 
 // ── Hooks ────────────────────────────────────────────────────────────────────
@@ -1124,27 +1134,42 @@ export default function App() {
               <h2 style={{ fontSize: "clamp(24px, 2.5vw, 36px)", fontWeight: "normal", margin: "0 0 8px" }}>Kurzy na Seduo</h2>
               <Divider />
             </Reveal>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24, marginTop: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 28, marginTop: 8, alignItems: "stretch" }}>
               {seduoCourses.map((course, i) => (
                 <Reveal key={i} delay={0.1 + i * 0.1}>
-                  <a href={course.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <a href={course.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block", height: "100%" }}>
                     <div style={{
-                      background: C.white, borderRadius: 16, padding: "28px 28px",
+                      background: C.white, borderRadius: 16,
                       border: `1px solid ${C.sand}`,
-                      boxShadow: "0 4px 24px rgba(44,44,62,0.05)",
-                      position: "relative", overflow: "hidden",
-                      transition: "box-shadow 0.2s, transform 0.2s",
+                      boxShadow: "0 4px 24px rgba(44,44,62,0.06)",
+                      overflow: "hidden",
+                      transition: "box-shadow 0.25s, transform 0.25s",
                       cursor: "pointer",
+                      display: "flex", flexDirection: "column", height: "100%",
                     }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 40px rgba(44,44,62,0.13)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(44,44,62,0.05)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 48px rgba(44,44,62,0.14)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(44,44,62,0.06)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}
                     >
-                      <div style={{ width: 3, height: "100%", position: "absolute", left: 0, top: 0, background: C.gold }} />
-                      <div style={{ paddingLeft: 4 }}>
-                        <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 8 }}>SEDUO.CZ</div>
-                        <div style={{ fontSize: 18, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{course.title}</div>
-                        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: "0 0 20px" }}>{course.desc}</p>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS" }}>
+                      {/* Preview image */}
+                      <div style={{ width: "100%", height: 200, overflow: "hidden", flexShrink: 0, position: "relative", background: C.warm }}>
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        />
+                        {/* Seduo badge */}
+                        <div style={{
+                          position: "absolute", top: 12, left: 12,
+                          background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)",
+                          borderRadius: 6, padding: "4px 10px",
+                          fontSize: 10, color: "#ffffff", fontFamily: "Trebuchet MS", letterSpacing: "0.15em",
+                        }}>SEDUO.CZ</div>
+                      </div>
+                      {/* Text content */}
+                      <div style={{ padding: "22px 24px", display: "flex", flexDirection: "column", flex: 1 }}>
+                        <div style={{ fontSize: 16, color: C.dark, marginBottom: 10, lineHeight: 1.4, fontFamily: "Georgia, serif" }}>{course.title}</div>
+                        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: "0 0 20px", flex: 1 }}>{course.desc}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS", letterSpacing: "0.05em" }}>
                           Přejít na kurz <span>→</span>
                         </div>
                       </div>
