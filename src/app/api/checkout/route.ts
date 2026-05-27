@@ -15,6 +15,11 @@ const PRICES: Record<string, number> = {
   "ws-b1":      5999000,   // 59 990 Kč
   "ws-b2":      5099000,   // 50 990 Kč
   "ws-full":    6699000,   // 66 990 Kč
+  // Workshop – early bird -15 % (do 31. 7. 2026)
+  "ws-base-eb": 3705000,   // 37 050 Kč
+  "ws-b1-eb":   5099000,   // 50 990 Kč
+  "ws-b2-eb":   4334000,   // 43 340 Kč
+  "ws-full-eb": 5694000,   // 56 940 Kč
 };
 
 export async function POST(req: NextRequest) {

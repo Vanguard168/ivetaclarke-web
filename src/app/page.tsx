@@ -666,13 +666,14 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 // ── Button ────────────────────────────────────────────────────────────────────
-function Btn({ children, primary = true, onClick, small = false }: { children: React.ReactNode; primary?: boolean; onClick?: () => void; small?: boolean }) {
+function Btn({ children, primary = true, onClick, small = false, pulse = false }: { children: React.ReactNode; primary?: boolean; onClick?: () => void; small?: boolean; pulse?: boolean }) {
   const [hover, setHover] = useState(false);
   return (
     <button
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      className={pulse ? "btn-pulse" : undefined}
       style={{
         padding: small ? "9px 22px" : "13px 30px",
         background: primary ? (hover ? C.goldLight : C.gold) : "transparent",
@@ -683,7 +684,7 @@ function Btn({ children, primary = true, onClick, small = false }: { children: R
         fontFamily: "Trebuchet MS, sans-serif",
         fontWeight: "bold",
         cursor: "pointer",
-        transition: "all 0.2s",
+        transition: "background 0.2s, color 0.2s, border-color 0.2s",
         whiteSpace: "nowrap",
       }}
     >{children}</button>
@@ -691,12 +692,29 @@ function Btn({ children, primary = true, onClick, small = false }: { children: R
 }
 
 // ── Workshop Modal ────────────────────────────────────────────────────────────
+const EARLY_BIRD_DEADLINE = new Date("2026-08-01");
+const EARLY_BIRD_DISCOUNT = 0.15;
+
+function applyEarlyBird(priceStr: string): string {
+  const raw = parseInt(priceStr.replace(/\s/g, ""), 10);
+  const disc = Math.round(raw * (1 - EARLY_BIRD_DISCOUNT) / 10) * 10;
+  return disc.toLocaleString("cs-CZ").replace(/ /g, " ") + " Kč";
+}
+
+function ebPriceNote(discountedPrice: string): string {
+  const raw = parseInt(discountedPrice.replace(/[\s Kč]/g, ""), 10);
+  const bezDph = Math.round(raw / 1.21);
+  return `vč. DPH / ${bezDph.toLocaleString("cs-CZ").replace(/ /g, " ")} Kč bez DPH`;
+}
+
 function WorkshopModal({ onClose, onPay }: {
   onClose: () => void;
   onPay: (pkg: typeof supervisionData.workshop.packages[0]) => void;
 }) {
   const w = supervisionData.workshop;
   const [selected, setSelected] = useState<string | null>(null);
+  const isEarlyBird = new Date() < EARLY_BIRD_DEADLINE;
+  const daysLeft = Math.ceil((EARLY_BIRD_DEADLINE.getTime() - Date.now()) / 86400000);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -706,6 +724,14 @@ function WorkshopModal({ onClose, onPay }: {
   }, [onClose]);
 
   const selectedPkg = w.packages.find(p => p.id === selected) ?? null;
+
+  // Build the pkg object sent to checkout — early bird gets discounted price + eb- id
+  const checkoutPkg = selectedPkg ? (isEarlyBird ? {
+    ...selectedPkg,
+    id: selectedPkg.id + "-eb",
+    price: applyEarlyBird(selectedPkg.price),
+    priceNote: ebPriceNote(applyEarlyBird(selectedPkg.price)),
+  } : selectedPkg) : null;
 
   return (
     <div onClick={onClose} style={{
@@ -726,7 +752,7 @@ function WorkshopModal({ onClose, onPay }: {
 
         <div style={{ padding: "28px 32px 36px" }}>
           {/* Header */}
-          <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 20 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>WORKSHOP PRO PROFESIONÁLNÍ KOUČE</div>
               <h3 style={{ fontSize: 22, fontWeight: "normal", color: C.white, margin: "0 0 4px" }}>{w.title}</h3>
@@ -737,8 +763,26 @@ function WorkshopModal({ onClose, onPay }: {
               onMouseLeave={e => (e.currentTarget.style.background = "none")}>×</button>
           </div>
 
+          {/* Early bird banner */}
+          {isEarlyBird && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12,
+              padding: "12px 16px", borderRadius: 12, marginBottom: 20,
+              background: "linear-gradient(135deg, rgba(201,168,76,0.18) 0%, rgba(201,168,76,0.08) 100%)",
+              border: "1px solid rgba(201,168,76,0.4)",
+            }}>
+              <div style={{ fontSize: 20 }}>🎁</div>
+              <div>
+                <div style={{ fontSize: 13, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif" }}>Early bird sleva 15 %</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>
+                  Platí do 31. 7. 2026 &nbsp;·&nbsp; zbývá {daysLeft} {daysLeft === 1 ? "den" : daysLeft < 5 ? "dny" : "dní"}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Logistics chips */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
             {[w.date, w.maxParticipants, w.hours].map(info => (
               <div key={info} style={{ padding: "5px 12px", background: "rgba(201,168,76,0.1)", borderRadius: 20, border: "1px solid rgba(201,168,76,0.25)", fontSize: 11, color: "rgba(255,255,255,0.65)", fontFamily: "Trebuchet MS, sans-serif" }}>{info}</div>
             ))}
@@ -749,6 +793,7 @@ function WorkshopModal({ onClose, onPay }: {
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
             {w.packages.map(pkg => {
               const active = selected === pkg.id;
+              const discPrice = isEarlyBird ? applyEarlyBird(pkg.price) : null;
               return (
                 <div key={pkg.id} onClick={() => setSelected(pkg.id)} style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -759,10 +804,19 @@ function WorkshopModal({ onClose, onPay }: {
                 }}>
                   <div style={{ flex: 1, minWidth: 0, marginRight: 16 }}>
                     <div style={{ fontSize: 14, color: active ? C.gold : C.white, fontWeight: active ? "bold" : "normal", transition: "color 0.18s", lineHeight: 1.3 }}>{pkg.title}</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>{pkg.priceNote}</div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>
+                      {discPrice ? ebPriceNote(discPrice) : pkg.priceNote}
+                    </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                    <div style={{ fontSize: 18, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>{pkg.price}</div>
+                    <div style={{ textAlign: "right" }}>
+                      {discPrice && (
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "line-through", fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.price}</div>
+                      )}
+                      <div style={{ fontSize: 18, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                        {discPrice ?? pkg.price}
+                      </div>
+                    </div>
                     <div style={{
                       width: 20, height: 20, borderRadius: "50%",
                       border: `2px solid ${active ? C.gold : "rgba(255,255,255,0.2)"}`,
@@ -786,20 +840,20 @@ function WorkshopModal({ onClose, onPay }: {
 
           {/* CTA */}
           <button
-            disabled={!selectedPkg}
-            onClick={() => selectedPkg && onPay(selectedPkg)}
+            disabled={!checkoutPkg}
+            onClick={() => checkoutPkg && onPay(checkoutPkg)}
             style={{
               width: "100%", padding: "15px 24px", borderRadius: 32,
-              background: selectedPkg ? C.gold : "rgba(255,255,255,0.06)",
-              border: selectedPkg ? "none" : "1.5px solid rgba(255,255,255,0.1)",
-              color: selectedPkg ? C.darker : "rgba(255,255,255,0.25)",
+              background: checkoutPkg ? C.gold : "rgba(255,255,255,0.06)",
+              border: checkoutPkg ? "none" : "1.5px solid rgba(255,255,255,0.1)",
+              color: checkoutPkg ? C.darker : "rgba(255,255,255,0.25)",
               fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
               fontWeight: "bold", letterSpacing: "0.1em",
-              cursor: selectedPkg ? "pointer" : "not-allowed",
+              cursor: checkoutPkg ? "pointer" : "not-allowed",
               transition: "all 0.22s",
             }}
           >
-            {selectedPkg ? `ZAPLATIT — ${selectedPkg.price}` : "NEJPRVE ZVOLTE VARIANTU"}
+            {checkoutPkg ? `ZAPLATIT — ${checkoutPkg.price}` : "NEJPRVE ZVOLTE VARIANTU"}
           </button>
         </div>
       </div>
@@ -2027,7 +2081,7 @@ export default function App() {
               </div>
               {/* CTA */}
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                <Btn onClick={() => setOpenWorkshopModal(true)}>Zaregistrovat se</Btn>
+                <Btn onClick={() => setOpenWorkshopModal(true)} pulse>Zaregistrovat se</Btn>
               </div>
             </div>
           </Reveal>
@@ -2379,6 +2433,12 @@ export default function App() {
           from { transform: scaleX(0); transform-origin: left; }
           to   { transform: scaleX(1); transform-origin: left; }
         }
+        @keyframes btnPulse {
+          0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0.65); }
+          65%  { box-shadow: 0 0 0 12px rgba(201,168,76,0); }
+          100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+        }
+        .btn-pulse { animation: btnPulse 2s ease-out infinite; }
         * { box-sizing: border-box; }
         button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
         input:focus, textarea:focus { border-color: #C9A84C !important; }
