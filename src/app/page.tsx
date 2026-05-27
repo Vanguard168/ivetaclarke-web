@@ -811,7 +811,7 @@ function WorkshopModal({ onClose, onPay }: {
                   <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
                     <div style={{ textAlign: "right" }}>
                       {discPrice && (
-                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "line-through", fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.price}</div>
+                        <div style={{ fontSize: 16, color: C.gold, textDecoration: "line-through", fontFamily: "Trebuchet MS, sans-serif", opacity: 0.7 }}>{pkg.price}</div>
                       )}
                       <div style={{ fontSize: 18, color: discPrice ? "#D94F4F" : C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>
                         {discPrice ?? pkg.price}
