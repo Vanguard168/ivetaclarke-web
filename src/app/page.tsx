@@ -2027,16 +2027,7 @@ export default function App() {
               </div>
               {/* CTA */}
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>VARIANTY ÚČASTI</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
-                  {supervisionData.workshop.packages.map(pkg => (
-                    <div key={pkg.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.title}</span>
-                      <span style={{ fontSize: 16, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap", marginLeft: 12 }}>{pkg.price}</span>
-                    </div>
-                  ))}
-                </div>
-                <Btn onClick={() => setOpenWorkshopModal(true)}>Chci vědět více</Btn>
+                <Btn onClick={() => setOpenWorkshopModal(true)}>Zaregistrovat se</Btn>
               </div>
             </div>
           </Reveal>
