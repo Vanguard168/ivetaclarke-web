@@ -210,10 +210,10 @@ const supervisionData = {
     maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční · 2× ročně",
     hours: "Časová dotace: 12 hodin výcviku – 2 dny",
     packages: [
-      { id: "ws-base", title: "Základní program (2 dny)", tagline: "Dvoudenní prezenční výcvik – základ práce s midlife klienty.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny · 12 hodin výcviku", price: "43 590 Kč", priceNote: "vč. DPH / 36 025 Kč bez DPH", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
+      { id: "ws-full", title: "Plný program včetně obou bonusů", tagline: "Kompletní výcvik: základní program + oba bonusy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + workshop 3 h + supervize 2 h", price: "66 990 Kč", priceNote: "vč. DPH / 55 364 Kč bez DPH" },
       { id: "ws-b1", title: "S Bonusem 1 – Kultivace moudrosti", tagline: "Základní program + 3hodinový online workshop o lidské moudrosti.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + online workshop · 3 hodiny", price: "59 990 Kč", priceNote: "vč. DPH / 49 579 Kč bez DPH" },
       { id: "ws-b2", title: "S Bonusem 2 – Midlife coaching supervize", tagline: "Základní program + 2 hodiny supervizní práce s midlife tématy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + supervize · 2 hodiny", price: "50 990 Kč", priceNote: "vč. DPH / 42 141 Kč bez DPH" },
-      { id: "ws-full", title: "Plný program včetně obou bonusů", tagline: "Kompletní výcvik: základní program + oba bonusy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + workshop 3 h + supervize 2 h", price: "66 990 Kč", priceNote: "vč. DPH / 55 364 Kč bez DPH" },
+      { id: "ws-base", title: "Základní program (2 dny)", tagline: "Dvoudenní prezenční výcvik – základ práce s midlife klienty.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny · 12 hodin výcviku", price: "43 590 Kč", priceNote: "vč. DPH / 36 025 Kč bez DPH", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
     ],
   },
 }
@@ -813,7 +813,7 @@ function WorkshopModal({ onClose, onPay }: {
                       {discPrice && (
                         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "line-through", fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.price}</div>
                       )}
-                      <div style={{ fontSize: 18, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                      <div style={{ fontSize: 18, color: discPrice ? "#D94F4F" : C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>
                         {discPrice ?? pkg.price}
                       </div>
                     </div>
