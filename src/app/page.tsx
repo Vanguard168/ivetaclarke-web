@@ -209,12 +209,12 @@ const supervisionData = {
     earlyBird: "Early bird sleva 15 % do konce července 2026",
     maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční · 2× ročně",
     hours: "Časová dotace: 12 hodin výcviku – 2 dny",
-    base: { label: "Základní program (2 dny)", price: "36 000 Kč", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
-    bonusPrices: [
-      { label: "S Bonusem 1 – Kultivace moudrosti", price: "50 000 Kč" },
-      { label: "S Bonusem 2 – Midlife coaching supervize", price: "42 000 Kč" },
+    packages: [
+      { id: "ws-base", title: "Základní program (2 dny)", tagline: "Dvoudenní prezenční výcvik – základ práce s midlife klienty.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny · 12 hodin výcviku", price: "43 590 Kč", priceNote: "vč. DPH / 36 025 Kč bez DPH", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
+      { id: "ws-b1", title: "S Bonusem 1 – Kultivace moudrosti", tagline: "Základní program + 3hodinový online workshop o lidské moudrosti.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + online workshop · 3 hodiny", price: "59 990 Kč", priceNote: "vč. DPH / 49 579 Kč bez DPH" },
+      { id: "ws-b2", title: "S Bonusem 2 – Midlife coaching supervize", tagline: "Základní program + 2 hodiny supervizní práce s midlife tématy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + supervize · 2 hodiny", price: "50 990 Kč", priceNote: "vč. DPH / 42 141 Kč bez DPH" },
+      { id: "ws-full", title: "Plný program včetně obou bonusů", tagline: "Kompletní výcvik: základní program + oba bonusy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + workshop 3 h + supervize 2 h", price: "66 990 Kč", priceNote: "vč. DPH / 55 364 Kč bez DPH" },
     ],
-    full: { label: "Plný program včetně obou bonusů", price: "56 000 Kč" },
   },
 }
 
@@ -690,6 +690,123 @@ function Btn({ children, primary = true, onClick, small = false }: { children: R
   );
 }
 
+// ── Workshop Modal ────────────────────────────────────────────────────────────
+function WorkshopModal({ onClose, onPay }: {
+  onClose: () => void;
+  onPay: (pkg: typeof supervisionData.workshop.packages[0]) => void;
+}) {
+  const w = supervisionData.workshop;
+  const [selected, setSelected] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const selectedPkg = w.packages.find(p => p.id === selected) ?? null;
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 600,
+      background: "rgba(18,15,30,0.85)",
+      backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "24px 16px",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: "#1E1D2E", borderRadius: 24, maxWidth: 560, width: "100%",
+        maxHeight: "92vh", overflowY: "auto",
+        boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+        position: "relative",
+      }}>
+        {/* Gold top bar */}
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+
+        <div style={{ padding: "28px 32px 36px" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 24 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>WORKSHOP PRO PROFESIONÁLNÍ KOUČE</div>
+              <h3 style={{ fontSize: 22, fontWeight: "normal", color: C.white, margin: "0 0 4px" }}>{w.title}</h3>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS, sans-serif" }}>{w.subtitle}</div>
+            </div>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: 22, lineHeight: 1, width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s", flexShrink: 0 }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "none")}>×</button>
+          </div>
+
+          {/* Logistics chips */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
+            {[w.date, w.maxParticipants, w.hours].map(info => (
+              <div key={info} style={{ padding: "5px 12px", background: "rgba(201,168,76,0.1)", borderRadius: 20, border: "1px solid rgba(201,168,76,0.25)", fontSize: 11, color: "rgba(255,255,255,0.65)", fontFamily: "Trebuchet MS, sans-serif" }}>{info}</div>
+            ))}
+          </div>
+
+          {/* Package selection */}
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", letterSpacing: "0.15em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 12 }}>ZVOLTE VARIANTU ÚČASTI</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+            {w.packages.map(pkg => {
+              const active = selected === pkg.id;
+              return (
+                <div key={pkg.id} onClick={() => setSelected(pkg.id)} style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "14px 18px", borderRadius: 12, cursor: "pointer",
+                  background: active ? "rgba(201,168,76,0.14)" : "rgba(255,255,255,0.04)",
+                  border: `1.5px solid ${active ? C.gold : "rgba(255,255,255,0.09)"}`,
+                  transition: "all 0.18s",
+                }}>
+                  <div style={{ flex: 1, minWidth: 0, marginRight: 16 }}>
+                    <div style={{ fontSize: 14, color: active ? C.gold : C.white, fontWeight: active ? "bold" : "normal", transition: "color 0.18s", lineHeight: 1.3 }}>{pkg.title}</div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>{pkg.priceNote}</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+                    <div style={{ fontSize: 18, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>{pkg.price}</div>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: "50%",
+                      border: `2px solid ${active ? C.gold : "rgba(255,255,255,0.2)"}`,
+                      background: active ? C.gold : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.18s", flexShrink: 0,
+                    }}>
+                      {active && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#1E1D2E" }} />}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Note */}
+          <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 24 }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, margin: "0 0 6px", fontFamily: "Trebuchet MS, sans-serif" }}>{w.note}</p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, margin: 0, fontStyle: "italic", fontFamily: "Trebuchet MS, sans-serif" }}>{w.preCondition}</p>
+          </div>
+
+          {/* CTA */}
+          <button
+            disabled={!selectedPkg}
+            onClick={() => selectedPkg && onPay(selectedPkg)}
+            style={{
+              width: "100%", padding: "15px 24px", borderRadius: 32,
+              background: selectedPkg ? C.gold : "rgba(255,255,255,0.06)",
+              border: selectedPkg ? "none" : "1.5px solid rgba(255,255,255,0.1)",
+              color: selectedPkg ? C.darker : "rgba(255,255,255,0.25)",
+              fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+              fontWeight: "bold", letterSpacing: "0.1em",
+              cursor: selectedPkg ? "pointer" : "not-allowed",
+              transition: "all 0.22s",
+            }}
+          >
+            {selectedPkg ? `ZAPLATIT — ${selectedPkg.price}` : "NEJPRVE ZVOLTE VARIANTU"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Checkout Modal ────────────────────────────────────────────────────────────
 function CheckoutModal({ pkg, onClose, onBack }: {
   pkg: typeof consultationData.packages[0];
@@ -1130,6 +1247,7 @@ export default function App() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState<string | null>(null);
+  const [openWorkshopModal, setOpenWorkshopModal] = useState(false);
   const [checkoutPkg, setCheckoutPkg] = useState<typeof consultationData.packages[0] | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
   const [navDarkness, setNavDarkness] = useState(1); // 1=dark, 0=light, floats in between
@@ -1576,11 +1694,23 @@ export default function App() {
         ) : null;
       })()}
 
+      {openWorkshopModal && !checkoutPkg && (
+        <WorkshopModal
+          onClose={() => setOpenWorkshopModal(false)}
+          onPay={pkg => { setCheckoutPkg(pkg); setOpenWorkshopModal(false); }}
+        />
+      )}
+
       {checkoutPkg && (
         <CheckoutModal
           pkg={checkoutPkg}
           onClose={() => setCheckoutPkg(null)}
-          onBack={() => { setOpenModal(checkoutPkg.id); setCheckoutPkg(null); }}
+          onBack={() => {
+            const isWorkshop = checkoutPkg.id.startsWith("ws-");
+            if (isWorkshop) { setOpenWorkshopModal(true); }
+            else { setOpenModal(checkoutPkg.id); }
+            setCheckoutPkg(null);
+          }}
         />
       )}
 
@@ -1878,7 +2008,7 @@ export default function App() {
             </div>
           </Reveal>
 
-          {/* Logistics + Pricing */}
+          {/* Logistics + CTA */}
           <Reveal delay={0.14}>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 32 : 48 }}>
               {/* Logistics */}
@@ -1895,34 +2025,18 @@ export default function App() {
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>{supervisionData.workshop.preCondition}</p>
                 </div>
               </div>
-              {/* Pricing */}
-              <div>
+              {/* CTA */}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>VARIANTY ÚČASTI</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(201,168,76,0.12)", borderRadius: 10, border: "1px solid rgba(201,168,76,0.3)" }}>
-                    <div>
-                      <div style={{ fontSize: 13, color: C.white, fontWeight: "bold" }}>{supervisionData.workshop.base.label}</div>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>{supervisionData.workshop.base.note}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
+                  {supervisionData.workshop.packages.map(pkg => (
+                    <div key={pkg.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.title}</span>
+                      <span style={{ fontSize: 16, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap", marginLeft: 12 }}>{pkg.price}</span>
                     </div>
-                    <div style={{ fontSize: 18, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif", whiteSpace: "nowrap", marginLeft: 16 }}>{supervisionData.workshop.base.price}</div>
-                  </div>
-                  <div style={{ paddingLeft: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.12em", marginBottom: 2 }}>+ VOLITELNÝ BONUS</div>
-                    {supervisionData.workshop.bonusPrices.map(b => (
-                      <div key={b.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "rgba(255,255,255,0.05)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.7)" }}>{b.label}</span>
-                        <span style={{ fontSize: 15, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap", marginLeft: 12 }}>{b.price}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", background: "rgba(255,255,255,0.08)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", marginTop: 2 }}>
-                    <span style={{ fontSize: 13, color: C.white }}>{supervisionData.workshop.full.label}</span>
-                    <span style={{ fontSize: 18, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif", whiteSpace: "nowrap", marginLeft: 16 }}>{supervisionData.workshop.full.price}</span>
-                  </div>
+                  ))}
                 </div>
-                <div style={{ marginTop: 24 }}>
-                  <Btn onClick={() => alert("→ Přihláška na workshop bude brzy k dispozici")}>Mám zájem o účast</Btn>
-                </div>
+                <Btn onClick={() => setOpenWorkshopModal(true)}>Chci vědět více</Btn>
               </div>
             </div>
           </Reveal>

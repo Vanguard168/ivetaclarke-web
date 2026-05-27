@@ -7,6 +7,14 @@ const PRICES: Record<string, number> = {
   "3m":         2499000,   // 24 990 Kč
   "6m":         4499000,   // 44 990 Kč
   "12m":        7499000,   // 74 990 Kč
+  // Supervize
+  "sup-1x":      489000,   // 4 890 Kč
+  "sup-6x":     3599000,   // 35 990 Kč
+  // Workshop Průvodcem v midlife
+  "ws-base":    4359000,   // 43 590 Kč
+  "ws-b1":      5999000,   // 59 990 Kč
+  "ws-b2":      5099000,   // 50 990 Kč
+  "ws-full":    6699000,   // 66 990 Kč
 };
 
 export async function POST(req: NextRequest) {
