@@ -133,7 +133,7 @@ const episodes = [
 
 const podcasts = [
   {
-    name: "Každopádně Kladně - Zámyslník 1.0",
+    name: "Zámyslník 1.0 – Každopádně (k)ladně",
     type: "Autorský podcast",
     desc: "Inspirativní přemýšlení nahlas o tématech, která hýbají našimi životy.",
     episodes: "Dostupné na všech platformách",
@@ -2196,7 +2196,7 @@ export default function App() {
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <Reveal>
             <SectionLabel>PODCAST</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Každopádně Kladně – Zámyslník 1.0</h2>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Zámyslník 1.0 – Každopádně (k)ladně</h2>
             <Divider />
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 32, fontFamily: "Trebuchet MS" }}>Inspirativní přemýšlení nahlas o tématech, která hýbají našimi životy.</p>
           </Reveal>
