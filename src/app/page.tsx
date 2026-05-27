@@ -119,16 +119,16 @@ const videoSeries = [
 ];
 
 const episodes = [
-  { id: "5UOTFpRcoCr12Dg0mEgxAO", title: "O prostoru", type: "Zámyslník" },
+  { id: "4XD0hRMcXcWfgDg9AmcuY4", title: "O emočním rejstříku", type: "Zámyslník" },
+  { id: "79p6GD9x1PvV4zE3mEtuAQ", title: "O lásce a úctě", type: "Zámyslník" },
+  { id: "1IM2wmBq6ohfZ3JiasdjBc", title: "O lásce a úctě II", type: "Zámyslník" },
+  { id: "2s5AiSTTa5FnZVvZSmNhLE", title: "O lásce a úctě III", type: "Zámyslník" },
+  { id: "3xbbdhgPHUgb5TdTijqz3K", title: "O talentu", type: "Zámyslník" },
+  { id: "11VVyooKo0GIjOmWrvXATn", title: "Být uprchlíkem", type: "Zámyslník" },
+  { id: "0Rb8F9ZyZG1hWc5rktTt27", title: "O našem čase", type: "Zámyslník" },
   { id: "4cjorrCTJGRyJlT1lmFNaG", title: "Quo Vadis muži?", type: "Epizoda s hosty" },
-  { id: "1vL2y8ceBSq2VjnFvHMXWH", title: "Rady od protinožce", type: "Zámyslník" },
-  { id: "6M7NwThiTCbSeDhRrc63ll", title: "Zrání mužů v Čechách", type: "Zámyslník" },
-  { id: "2s5AiSTTa5FnZVvZSmNhLE", title: "Láska a úcta III", type: "Zámyslník" },
-  { id: "1IM2wmBq6ohfZ3JiasdjBc", title: "Láska a úcta II", type: "Zámyslník" },
-  { id: "3UtPggQJvQ5tmXxbTQ28yR", title: "Porovnejme své matky", type: "Zámyslník" },
-  { id: "1ymZDgA21ekMu92z45Tzns", title: "Operace mého srdce", type: "Zámyslník" },
-  { id: "4L2dQmwuM3sqRzWKAB8ROL", title: "O zoomové intimitě", type: "Zámyslník" },
   { id: "3UmWXe8NlsFsU4tHY3Zd0P", title: "Rozprostřenost Pavla Rataje", type: "Epizoda s hosty" },
+  { id: "4kVuXUggzHZHmpPdgaoBXB", title: "Dojít pod Everest s Katarinou Schapiro", type: "Epizoda s hosty" },
 ];
 
 const podcasts = [
