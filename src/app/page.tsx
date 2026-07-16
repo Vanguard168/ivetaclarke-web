@@ -2381,13 +2381,18 @@ export default function App() {
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ background: C.darker, padding: isMobile ? "40px 24px" : `48px ${px}`, borderTop: `3px solid ${C.gold}` }}>
+        {/* Main row */}
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", flexWrap: "wrap", gap: 24 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <div style={{ width: 3, height: 22, background: C.gold, borderRadius: 2 }} />
               <div style={{ fontSize: 16, color: C.white }}>Iveta Clarke</div>
             </div>
-            <div style={{ fontSize: 9, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS" }}>INSPIRING CONVERSATION</div>
+            <div style={{ fontSize: 9, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS", marginBottom: 10 }}>INSPIRING CONVERSATION</div>
+            <a href="mailto:info@ivetaclarke.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
+              onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
+              onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)"}
+            >info@ivetaclarke.com</a>
           </div>
 
           {!isMobile && (
@@ -2419,8 +2424,28 @@ export default function App() {
             ))}
           </div>
         </div>
-        <div style={{ maxWidth: 1100, margin: "24px auto 0", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "Trebuchet MS" }}>© 2025 Iveta Clarke · ivetaclarke.com</div>
+
+        {/* Legal links */}
+        <div style={{ maxWidth: 1100, margin: "28px auto 0", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 22 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: isMobile ? "10px 20px" : "8px 28px", marginBottom: 18 }}>
+            {[
+              { label: "Všeobecné obchodní podmínky", href: "/vop" },
+              { label: "Ochrana osobních údajů", href: "/gdpr" },
+              { label: "Reklamační podmínky", href: "/reklamace" },
+              { label: "Platební a dodací podmínky", href: "/platebni-podminky" },
+            ].map(l => (
+              <a key={l.href} href={l.href} style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "Trebuchet MS", textDecoration: "none", transition: "color 0.15s" }}
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)"}
+              >{l.label}</a>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", gap: 6, flexWrap: "wrap" }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.18)", fontFamily: "Trebuchet MS" }}>
+              ReDefine s.r.o. · IČO: 03786552 · DIČ: CZ03786552 · Ztracená 1393, 250 01 Brandýs nad Labem-Stará Boleslav
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.18)", fontFamily: "Trebuchet MS" }}>© 2026 Iveta Clarke · ivetaclarke.com</div>
+          </div>
         </div>
       </footer>
 
