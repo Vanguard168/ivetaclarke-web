@@ -19,6 +19,7 @@ export default function ReklamacePage() {
           {company.name}<br />
           {company.address}<br />
           IČO: {company.ico} · DIČ: {company.dic}<br />
+          Tel.: <a href={`tel:+420724001030`} style={{ color: "#C9A84C" }}>{company.phone}</a><br />
           E-mail: <a href={`mailto:${company.email}`} style={{ color: "#C9A84C" }}>{company.email}</a>
         </InfoBox>
         <P>

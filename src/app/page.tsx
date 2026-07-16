@@ -2389,10 +2389,16 @@ export default function App() {
               <div style={{ fontSize: 16, color: C.white }}>Iveta Clarke</div>
             </div>
             <div style={{ fontSize: 9, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS", marginBottom: 10 }}>INSPIRING CONVERSATION</div>
-            <a href="mailto:info@ivetaclarke.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
-              onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
-              onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)"}
-            >info@ivetaclarke.com</a>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <a href="tel:+420724001030" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)"}
+              >+420 724 001 030</a>
+              <a href="mailto:info@ivetaclarke.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)"}
+              >info@ivetaclarke.com</a>
+            </div>
           </div>
 
           {!isMobile && (

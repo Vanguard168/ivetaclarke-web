@@ -6,6 +6,7 @@ export const company = {
   address: "Ztracená 1393, 250 01 Brandýs nad Labem-Stará Boleslav",
   ico: "03786552",
   dic: "CZ03786552",
+  phone: "+420 724 001 030",
   email: "info@ivetaclarke.com",
   web: "https://ivetaclarke.com",
 };
