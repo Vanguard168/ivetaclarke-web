@@ -899,7 +899,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
 
   const payMethods: { id: string; label: string; sub: string; icon: React.ReactNode }[] = [
     {
-      id: "ALL",
+      id: "APPLEPAY_REDIRECT",
       label: "Platba kartou",
       sub: "Mastercard, Visa, Apple Pay, Google Pay",
       icon: (
