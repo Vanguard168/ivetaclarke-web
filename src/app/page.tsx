@@ -207,7 +207,7 @@ const supervisionData = {
     note: "Exkluzivita obsahu workshopu je důvodem k tomu, že kurz není akreditován žádnou profesní organizací. Účastníkům vystavím potvrzení o absolvování aktuálního počtu hodin supervizní práce, která je součástí workshopu. Potvrzení lze použít pro re-akreditaci v ICF.",
     preCondition: "Účasti na workshopu předchází individuální rozhovor, ve kterém si ujasníme relevanci obsahu k vaší současné koučovací praxi.",
     date: "Nejbližší termín: 9.–10. 10. 2026",
-    earlyBird: "Early bird sleva 15 % do konce července 2026",
+    earlyBird: "Early bird sleva 15 % do konce srpna 2026",
     maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční · 2× ročně",
     hours: "Časová dotace: 12 hodin výcviku – 2 dny",
     packages: [
@@ -693,7 +693,7 @@ function Btn({ children, primary = true, onClick, small = false, pulse = false }
 }
 
 // ── Workshop Modal ────────────────────────────────────────────────────────────
-const EARLY_BIRD_DEADLINE = new Date("2026-08-01");
+const EARLY_BIRD_DEADLINE = new Date("2026-09-01");
 const EARLY_BIRD_DISCOUNT = 0.15;
 
 function applyEarlyBird(priceStr: string): string {
