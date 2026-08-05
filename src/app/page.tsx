@@ -911,7 +911,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
       ),
     },
     {
-      id: "BANK",
+      id: "ALL",
       label: "QR platba",
       sub: "Okamžité potvrzení platby",
       icon: (
@@ -923,7 +923,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
       ),
     },
     {
-      id: "BANK",
+      id: "ALL",
       label: "Bankovní převod",
       sub: "Okamžité potvrzení platby",
       icon: (
