@@ -911,7 +911,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
       ),
     },
     {
-      id: "ALL",
+      id: "BANK_CZ_CSOB_2",
       label: "QR platba",
       sub: "Okamžité potvrzení platby",
       icon: (
@@ -923,7 +923,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
       ),
     },
     {
-      id: "ALL",
+      id: "BANK_CZ",
       label: "Bankovní převod",
       sub: "Okamžité potvrzení platby",
       icon: (
