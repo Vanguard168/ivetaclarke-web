@@ -22,10 +22,18 @@ export default function PlatebniPodminkyPage() {
       </Section>
 
       <Section title="2. Způsoby platby">
-        <P>
-          Všechny platby probíhají bezhotovostně prostřednictvím certifikované platební brány{" "}
-          <strong>ComGate Payments, a.s.</strong> Akceptujeme následující platební metody:
-        </P>
+        <InfoBox>
+          <strong>Všechny platby na tomto webu jsou zpracovávány výhradně prostřednictvím
+          platební brány ComGate Payments, a.s.</strong><br /><br />
+          ComGate Payments, a.s. je licencovaná Platební instituce působící pod dohledem České
+          národní banky. Platby jsou šifrovány protokolem TLS a poskytovatel nemá přístup k číslu
+          karty ani jiným platebním údajům klienta.<br /><br />
+          Případné dotazy k platbám řešte přímo s ComGate:{" "}
+          <a href="https://www.comgate.cz" target="_blank" rel="noopener noreferrer" style={{ color: "#C9A84C" }}>www.comgate.cz</a>
+          {" "}· e-mail: <a href="mailto:platby-podpora@comgate.cz" style={{ color: "#C9A84C" }}>platby-podpora@comgate.cz</a>
+          {" "}· tel.: <a href="tel:+420228224267" style={{ color: "#C9A84C" }}>+420 228 224 267</a>
+        </InfoBox>
+        <P>Akceptujeme následující platební metody:</P>
         <UL>
           <LI><strong>Platební karta</strong> – Visa, Mastercard (okamžitá platba)</LI>
           <LI><strong>Apple Pay</strong> – pro uživatele zařízení Apple</LI>
