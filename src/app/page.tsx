@@ -2169,45 +2169,20 @@ export default function App() {
             <SectionLabel>SÉRIE PŘEDNÁŠEK</SectionLabel>
             <h2 style={{ fontSize: "clamp(24px, 2.5vw, 34px)", fontWeight: "normal", margin: "0 0 8px" }}>Série krátkých přednášek</h2>
             <Divider />
-            <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, maxWidth: 560, marginBottom: 48 }}>
+            <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, maxWidth: 560, marginBottom: 32 }}>
               Mini přednášky o tématech, která hýbají našimi životy. První video každé série zdarma.
             </p>
+            <div style={{
+              background: "rgba(201,168,76,0.07)", border: "1px solid rgba(201,168,76,0.25)",
+              borderRadius: 14, padding: "20px 24px", maxWidth: 560,
+              display: "flex", alignItems: "center", gap: 14,
+            }}>
+              <span style={{ fontSize: 22, flexShrink: 0 }}>🎬</span>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, margin: 0 }}>
+                Tuto sekci právě připravujeme. Brzy zde najdete celé série — sledujte nás, nebo se přihlaste k odběru novinek.
+              </p>
+            </div>
           </Reveal>
-
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24 }}>
-            {videoSeries.map((series, i) => (
-              <Reveal key={series.title} delay={i * 0.1}>
-                <div style={{
-                  background: C.white, borderRadius: 16, overflow: "hidden",
-                  border: `1px solid ${C.sand}`,
-                  boxShadow: "0 4px 24px rgba(44,44,62,0.05)",
-                }}>
-                  {/* Video thumbnail placeholder */}
-                  <div style={{
-                    background: `linear-gradient(135deg, ${C.dark}, #3A2C4E)`,
-                    height: 160, display: "flex", alignItems: "center", justifyContent: "center",
-                    position: "relative",
-                  }}>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS", letterSpacing: "0.2em" }}>VIDEO ZNĚLKA</div>
-                    <div style={{ position: "absolute", bottom: 12, right: 12 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.dark }}>▶</div>
-                    </div>
-                    <div style={{ position: "absolute", top: 10, left: 12, fontSize: 9, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>
-                      {series.free === 1 ? "1. EPIZODA ZDARMA" : ""}
-                    </div>
-                  </div>
-                  <div style={{ padding: "20px 22px" }}>
-                    <div style={{ fontSize: 15, color: C.dark, marginBottom: 8, lineHeight: 1.4 }}>{series.title}</div>
-                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS", marginBottom: 16 }}>{series.episodes} epizod · max 7 min každá</div>
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <Btn small onClick={() => alert("→ Přehrát první epizodu zdarma")}>Přehrát zdarma</Btn>
-                      <Btn small primary={false} onClick={() => alert("→ Zakoupit celou sérii")}>Celá série</Btn>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
