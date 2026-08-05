@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     name, email, phone,
     street, city, zip,
     company, ico,
-    method = "CARD",
+    method = "ALL",
   } = body as {
     packageId: string; packageTitle: string;
     name: string; email: string; phone: string;

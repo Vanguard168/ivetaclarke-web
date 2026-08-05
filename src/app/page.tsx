@@ -869,7 +869,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
   onBack: () => void;
 }) {
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", street: "", city: "", zip: "", company: "", ico: "" });
-  const [payMethod, setPayMethod] = useState<"CARD" | "APPLEPAY_REDIRECT" | "GOOGLEPAY_REDIRECT">("CARD");
+  const [payMethod, setPayMethod] = useState<"ALL" | "APPLEPAY_REDIRECT" | "GOOGLEPAY_REDIRECT">("ALL");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -898,7 +898,7 @@ function CheckoutModal({ pkg, onClose, onBack }: {
 
   const payMethods: { id: typeof payMethod; label: string; icon: React.ReactNode }[] = [
     {
-      id: "CARD",
+      id: "ALL",
       label: "Karta",
       icon: (
         <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
