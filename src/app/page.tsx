@@ -869,7 +869,8 @@ function CheckoutModal({ pkg, onClose, onBack }: {
   onBack: () => void;
 }) {
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", street: "", city: "", zip: "", company: "", ico: "" });
-  const [payMethod, setPayMethod] = useState<"ALL" | "APPLEPAY_REDIRECT" | "GOOGLEPAY_REDIRECT">("ALL");
+  const [payMethod, setPayMethod] = useState<string>("ALL");
+  const [payMethodIdx, setPayMethodIdx] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -896,10 +897,11 @@ function CheckoutModal({ pkg, onClose, onBack }: {
     </label>
   );
 
-  const payMethods: { id: typeof payMethod; label: string; icon: React.ReactNode }[] = [
+  const payMethods: { id: string; label: string; sub: string; icon: React.ReactNode }[] = [
     {
       id: "ALL",
-      label: "Karta",
+      label: "Platba kartou",
+      sub: "Mastercard, Visa, Apple Pay, Google Pay",
       icon: (
         <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
           <rect x="0.5" y="0.5" width="21" height="15" rx="2.5" stroke="currentColor" strokeOpacity="0.4"/>
@@ -909,23 +911,37 @@ function CheckoutModal({ pkg, onClose, onBack }: {
       ),
     },
     {
-      id: "APPLEPAY_REDIRECT",
-      label: "Apple Pay",
+      id: "ALL",
+      label: "QR platba",
+      sub: "Okamžité potvrzení platby",
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+          <path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/>
         </svg>
       ),
     },
     {
-      id: "GOOGLEPAY_REDIRECT",
-      label: "Google Pay",
+      id: "ALL",
+      label: "Bankovní převod",
+      sub: "Okamžité potvrzení platby",
       icon: (
-        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
-          <path d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" fill="#EA4335"/>
-          <path d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" fill="#4285F4"/>
-          <path d="M10.53 28.59c-.48-1.37-.76-2.83-.76-4.59s.27-3.22.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" fill="#FBBC05"/>
-          <path d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" fill="#34A853"/>
+        <svg width="22" height="20" viewBox="0 0 24 22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="2" fill="currentColor" stroke="none" rx="1"/>
+          <line x1="4" y1="11" x2="4" y2="18"/><line x1="8" y1="11" x2="8" y2="18"/>
+          <line x1="12" y1="11" x2="12" y2="18"/><line x1="16" y1="11" x2="16" y2="18"/><line x1="20" y1="11" x2="20" y2="18"/>
+          <rect x="2" y="18" width="20" height="2" fill="currentColor" stroke="none" rx="1"/>
+        </svg>
+      ),
+    },
+    {
+      id: "ALL",
+      label: "Odložená platba",
+      sub: "Twisto, Skip Pay, splátky",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
         </svg>
       ),
     },
@@ -1084,25 +1100,28 @@ function CheckoutModal({ pkg, onClose, onBack }: {
             {/* Payment method selector */}
             <div style={{ marginBottom: 20 }}>
               <Label>ZPŮSOB PLATBY</Label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                {payMethods.map(m => {
-                  const active = payMethod === m.id;
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                {payMethods.map((m, i) => {
+                  const active = payMethodIdx === i;
                   return (
                     <button
-                      key={m.id} type="button" onClick={() => setPayMethod(m.id)}
+                      key={i} type="button" onClick={() => { setPayMethod(m.id); setPayMethodIdx(i); }}
                       style={{
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
-                        padding: "12px 8px", borderRadius: 12, cursor: "pointer",
+                        display: "flex", flexDirection: "row", alignItems: "center", gap: 10,
+                        padding: "12px 14px", borderRadius: 12, cursor: "pointer", textAlign: "left",
                         border: `2px solid ${active ? C.gold : C.sand}`,
                         background: active ? "rgba(201,168,76,0.08)" : C.cream,
-                        color: active ? C.gold : C.muted,
+                        color: active ? C.gold : C.dark,
                         transition: "all 0.18s",
                       }}
                       onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = C.muted; } }}
                       onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = C.sand; } }}
                     >
-                      {m.icon}
-                      <span style={{ fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", fontWeight: active ? "bold" : "normal" }}>{m.label}</span>
+                      <span style={{ color: active ? C.gold : C.muted, flexShrink: 0 }}>{m.icon}</span>
+                      <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <span style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.03em", fontWeight: "bold", color: active ? C.gold : C.dark }}>{m.label}</span>
+                        <span style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{m.sub}</span>
+                      </span>
                     </button>
                   );
                 })}
