@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const C = {
   cream:   "#FAF8F4",
@@ -12,11 +12,47 @@ const C = {
   white:   "#FFFFFF",
 };
 
+const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
+
 function ThankYouContent() {
   const params  = useSearchParams();
-  const ref     = params.get("ref");
-  const status  = params.get("status");
-  const isPaid  = status === "paid";
+  const order   = params.get("order");
+  const ref     = params.get("ref") || order;
+  const statusParam = params.get("status");
+
+  const [isPaid, setIsPaid] = useState(statusParam === "paid");
+  const [loading, setLoading] = useState(!!order && statusParam !== "cancelled");
+
+  useEffect(() => {
+    if (!order || statusParam === "cancelled") return;
+    // Verify payment status from faktura-app
+    const check = async () => {
+      try {
+        const res = await fetch(`${FAKTURA_URL}/api/public/payment-status?id=${order}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsPaid(data.status === "PAID");
+        } else {
+          setIsPaid(statusParam === "paid");
+        }
+      } catch {
+        setIsPaid(statusParam === "paid");
+      } finally {
+        setLoading(false);
+      }
+    };
+    check();
+  }, [order, statusParam]);
+
+  if (loading) return (
+    <div style={{
+      minHeight: "100vh",
+      background: `linear-gradient(160deg, ${C.darker} 0%, #3A2C4E 55%, ${C.dark} 100%)`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <div style={{ color: C.gold, fontFamily: "Georgia, serif", fontSize: 18 }}>Ověřuji platbu…</div>
+    </div>
+  );
 
   return (
     <div style={{
