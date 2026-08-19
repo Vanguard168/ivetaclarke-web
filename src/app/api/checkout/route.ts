@@ -90,6 +90,8 @@ export async function POST(req: NextRequest) {
   // 2. Call ComGate directly with our credentials
   const refId = paymentRequestId || `IC-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
+  const testMode = process.env.COMGATE_TEST === "true";
+
   const params = new URLSearchParams({
     merchant,
     secret,
@@ -101,6 +103,7 @@ export async function POST(req: NextRequest) {
     email,
     phone,
     prepareOnly: "true",
+    ...(testMode ? { test: "true" } : {}),
     returnUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=paid`,
     notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
   });
