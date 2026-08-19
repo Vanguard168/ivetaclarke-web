@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
     prepareOnly: "true",
     ...(testMode ? { test: "true" } : {}),
     returnUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=paid`,
+    cancelUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=cancelled`,
     notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
   });
 
