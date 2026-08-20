@@ -1851,6 +1851,34 @@ export default function App() {
             }}>
               REZERVOVAT KONZULTACI
             </button>
+            {user ? (
+              <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
+                <a href="/muj-ucet" onClick={() => setMenuOpen(false)} style={{
+                  flex: 1, padding: "14px 0", textAlign: "center",
+                  border: `1px solid ${C.gold}`, borderRadius: 8,
+                  color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                  textDecoration: "none", display: "block",
+                }}>
+                  {profile?.first_name ? `${profile.first_name} · Můj účet` : "Můj účet"}
+                </a>
+                <button onClick={() => { supabase.auth.signOut(); setMenuOpen(false); }} style={{
+                  padding: "14px 16px", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8,
+                  background: "none", color: "rgba(255,255,255,0.45)", fontSize: 13,
+                  fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer",
+                }}>
+                  Odhlásit
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => { setMenuOpen(false); setAuthModal({ open: true }); }} style={{
+                width: "100%", marginTop: 12, padding: "14px 0",
+                border: `1px solid ${C.gold}`, borderRadius: 8, background: "none",
+                color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                cursor: "pointer",
+              }}>
+                PŘIHLÁŠENÍ
+              </button>
+            )}
           </div>
 
           {/* Tagline */}
