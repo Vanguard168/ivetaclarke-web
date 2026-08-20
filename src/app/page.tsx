@@ -864,17 +864,18 @@ function WorkshopModal({ onClose, onPay }: {
 }
 
 // ── Checkout Modal ────────────────────────────────────────────────────────────
-function CheckoutModal({ pkg, onClose, onBack, profile, userId }: {
+function CheckoutModal({ pkg, onClose, onBack, profile, userId, userEmail }: {
   pkg: typeof consultationData.packages[0];
   onClose: () => void;
   onBack: () => void;
   profile?: Profile | null;
   userId?: string;
+  userEmail?: string;
 }) {
   const [form, setForm] = useState({
     firstName: profile?.first_name ?? "",
     lastName: profile?.last_name ?? "",
-    email: "",
+    email: userEmail ?? "",
     phone: profile?.phone ?? "",
     street: profile?.street ?? "",
     city: profile?.city ?? "",
@@ -884,20 +885,19 @@ function CheckoutModal({ pkg, onClose, onBack, profile, userId }: {
   });
 
   useEffect(() => {
-    if (profile) {
-      setForm(f => ({
-        ...f,
-        firstName: profile.first_name || f.firstName,
-        lastName: profile.last_name || f.lastName,
-        phone: profile.phone || f.phone,
-        street: profile.street || f.street,
-        city: profile.city || f.city,
-        zip: profile.zip || f.zip,
-        company: profile.company || f.company,
-        ico: profile.ico || f.ico,
-      }));
-    }
-  }, [profile]);
+    setForm(f => ({
+      ...f,
+      firstName: profile?.first_name || f.firstName,
+      lastName: profile?.last_name || f.lastName,
+      email: userEmail || f.email,
+      phone: profile?.phone || f.phone,
+      street: profile?.street || f.street,
+      city: profile?.city || f.city,
+      zip: profile?.zip || f.zip,
+      company: profile?.company || f.company,
+      ico: profile?.ico || f.ico,
+    }));
+  }, [profile, userEmail]);
   const [payMethod, setPayMethod] = useState<string>("ALL");
   const [payMethodIdx, setPayMethodIdx] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -2036,6 +2036,7 @@ export default function App() {
           pkg={checkoutPkg}
           profile={profile}
           userId={user?.id}
+          userEmail={user?.email}
           onClose={() => setCheckoutPkg(null)}
           onBack={() => {
             const isWorkshop = checkoutPkg.id.startsWith("ws-");
