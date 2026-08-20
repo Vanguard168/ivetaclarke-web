@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase-server";
 
 // Prices in haléře (CZK × 100), VAT-inclusive
 const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: number; label: string }> = {
@@ -31,12 +32,16 @@ export async function POST(req: NextRequest) {
     street, city, zip,
     company, ico,
     method = "ALL",
+    userId,
+    priceDisplay,
   } = body as {
     packageId: string; packageTitle: string;
     name: string; email: string; phone: string;
     street: string; city: string; zip: string;
     company?: string; ico?: string;
     method?: string;
+    userId?: string;
+    priceDisplay?: string;
   };
 
   if (!packageId || !name || !email || !phone || !street || !city || !zip) {
@@ -108,6 +113,22 @@ export async function POST(req: NextRequest) {
     cancelUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=cancelled`,
     notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
   });
+
+  // Save pending order to Supabase
+  if (userId) {
+    try {
+      const db = createServerClient();
+      await db.from("orders").insert({
+        user_id: userId,
+        package_id: packageId,
+        package_title: packageTitle,
+        price_czk: pkg.price,
+        price_display: priceDisplay ?? `${(pkg.price / 100).toLocaleString("cs-CZ")} Kč`,
+        comgate_ref_id: refId,
+        status: "PENDING",
+      });
+    } catch { /* non-blocking */ }
+  }
 
   const cgRes = await fetch("https://payments.comgate.cz/v1.0/create", {
     method: "POST",

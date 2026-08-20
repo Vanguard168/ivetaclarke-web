@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase-server";
 
 /**
  * ComGate payment notification endpoint.
@@ -30,14 +31,21 @@ export async function POST(req: NextRequest) {
   console.log("ComGate notify:", { merchant, transId, status, price, curr, label, refId, email });
 
   if (status === "PAID") {
-    // TODO: persist payment record to database (e.g. Supabase)
-    // TODO: send confirmation email with invoice via Resend
-    // TODO: unlock any gated content for the customer
     console.log(`✅ Payment PAID — refId=${refId}, transId=${transId}, email=${email}, ${price} ${curr}`);
+    try {
+      const db = createServerClient();
+      await db.from("orders")
+        .update({ status: "PAID", comgate_trans_id: transId, paid_at: new Date().toISOString() })
+        .eq("comgate_ref_id", refId);
+    } catch (err) { console.error("DB update failed:", err); }
   }
 
   if (status === "CANCELLED") {
     console.log(`❌ Payment CANCELLED — refId=${refId}, transId=${transId}`);
+    try {
+      const db = createServerClient();
+      await db.from("orders").update({ status: "CANCELLED" }).eq("comgate_ref_id", refId);
+    } catch { /* non-blocking */ }
   }
 
   return new NextResponse("OK", { status: 200 });

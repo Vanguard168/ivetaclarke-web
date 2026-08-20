@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { supabase, type Profile } from "@/lib/supabase";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -863,12 +864,40 @@ function WorkshopModal({ onClose, onPay }: {
 }
 
 // ── Checkout Modal ────────────────────────────────────────────────────────────
-function CheckoutModal({ pkg, onClose, onBack }: {
+function CheckoutModal({ pkg, onClose, onBack, profile, userId }: {
   pkg: typeof consultationData.packages[0];
   onClose: () => void;
   onBack: () => void;
+  profile?: Profile | null;
+  userId?: string;
 }) {
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", street: "", city: "", zip: "", company: "", ico: "" });
+  const [form, setForm] = useState({
+    firstName: profile?.first_name ?? "",
+    lastName: profile?.last_name ?? "",
+    email: "",
+    phone: profile?.phone ?? "",
+    street: profile?.street ?? "",
+    city: profile?.city ?? "",
+    zip: profile?.zip ?? "",
+    company: profile?.company ?? "",
+    ico: profile?.ico ?? "",
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setForm(f => ({
+        ...f,
+        firstName: profile.first_name || f.firstName,
+        lastName: profile.last_name || f.lastName,
+        phone: profile.phone || f.phone,
+        street: profile.street || f.street,
+        city: profile.city || f.city,
+        zip: profile.zip || f.zip,
+        company: profile.company || f.company,
+        ico: profile.ico || f.ico,
+      }));
+    }
+  }, [profile]);
   const [payMethod, setPayMethod] = useState<string>("ALL");
   const [payMethodIdx, setPayMethodIdx] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -971,6 +1000,8 @@ function CheckoutModal({ pkg, onClose, onBack }: {
           company:  form.company,
           ico:      form.ico,
           method:   payMethod,
+          userId,
+          priceDisplay: pkg.price,
         }),
       });
       const data = await res.json();
@@ -1162,6 +1193,180 @@ function CheckoutModal({ pkg, onClose, onBack }: {
   );
 }
 
+// ── Auth Modal ────────────────────────────────────────────────────────────────
+function AuthModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (profile: Profile) => void }) {
+  const [tab, setTab] = useState<"login" | "register">("login");
+  const [form, setForm] = useState({
+    email: "", password: "", confirmPassword: "",
+    firstName: "", lastName: "", phone: "",
+    street: "", city: "", zip: "", company: "", ico: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm(f => ({ ...f, [field]: e.target.value }));
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.email || !form.password) { setError("Vyplňte e-mail a heslo."); return; }
+    setLoading(true); setError("");
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
+    if (authError || !data.user) { setError("Neplatný e-mail nebo heslo."); setLoading(false); return; }
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).single();
+    setLoading(false);
+    onSuccess((profile as Profile) ?? { id: data.user.id, first_name: "", last_name: "", phone: "", street: "", city: "", zip: "" });
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.email || !form.password || !form.firstName || !form.lastName || !form.phone || !form.street || !form.city || !form.zip) {
+      setError("Vyplňte prosím všechna povinná pole."); return;
+    }
+    if (form.password !== form.confirmPassword) { setError("Hesla se neshodují."); return; }
+    if (form.password.length < 8) { setError("Heslo musí mít alespoň 8 znaků."); return; }
+    setLoading(true); setError("");
+    const { data, error: authError } = await supabase.auth.signUp({ email: form.email, password: form.password });
+    if (authError || !data.user) { setError(authError?.message ?? "Registrace se nezdařila."); setLoading(false); return; }
+    const profileData: Profile = {
+      id: data.user.id,
+      first_name: form.firstName, last_name: form.lastName,
+      phone: form.phone, street: form.street, city: form.city, zip: form.zip,
+      ...(form.company && { company: form.company }),
+      ...(form.ico && { ico: form.ico }),
+    };
+    await supabase.from("profiles").insert(profileData);
+    setLoading(false);
+    onSuccess(profileData);
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "10px 13px", borderRadius: 9,
+    border: `1px solid ${C.sand}`, background: C.cream,
+    fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
+    outline: "none", boxSizing: "border-box",
+  };
+  const AL = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 5 }}>{children}</label>
+  );
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 700,
+      background: "rgba(28,28,40,0.82)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: C.cream, borderRadius: 24, maxWidth: 480, width: "100%",
+        maxHeight: "92vh", overflowY: "auto",
+        boxShadow: "0 32px 80px rgba(0,0,0,0.4)", position: "relative",
+      }}>
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+        <div style={{ padding: "28px 32px 36px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 4 }}>IVETA CLARKE</div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>
+                {tab === "login" ? "Přihlášení" : "Registrace"}
+              </h3>
+            </div>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 20, lineHeight: 1, width: 32, height: 32, borderRadius: "50%", transition: "background 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.background = C.sand)}
+              onMouseLeave={e => (e.currentTarget.style.background = "none")}>×</button>
+          </div>
+
+          {/* Tab switcher */}
+          <div style={{ display: "flex", marginBottom: 24, borderBottom: `2px solid ${C.sand}` }}>
+            {(["login", "register"] as const).map(t => (
+              <button key={t} onClick={() => { setTab(t); setError(""); }}
+                style={{
+                  flex: 1, padding: "10px 0", background: "none", border: "none", cursor: "pointer",
+                  fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold",
+                  color: tab === t ? C.gold : C.muted,
+                  borderBottom: `2px solid ${tab === t ? C.gold : "transparent"}`,
+                  marginBottom: -2, transition: "color 0.2s",
+                }}>
+                {t === "login" ? "Přihlásit se" : "Registrovat se"}
+              </button>
+            ))}
+          </div>
+
+          {error && (
+            <div style={{ background: "rgba(200,80,80,0.08)", border: "1px solid rgba(200,80,80,0.25)", borderRadius: 9, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#C85050", fontFamily: "Trebuchet MS, sans-serif" }}>
+              {error}
+            </div>
+          )}
+
+          {tab === "login" ? (
+            <form onSubmit={handleLogin}>
+              <div style={{ marginBottom: 12 }}>
+                <AL>E-MAIL *</AL>
+                <input type="email" value={form.email} onChange={set("email")} placeholder="jana@example.cz" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <AL>HESLO *</AL>
+                <input type="password" value={form.password} onChange={set("password")} placeholder="••••••••" required style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <button type="submit" disabled={loading} style={{
+                width: "100%", padding: "14px 0", borderRadius: 12,
+                background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+                border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "not-allowed" : "pointer",
+              }}>{loading ? "Přihlašování…" : "PŘIHLÁSIT SE"}</button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                <div><AL>JMÉNO *</AL><input value={form.firstName} onChange={set("firstName")} placeholder="Jana" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><AL>PŘÍJMENÍ *</AL><input value={form.lastName} onChange={set("lastName")} placeholder="Nováková" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <AL>E-MAIL *</AL>
+                <input type="email" value={form.email} onChange={set("email")} placeholder="jana@example.cz" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                <div><AL>HESLO *</AL><input type="password" value={form.password} onChange={set("password")} placeholder="min. 8 znaků" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><AL>POTVRDIT HESLO *</AL><input type="password" value={form.confirmPassword} onChange={set("confirmPassword")} placeholder="••••••••" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <AL>TELEFON *</AL>
+                <input type="tel" value={form.phone} onChange={set("phone")} placeholder="+420 777 123 456" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <AL>ULICE A ČÍSLO POPISNÉ *</AL>
+                <input value={form.street} onChange={set("street")} placeholder="Václavské náměstí 1" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 100px", gap: 10, marginBottom: 10 }}>
+                <div><AL>MĚSTO *</AL><input value={form.city} onChange={set("city")} placeholder="Praha" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><AL>PSČ *</AL><input value={form.zip} onChange={set("zip")} placeholder="110 00" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 10, marginBottom: 20 }}>
+                <div><AL>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></AL><input value={form.company} onChange={set("company")} placeholder="ReDefine s.r.o." style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><AL>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></AL><input value={form.ico} onChange={set("ico")} placeholder="12345678" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
+              <button type="submit" disabled={loading} style={{
+                width: "100%", padding: "14px 0", borderRadius: 12,
+                background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+                border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "not-allowed" : "pointer",
+              }}>{loading ? "Registrace…" : "ZAREGISTROVAT SE"}</button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function useWindowWidth() {
   const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
   useEffect(() => {
@@ -1324,6 +1529,30 @@ export default function App() {
   const [openWorkshopModal, setOpenWorkshopModal] = useState(false);
   const [checkoutPkg, setCheckoutPkg] = useState<typeof consultationData.packages[0] | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [authModal, setAuthModal] = useState<{ open: boolean; afterAuth?: () => void }>({ open: false });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) { setUser({ id: session.user.id, email: session.user.email }); loadProfile(session.user.id); }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session?.user) { setUser({ id: session.user.id, email: session.user.email }); loadProfile(session.user.id); }
+      else { setUser(null); setProfile(null); }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadProfile = async (userId: string) => {
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    if (data) setProfile(data as Profile);
+  };
+
+  const requireAuth = (action: () => void) => {
+    if (user) action();
+    else setAuthModal({ open: true, afterAuth: action });
+  };
   const [navDarkness, setNavDarkness] = useState(1); // 1=dark, 0=light, floats in between
 
   // Smooth scroll-based nav color interpolation
@@ -1479,6 +1708,22 @@ export default function App() {
               );
             })}
             <Btn small onClick={() => scrollTo("pro veřejnost")}>Rezervovat</Btn>
+            {user ? (
+              <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 6 }}>
+                <a href="/muj-ucet" style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: C.gold, textDecoration: "none", whiteSpace: "nowrap" }}>
+                  {profile?.first_name ? `${profile.first_name} · Můj účet` : "Můj účet"}
+                </a>
+                <button onClick={() => supabase.auth.signOut()} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: navText, fontFamily: "Trebuchet MS, sans-serif", padding: "2px 6px", opacity: 0.6 }}>
+                  Odhlásit
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => setAuthModal({ open: true })} style={{
+                background: "none", border: `1px solid ${C.gold}`, borderRadius: 20,
+                padding: "5px 14px", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                color: C.gold, cursor: "pointer", whiteSpace: "nowrap",
+              }}>Přihlášení</button>
+            )}
           </div>
         )}
 
@@ -1775,9 +2020,22 @@ export default function App() {
         />
       )}
 
+      {authModal.open && (
+        <AuthModal
+          onClose={() => setAuthModal({ open: false })}
+          onSuccess={p => {
+            setProfile(p);
+            setAuthModal({ open: false });
+            authModal.afterAuth?.();
+          }}
+        />
+      )}
+
       {checkoutPkg && (
         <CheckoutModal
           pkg={checkoutPkg}
+          profile={profile}
+          userId={user?.id}
           onClose={() => setCheckoutPkg(null)}
           onBack={() => {
             const isWorkshop = checkoutPkg.id.startsWith("ws-");
@@ -1827,7 +2085,7 @@ export default function App() {
                   <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{pkg.title}</h3>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
+                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>{user ? "Vybrat" : "Registrace"}</Btn>
                   </div>
                 </div>
               </Reveal>
@@ -1856,7 +2114,7 @@ export default function App() {
                     <div style={{ fontSize: 17, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{pkg.title}</div>
                     <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, marginBottom: 20, flex: 1 }}>{pkg.cardDesc}</p>
                     <button
-                      onClick={() => setOpenModal(pkg.id)}
+                      onClick={() => requireAuth(() => setOpenModal(pkg.id))}
                       style={{
                         width: "100%", padding: "11px 0",
                         background: C.gold, border: "none", borderRadius: 32,
@@ -1866,7 +2124,7 @@ export default function App() {
                       }}
                       onMouseEnter={e => (e.currentTarget.style.background = C.goldLight)}
                       onMouseLeave={e => (e.currentTarget.style.background = C.gold)}
-                    >Chci vědět více</button>
+                    >{user ? "Vybrat" : "Registrace"}</button>
                   </div>
                 </div>
               </Reveal>
@@ -1997,7 +2255,7 @@ export default function App() {
                   <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 12px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
+                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Chci vědět více</Btn>
                   </div>
                 </div>
               </Reveal>
@@ -2110,7 +2368,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <Btn onClick={() => setOpenWorkshopModal(true)} pulse>Zaregistrovat se</Btn>
+                <Btn onClick={() => requireAuth(() => setOpenWorkshopModal(true))} pulse>Zaregistrovat se</Btn>
               </div>
             </div>
           </Reveal>
