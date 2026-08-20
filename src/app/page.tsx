@@ -1233,17 +1233,38 @@ function AuthModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (pr
     if (form.password !== form.confirmPassword) { setError("Hesla se neshodují."); return; }
     if (form.password.length < 8) { setError("Heslo musí mít alespoň 8 znaků."); return; }
     setLoading(true); setError("");
-    const { data, error: authError } = await supabase.auth.signUp({ email: form.email, password: form.password });
-    if (authError || !data.user) { setError(authError?.message ?? "Registrace se nezdařila."); setLoading(false); return; }
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: form.email, password: form.password,
+        firstName: form.firstName, lastName: form.lastName,
+        phone: form.phone, street: form.street, city: form.city, zip: form.zip,
+        company: form.company, ico: form.ico,
+      }),
+    });
+    const result = await res.json();
+    if (!res.ok) { setError(result.error ?? "Registrace se nezdařila."); setLoading(false); return; }
+
+    if (result.emailConfirmationRequired) {
+      setLoading(false);
+      setError("");
+      // Show confirmation message instead of closing
+      setTab("confirm" as "login");
+      return;
+    }
+
+    // Auto-logged in (email confirmation disabled) — sign in to get session
+    const { data: signInData } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
+    setLoading(false);
     const profileData: Profile = {
-      id: data.user.id,
+      id: signInData?.user?.id ?? result.userId,
       first_name: form.firstName, last_name: form.lastName,
       phone: form.phone, street: form.street, city: form.city, zip: form.zip,
       ...(form.company && { company: form.company }),
       ...(form.ico && { ico: form.ico }),
     };
-    await supabase.from("profiles").insert(profileData);
-    setLoading(false);
     onSuccess(profileData);
   };
 
@@ -1304,7 +1325,21 @@ function AuthModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (pr
             </div>
           )}
 
-          {tab === "login" ? (
+          {(tab as string) === "confirm" ? (
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
+              <div style={{ fontSize: 36, marginBottom: 16 }}>📧</div>
+              <h4 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 12px" }}>Potvrďte svůj e-mail</h4>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, margin: "0 0 20px" }}>
+                Poslali jsme vám odkaz na <strong>{form.email}</strong>.<br />
+                Klikněte na odkaz v e-mailu a pak se přihlaste.
+              </p>
+              <button onClick={() => setTab("login")} style={{
+                padding: "11px 28px", borderRadius: 20, border: `1px solid ${C.gold}`,
+                background: "none", color: C.gold, fontSize: 13,
+                fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer",
+              }}>Přejít na přihlášení</button>
+            </div>
+          ) : tab === "login" ? (
             <form onSubmit={handleLogin}>
               <div style={{ marginBottom: 12 }}>
                 <AL>E-MAIL *</AL>
