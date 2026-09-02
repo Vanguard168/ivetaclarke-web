@@ -1701,6 +1701,11 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
           {/* ── STEP 2 ── */}
           {step === 2 && (
             <form onSubmit={handlePay}>
+              {/* Description */}
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 20px" }}>
+                Níže se prosím zaregistrujte. Poté uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za 45minutové online screening setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
+              </p>
+
               {/* Order summary */}
               <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
@@ -1722,39 +1727,48 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
                 <div><Label>MĚSTO *</Label><input value={form.city} onChange={setF("city")} placeholder="Praha" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
                 <div><Label>PSČ *</Label><input value={form.zip} onChange={setF("zip")} placeholder="110 00" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-                <div><Label>FIRMA (volitelné)</Label><input value={form.company} onChange={setF("company")} placeholder="Název firmy" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-                <div><Label>IČO (volitelné)</Label><input value={form.ico} onChange={setF("ico")} placeholder="12345678" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 20 }}>
+                <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={form.company} onChange={setF("company")} placeholder="Název firmy" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={form.ico} onChange={setF("ico")} placeholder="12345678" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
               </div>
 
-              {/* Payment method */}
-              <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", marginBottom: 10 }}>ZPŮSOB PLATBY</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-                {payMethods.map((m, idx) => {
-                  const active = payMethodIdx === idx;
-                  return (
-                    <div key={idx} onClick={() => { setPayMethodIdx(idx); setPayMethod(m.id); }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", borderRadius: 12, cursor: "pointer", border: `1.5px solid ${active ? C.gold : C.sand}`, background: active ? "#FFF8EC" : C.white, transition: "all 0.15s" }}>
-                      <div style={{ color: active ? C.gold : C.muted, flexShrink: 0 }}>{m.icon}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 13, color: active ? C.dark : C.text, fontWeight: active ? "bold" : "normal" }}>{m.label}</div>
-                        <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>{m.sub}</div>
-                      </div>
-                      <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {active && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* Payment method — 2×2 tiles */}
+              <div style={{ marginBottom: 20 }}>
+                <Label>ZPŮSOB PLATBY</Label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                  {payMethods.map((m, idx) => {
+                    const active = payMethodIdx === idx;
+                    return (
+                      <button key={idx} type="button" onClick={() => { setPayMethod(m.id); setPayMethodIdx(idx); }}
+                        style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, cursor: "pointer", textAlign: "left", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? "rgba(201,168,76,0.08)" : C.cream, color: active ? C.gold : C.dark, transition: "all 0.18s" }}
+                        onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.borderColor = C.muted; }}
+                        onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.borderColor = C.sand; }}
+                      >
+                        <span style={{ color: active ? C.gold : C.muted, flexShrink: 0 }}>{m.icon}</span>
+                        <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                          <span style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.03em", fontWeight: "bold", color: active ? C.gold : C.dark }}>{m.label}</span>
+                          <span style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{m.sub}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {error && <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
 
               <div style={{ display: "flex", gap: 10 }}>
-                <button type="button" onClick={() => setStep(1)} style={{ padding: "15px 20px", borderRadius: 32, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
-                <button type="submit" disabled={loading} style={{ flex: 1, padding: "15px 0", borderRadius: 32, background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
+                <button type="button" onClick={() => setStep(1)} style={{ padding: "15px 20px", borderRadius: 12, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
+                <button type="submit" disabled={loading} style={{ flex: 1, padding: "15px 0", borderRadius: 12, background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "not-allowed" : "pointer", transition: "opacity 0.2s" }}
+                  onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = "0.88"; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                >
                   {loading ? "Přesměrování na platební bránu…" : "ZAPLATIT 2 999 Kč"}
                 </button>
               </div>
+              <p style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", marginTop: 14, lineHeight: 1.6 }}>
+                Platba je zpracována bezpečně přes ComGate.<br />Po zaplacení obdržíte e-mailem potvrzení a fakturu.
+              </p>
             </form>
           )}
         </div>
