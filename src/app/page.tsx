@@ -841,21 +841,24 @@ function WorkshopModal({ onClose, onPay }: {
           </div>
 
           {/* CTA */}
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 12, fontStyle: "italic" }}>
+            Účasti na workshopu předchází bezplatný individuální screening. Po registraci vás Iveta brzy kontaktuje.
+          </div>
           <button
-            disabled={!checkoutPkg}
+            disabled={!selectedPkg}
             onClick={() => checkoutPkg && onPay(checkoutPkg)}
             style={{
               width: "100%", padding: "15px 24px", borderRadius: 32,
-              background: checkoutPkg ? C.gold : "rgba(255,255,255,0.06)",
-              border: checkoutPkg ? "none" : "1.5px solid rgba(255,255,255,0.1)",
-              color: checkoutPkg ? C.darker : "rgba(255,255,255,0.25)",
+              background: selectedPkg ? C.gold : "rgba(255,255,255,0.06)",
+              border: selectedPkg ? "none" : "1.5px solid rgba(255,255,255,0.1)",
+              color: selectedPkg ? C.darker : "rgba(255,255,255,0.25)",
               fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
               fontWeight: "bold", letterSpacing: "0.1em",
-              cursor: checkoutPkg ? "pointer" : "not-allowed",
+              cursor: selectedPkg ? "pointer" : "not-allowed",
               transition: "all 0.22s",
             }}
           >
-            {checkoutPkg ? `ZAPLATIT — ${checkoutPkg.price}` : "NEJPRVE ZVOLTE VARIANTU"}
+            {selectedPkg ? "ZAREGISTROVAT SE NA SCREENING (ZDARMA)" : "NEJPRVE ZVOLTE VARIANTU"}
           </button>
         </div>
       </div>
@@ -1546,6 +1549,230 @@ function ConsultationModal({ pkg, onClose, onPay }: {
   );
 }
 
+// ── Screening Modal (paid — konzultace/supervize) ─────────────────────────────
+const SCREENING_PRODUCTS = [
+  { id: "1x",          label: "Jednorázová konzultace" },
+  { id: "1x-personal", label: "Konzultace osobní" },
+  { id: "3m",          label: "Krátkodobá spolupráce (3 měsíce)" },
+  { id: "6m",          label: "Střednědobá spolupráce (6 měsíců)" },
+  { id: "12m",         label: "Roční spolupráce (12 měsíců)" },
+  { id: "sup-1x",      label: "Supervize – Ochutnávka" },
+  { id: "sup-6x",      label: "Supervizní balíček (6 setkání)" },
+];
+
+function ScreeningModal({ userId, userEmail, userName, phone, prefillProductId, prefillProductLabel, onClose }: {
+  userId: string; userEmail: string; userName: string; phone: string;
+  prefillProductId?: string; prefillProductLabel?: string;
+  onClose: () => void;
+}) {
+  const [whyInterested, setWhyInterested] = useState("");
+  const [previousExperience, setPreviousExperience] = useState("");
+  const [goals, setGoals] = useState("");
+  const [preferredProduct, setPreferredProduct] = useState(prefillProductId ?? "");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const selectedLabel = SCREENING_PRODUCTS.find(p => p.id === preferredProduct)?.label ?? prefillProductLabel ?? "";
+
+  const handleSubmit = async () => {
+    if (!whyInterested || !previousExperience || !goals || !preferredProduct) {
+      setError("Vyplňte prosím všechna pole."); return;
+    }
+    setLoading(true); setError("");
+    const res = await fetch("/api/screening/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId, userEmail, userName, phone,
+        screeningType: "paid",
+        whyInterested, previousExperience, goals,
+        preferredProduct, preferredProductLabel: selectedLabel,
+      }),
+    });
+    const data = await res.json();
+    setLoading(false);
+    if (data.redirect) { window.location.href = data.redirect; return; }
+    setError(data.error ?? "Nastala chyba. Zkuste to prosím znovu.");
+  };
+
+  const taStyle: React.CSSProperties = {
+    width: "100%", padding: "10px 14px", borderRadius: 10,
+    border: `1px solid ${C.sand}`, background: C.cream,
+    fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
+    outline: "none", resize: "vertical", boxSizing: "border-box",
+  };
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.85)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.cream, borderRadius: 24, maxWidth: 540, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.4)", position: "relative" }}>
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+        <div style={{ padding: "28px 32px 36px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>DOTAZNÍK — SCREENING</div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>Mám zájem o spolupráci</h3>
+            </div>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+          </div>
+
+          <div style={{ padding: "12px 16px", background: "#FFF8EC", borderRadius: 12, border: `1px solid rgba(201,168,76,0.4)`, marginBottom: 24 }}>
+            <div style={{ fontSize: 13, color: C.text, lineHeight: 1.7 }}>
+              Vyplňte prosím krátký dotazník. Poté uhradíte <strong>2 999 Kč</strong> za 45minutové online screening setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div>
+              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>O JAKOU FORMU SPOLUPRÁCE MÁTE ZÁJEM? *</label>
+              <select value={preferredProduct} onChange={e => setPreferredProduct(e.target.value)} style={{ ...taStyle, resize: "none", height: 42 }}>
+                <option value="">— zvolte —</option>
+                {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>PROČ VÁS ZAJÍMÁ KOUČINK / SPOLUPRÁCE S IVETOU? *</label>
+              <textarea rows={3} value={whyInterested} onChange={e => setWhyInterested(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>MÁTE ZKUŠENOSTI S KOUČINKEM NEBO PSYCHOTERAPIÍ? *</label>
+              <textarea rows={3} value={previousExperience} onChange={e => setPreviousExperience(e.target.value)} style={taStyle} placeholder="Např. absolvované koučovací sezení, terapie apod." />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>CO BYSTE CHTĚLI V ŽIVOTĚ ZMĚNIT NEBO ŘEŠIT? *</label>
+              <textarea rows={3} value={goals} onChange={e => setGoals(e.target.value)} style={taStyle} placeholder="Popište situaci nebo téma, na které se chcete zaměřit." />
+            </div>
+          </div>
+
+          {error && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+          <button onClick={handleSubmit} disabled={loading} style={{ marginTop: 24, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
+            {loading ? "Odesílám…" : "POKRAČOVAT K PLATBĚ SCREENINGU (2 999 Kč)"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Workshop Screening Modal (free) ───────────────────────────────────────────
+function WorkshopScreeningModal({ userId, userEmail, userName, phone, workshopVariantId, workshopVariantLabel, onClose }: {
+  userId: string; userEmail: string; userName: string; phone: string;
+  workshopVariantId?: string; workshopVariantLabel?: string;
+  onClose: () => void;
+}) {
+  const [motivation, setMotivation] = useState("");
+  const [background, setBackground] = useState("");
+  const [experience, setExperience] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const handleSubmit = async () => {
+    if (!motivation || !background) { setError("Vyplňte prosím povinná pole."); return; }
+    setLoading(true); setError("");
+    const res = await fetch("/api/screening/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId, userEmail, userName, phone,
+        screeningType: "free",
+        workshopMotivation: motivation,
+        workshopBackground: background,
+        workshopExperience: experience,
+        preferredWorkshopVariant: workshopVariantId,
+        preferredWorkshopVariantLabel: workshopVariantLabel,
+      }),
+    });
+    const data = await res.json();
+    setLoading(false);
+    if (data.ok) { setDone(true); return; }
+    setError(data.error ?? "Nastala chyba. Zkuste to prosím znovu.");
+  };
+
+  const taStyle: React.CSSProperties = {
+    width: "100%", padding: "10px 14px", borderRadius: 10,
+    border: `1px solid ${C.sand}`, background: "#1E1D2E",
+    fontSize: 14, fontFamily: "Georgia, serif", color: "rgba(255,255,255,0.85)",
+    outline: "none", resize: "vertical", boxSizing: "border-box",
+  };
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.9)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#1E1D2E", borderRadius: 24, maxWidth: 520, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.6)", position: "relative" }}>
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+        <div style={{ padding: "28px 32px 36px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>REGISTRACE — VÝCVIK</div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.white, margin: 0 }}>Zájem o výcvik Průvodcem v midlife®</h3>
+            </div>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+          </div>
+
+          {done ? (
+            <div style={{ textAlign: "center", padding: "32px 0" }}>
+              <div style={{ fontSize: 36, marginBottom: 16 }}>✓</div>
+              <div style={{ fontSize: 18, color: C.gold, marginBottom: 12 }}>Registrace odeslána</div>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>Iveta vás brzy kontaktuje pro domluvení bezplatného screeningového rozhovoru.</p>
+              <button onClick={onClose} style={{ marginTop: 24, padding: "12px 28px", borderRadius: 24, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", cursor: "pointer" }}>Zavřít</button>
+            </div>
+          ) : (
+            <>
+              {workshopVariantLabel && (
+                <div style={{ padding: "10px 14px", background: "rgba(201,168,76,0.1)", borderRadius: 10, border: "1px solid rgba(201,168,76,0.25)", marginBottom: 20 }}>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS, sans-serif" }}>Vybraná varianta</div>
+                  <div style={{ fontSize: 14, color: C.gold, marginTop: 2 }}>{workshopVariantLabel}</div>
+                </div>
+              )}
+
+              <div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.04)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>
+                  Screening pro zájemce o výcvik je <strong style={{ color: C.gold }}>zdarma</strong>. Po odeslání registrace vás Iveta brzy kontaktuje.
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>CO VÁS PŘIVÁDÍ K ZÁJMU O VÝCVIK PRŮVODCEM V MIDLIFE®? *</label>
+                  <textarea rows={3} value={motivation} onChange={e => setMotivation(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JAKÉ MÁTE ZKUŠENOSTI S KOUČINKEM A VÝCVIKEM? *</label>
+                  <textarea rows={3} value={background} onChange={e => setBackground(e.target.value)} style={taStyle} placeholder="Absolvované výcviky, certifikace, roky praxe..." />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JAK DLOUHO PRACUJETE JAKO KOUČ NEBO TERAPEUT?</label>
+                  <input value={experience} onChange={e => setExperience(e.target.value)} style={{ ...taStyle, resize: "none", padding: "10px 14px" }} placeholder="Např. 3 roky" />
+                </div>
+              </div>
+
+              {error && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#ef9a9a", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+              <button onClick={handleSubmit} disabled={loading} style={{ marginTop: 24, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
+                {loading ? "Odesílám…" : "ODESLAT REGISTRACI"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
   const scrollY = useScrollY();
@@ -1565,6 +1792,8 @@ export default function App() {
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [openWorkshopModal, setOpenWorkshopModal] = useState(false);
   const [checkoutPkg, setCheckoutPkg] = useState<typeof consultationData.packages[0] | null>(null);
+  const [screeningModal, setScreeningModal] = useState<{ open: boolean; prefillProductId?: string; prefillProductLabel?: string } | null>(null);
+  const [workshopScreeningModal, setWorkshopScreeningModal] = useState<{ open: boolean; workshopVariantId?: string; workshopVariantLabel?: string } | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -2079,7 +2308,10 @@ export default function App() {
           <ConsultationModal
             pkg={pkg}
             onClose={() => setOpenModal(null)}
-            onPay={() => { setCheckoutPkg(pkg); setOpenModal(null); }}
+            onPay={() => {
+              setOpenModal(null);
+              setScreeningModal({ open: true, prefillProductId: pkg.id, prefillProductLabel: pkg.title });
+            }}
           />
         ) : null;
       })()}
@@ -2087,7 +2319,10 @@ export default function App() {
       {openWorkshopModal && !checkoutPkg && (
         <WorkshopModal
           onClose={() => setOpenWorkshopModal(false)}
-          onPay={pkg => { setCheckoutPkg(pkg); setOpenWorkshopModal(false); }}
+          onPay={pkg => {
+            setOpenWorkshopModal(false);
+            setWorkshopScreeningModal({ open: true, workshopVariantId: pkg.id, workshopVariantLabel: pkg.title });
+          }}
         />
       )}
 
@@ -2099,6 +2334,30 @@ export default function App() {
             setAuthModal({ open: false });
             authModal.afterAuth?.();
           }}
+        />
+      )}
+
+      {screeningModal?.open && user && (
+        <ScreeningModal
+          userId={user.id}
+          userEmail={user.email ?? ""}
+          userName={profile ? `${profile.first_name} ${profile.last_name}` : ""}
+          phone={profile?.phone ?? ""}
+          prefillProductId={screeningModal.prefillProductId}
+          prefillProductLabel={screeningModal.prefillProductLabel}
+          onClose={() => setScreeningModal(null)}
+        />
+      )}
+
+      {workshopScreeningModal?.open && user && (
+        <WorkshopScreeningModal
+          userId={user.id}
+          userEmail={user.email ?? ""}
+          userName={profile ? `${profile.first_name} ${profile.last_name}` : ""}
+          phone={profile?.phone ?? ""}
+          workshopVariantId={workshopScreeningModal.workshopVariantId}
+          workshopVariantLabel={workshopScreeningModal.workshopVariantLabel}
+          onClose={() => setWorkshopScreeningModal(null)}
         />
       )}
 
@@ -2157,7 +2416,7 @@ export default function App() {
                   <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{pkg.title}</h3>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>{user ? "Vybrat" : "Registrace"}</Btn>
+                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Mám zájem</Btn>
                   </div>
                 </div>
               </Reveal>
@@ -2196,7 +2455,7 @@ export default function App() {
                       }}
                       onMouseEnter={e => (e.currentTarget.style.background = C.goldLight)}
                       onMouseLeave={e => (e.currentTarget.style.background = C.gold)}
-                    >{user ? "Vybrat" : "Registrace"}</button>
+                    >Mám zájem</button>
                   </div>
                 </div>
               </Reveal>
@@ -2327,7 +2586,7 @@ export default function App() {
                   <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 12px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Chci vědět více</Btn>
+                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Mám zájem</Btn>
                   </div>
                 </div>
               </Reveal>
@@ -2440,7 +2699,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <Btn onClick={() => requireAuth(() => setOpenWorkshopModal(true))} pulse>Zaregistrovat se</Btn>
+                <Btn onClick={() => requireAuth(() => setOpenWorkshopModal(true))} pulse>Zaregistrovat se na screening</Btn>
               </div>
             </div>
           </Reveal>
