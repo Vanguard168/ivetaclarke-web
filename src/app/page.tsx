@@ -1552,15 +1552,36 @@ const SCREENING_PRODUCTS = [
   { id: "sup-6x",      label: "Supervizní balíček (6 setkání)" },
 ];
 
-function ScreeningModal({ userId, userEmail, userName, phone, prefillProductId, prefillProductLabel, onClose }: {
+function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillProductId, prefillProductLabel, onClose }: {
   userId: string; userEmail: string; userName: string; phone: string;
+  profile?: Profile | null;
   prefillProductId?: string; prefillProductLabel?: string;
   onClose: () => void;
 }) {
+  const [step, setStep] = useState(1);
+
+  // Step 1 — questionnaire
   const [whyInterested, setWhyInterested] = useState("");
   const [previousExperience, setPreviousExperience] = useState("");
   const [goals, setGoals] = useState("");
   const [preferredProduct, setPreferredProduct] = useState(prefillProductId ?? "");
+  const [step1Error, setStep1Error] = useState("");
+
+  // Step 2 — registration & payment
+  const nameParts = userName.trim().split(" ");
+  const [form, setForm] = useState({
+    firstName: profile?.first_name || nameParts[0] || "",
+    lastName:  profile?.last_name  || nameParts.slice(1).join(" ") || "",
+    email:     userEmail || "",
+    phone:     profile?.phone  || phone || "",
+    street:    profile?.street || "",
+    city:      profile?.city   || "",
+    zip:       profile?.zip    || "",
+    company:   profile?.company || "",
+    ico:       profile?.ico    || "",
+  });
+  const [payMethod, setPayMethod] = useState("ALL");
+  const [payMethodIdx, setPayMethodIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -1571,21 +1592,36 @@ function ScreeningModal({ userId, userEmail, userName, phone, prefillProductId, 
     return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
   }, [onClose]);
 
+  const setF = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm(f => ({ ...f, [field]: e.target.value }));
+
   const selectedLabel = SCREENING_PRODUCTS.find(p => p.id === preferredProduct)?.label ?? prefillProductLabel ?? "";
 
-  const handleSubmit = async () => {
-    if (!whyInterested || !previousExperience || !goals || !preferredProduct) {
-      setError("Vyplňte prosím všechna pole."); return;
+  const handleStep1 = () => {
+    if (!preferredProduct || !whyInterested || !previousExperience || !goals) {
+      setStep1Error("Vyplňte prosím všechna pole."); return;
+    }
+    setStep1Error(""); setStep(2);
+  };
+
+  const handlePay = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.firstName || !form.lastName || !form.email || !form.phone || !form.street || !form.city || !form.zip) {
+      setError("Vyplňte prosím všechna povinná pole."); return;
     }
     setLoading(true); setError("");
     const res = await fetch("/api/screening/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId, userEmail, userName, phone,
+        userId, userEmail: form.email,
+        userName: `${form.firstName} ${form.lastName}`,
+        phone: form.phone, street: form.street, city: form.city,
+        zip: form.zip, company: form.company, ico: form.ico,
         screeningType: "paid",
         whyInterested, previousExperience, goals,
         preferredProduct, preferredProductLabel: selectedLabel,
+        method: payMethod,
       }),
     });
     const data = await res.json();
@@ -1594,59 +1630,133 @@ function ScreeningModal({ userId, userEmail, userName, phone, prefillProductId, 
     setError(data.error ?? "Nastala chyba. Zkuste to prosím znovu.");
   };
 
-  const taStyle: React.CSSProperties = {
-    width: "100%", padding: "10px 14px", borderRadius: 10,
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "11px 14px", borderRadius: 10,
     border: `1px solid ${C.sand}`, background: C.cream,
     fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
-    outline: "none", resize: "vertical", boxSizing: "border-box",
+    outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
   };
+  const taStyle: React.CSSProperties = { ...inputStyle, resize: "vertical" };
+  const Label = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>{children}</label>
+  );
+
+  const payMethods: { id: string; label: string; sub: string; icon: React.ReactNode }[] = [
+    { id: "APPLEPAY_REDIRECT", label: "Platba kartou", sub: "Mastercard, Visa, Apple Pay, Google Pay", icon: <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="0.5" y="0.5" width="21" height="15" rx="2.5" stroke="currentColor" strokeOpacity="0.4"/><rect y="4" width="22" height="3" fill="currentColor" fillOpacity="0.25"/><rect x="2" y="10" width="5" height="2" rx="1" fill="currentColor" fillOpacity="0.5"/></svg> },
+    { id: "ALL", label: "QR platba", sub: "Okamžité potvrzení platby", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg> },
+    { id: "ALL", label: "Bankovní převod", sub: "Okamžité potvrzení platby", icon: <svg width="22" height="20" viewBox="0 0 24 22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="2" fill="currentColor" stroke="none" rx="1"/><line x1="4" y1="11" x2="4" y2="18"/><line x1="8" y1="11" x2="8" y2="18"/><line x1="12" y1="11" x2="12" y2="18"/><line x1="16" y1="11" x2="16" y2="18"/><line x1="20" y1="11" x2="20" y2="18"/><rect x="2" y="18" width="20" height="2" fill="currentColor" stroke="none" rx="1"/></svg> },
+    { id: "ALL", label: "Odložená platba", sub: "Twisto, Skip Pay, splátky", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> },
+  ];
 
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.85)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
       <div onClick={e => e.stopPropagation()} style={{ background: C.cream, borderRadius: 24, maxWidth: 540, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.4)", position: "relative" }}>
         <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
         <div style={{ padding: "28px 32px 36px" }}>
+
+          {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
             <div>
-              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>DOTAZNÍK — SCREENING</div>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>Mám zájem o spolupráci</h3>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>
+                {step === 1 ? "KROK 1 / 2 — DOTAZNÍK" : "KROK 2 / 2 — PLATBA SCREENINGU"}
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>
+                {step === 1 ? "Mám zájem o spolupráci" : "Screening — 45 min online setkání"}
+              </h3>
             </div>
             <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
 
-          <div style={{ padding: "12px 16px", background: "#FFF8EC", borderRadius: 12, border: `1px solid rgba(201,168,76,0.4)`, marginBottom: 24 }}>
-            <div style={{ fontSize: 13, color: C.text, lineHeight: 1.7 }}>
-              Vyplňte prosím krátký dotazník. Poté uhradíte <strong>2 999 Kč</strong> za 45minutové online screening setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
-            </div>
-          </div>
+          {/* ── STEP 1 ── */}
+          {step === 1 && (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <Label>O JAKOU FORMU SPOLUPRÁCE MÁTE ZÁJEM? *</Label>
+                  <select value={preferredProduct} onChange={e => setPreferredProduct(e.target.value)} style={{ ...inputStyle, height: 44 }}>
+                    <option value="">— zvolte —</option>
+                    {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label>PROČ VÁS ZAJÍMÁ KOUČINK / SPOLUPRÁCE S IVETOU? *</Label>
+                  <textarea rows={3} value={whyInterested} onChange={e => setWhyInterested(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
+                </div>
+                <div>
+                  <Label>MÁTE ZKUŠENOSTI S KOUČINKEM NEBO PSYCHOTERAPIÍ? *</Label>
+                  <textarea rows={3} value={previousExperience} onChange={e => setPreviousExperience(e.target.value)} style={taStyle} placeholder="Např. absolvované koučovací sezení, terapie apod." />
+                </div>
+                <div>
+                  <Label>CO BYSTE CHTĚLI V ŽIVOTĚ ZMĚNIT NEBO ŘEŠIT? *</Label>
+                  <textarea rows={3} value={goals} onChange={e => setGoals(e.target.value)} style={taStyle} placeholder="Popište situaci nebo téma, na které se chcete zaměřit." />
+                </div>
+              </div>
+              {step1Error && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{step1Error}</div>}
+              <button onClick={handleStep1} style={{ marginTop: 24, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: "pointer" }}>
+                POKRAČOVAT
+              </button>
+            </>
+          )}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>O JAKOU FORMU SPOLUPRÁCE MÁTE ZÁJEM? *</label>
-              <select value={preferredProduct} onChange={e => setPreferredProduct(e.target.value)} style={{ ...taStyle, resize: "none", height: 42 }}>
-                <option value="">— zvolte —</option>
-                {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>PROČ VÁS ZAJÍMÁ KOUČINK / SPOLUPRÁCE S IVETOU? *</label>
-              <textarea rows={3} value={whyInterested} onChange={e => setWhyInterested(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>MÁTE ZKUŠENOSTI S KOUČINKEM NEBO PSYCHOTERAPIÍ? *</label>
-              <textarea rows={3} value={previousExperience} onChange={e => setPreviousExperience(e.target.value)} style={taStyle} placeholder="Např. absolvované koučovací sezení, terapie apod." />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>CO BYSTE CHTĚLI V ŽIVOTĚ ZMĚNIT NEBO ŘEŠIT? *</label>
-              <textarea rows={3} value={goals} onChange={e => setGoals(e.target.value)} style={taStyle} placeholder="Popište situaci nebo téma, na které se chcete zaměřit." />
-            </div>
-          </div>
+          {/* ── STEP 2 ── */}
+          {step === 2 && (
+            <form onSubmit={handlePay}>
+              {/* Order summary */}
+              <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 13, color: C.text }}>Screening setkání s Ivetou Clarke</div>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>45 min online · vč. DPH / 2 478 Kč bez DPH</div>
+                </div>
+                <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>2 999 Kč</div>
+              </div>
 
-          {error && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+              {/* Form */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                <div><Label>JMÉNO *</Label><input value={form.firstName} onChange={setF("firstName")} placeholder="Jana" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><Label>PŘÍJMENÍ *</Label><input value={form.lastName} onChange={setF("lastName")} placeholder="Nováková" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
+              <div style={{ marginBottom: 12 }}><Label>E-MAIL *</Label><input value={form.email} onChange={setF("email")} type="email" placeholder="jana@example.com" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              <div style={{ marginBottom: 12 }}><Label>TELEFON *</Label><input value={form.phone} onChange={setF("phone")} type="tel" placeholder="+420 777 123 456" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              <div style={{ marginBottom: 12 }}><Label>ULICE A ČÍSLO *</Label><input value={form.street} onChange={setF("street")} placeholder="Např. Václavské náměstí 1" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 12 }}>
+                <div><Label>MĚSTO *</Label><input value={form.city} onChange={setF("city")} placeholder="Praha" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><Label>PSČ *</Label><input value={form.zip} onChange={setF("zip")} placeholder="110 00" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+                <div><Label>FIRMA (volitelné)</Label><input value={form.company} onChange={setF("company")} placeholder="Název firmy" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                <div><Label>IČO (volitelné)</Label><input value={form.ico} onChange={setF("ico")} placeholder="12345678" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              </div>
 
-          <button onClick={handleSubmit} disabled={loading} style={{ marginTop: 24, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
-            {loading ? "Odesílám…" : "POKRAČOVAT K PLATBĚ SCREENINGU (2 999 Kč)"}
-          </button>
+              {/* Payment method */}
+              <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", marginBottom: 10 }}>ZPŮSOB PLATBY</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                {payMethods.map((m, idx) => {
+                  const active = payMethodIdx === idx;
+                  return (
+                    <div key={idx} onClick={() => { setPayMethodIdx(idx); setPayMethod(m.id); }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", borderRadius: 12, cursor: "pointer", border: `1.5px solid ${active ? C.gold : C.sand}`, background: active ? "#FFF8EC" : C.white, transition: "all 0.15s" }}>
+                      <div style={{ color: active ? C.gold : C.muted, flexShrink: 0 }}>{m.icon}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, color: active ? C.dark : C.text, fontWeight: active ? "bold" : "normal" }}>{m.label}</div>
+                        <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>{m.sub}</div>
+                      </div>
+                      <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {active && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {error && <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <button type="button" onClick={() => setStep(1)} style={{ padding: "15px 20px", borderRadius: 32, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
+                <button type="submit" disabled={loading} style={{ flex: 1, padding: "15px 0", borderRadius: 32, background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
+                  {loading ? "Přesměrování na platební bránu…" : "ZAPLATIT 2 999 Kč"}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
@@ -2338,6 +2448,7 @@ export default function App() {
           userEmail={user.email ?? ""}
           userName={profile ? `${profile.first_name} ${profile.last_name}` : ""}
           phone={profile?.phone ?? ""}
+          profile={profile}
           prefillProductId={screeningModal.prefillProductId}
           prefillProductLabel={screeningModal.prefillProductLabel}
           onClose={() => setScreeningModal(null)}

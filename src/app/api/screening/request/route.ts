@@ -14,6 +14,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     userId, userEmail, userName, phone,
+    street, city, zip, company, ico,
+    method,
     screeningType,
     // paid screening fields
     whyInterested, previousExperience, goals,
@@ -111,10 +113,10 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           customerName: userName,
           customerEmail: userEmail,
-          customerStreet: "",
-          customerCity: "",
-          customerZip: "",
-          customerIco: "",
+          customerStreet: street ?? "",
+          customerCity: city ?? "",
+          customerZip: zip ?? "",
+          customerIco: ico ?? "",
         }),
       });
     } catch (e) {
@@ -131,7 +133,7 @@ export async function POST(req: NextRequest) {
     curr: "CZK",
     label: SCREENING_LABEL,
     refId,
-    method: "ALL",
+    method: method ?? "ALL",
     email: userEmail,
     phone: phone ?? "",
     prepareOnly: "true",
