@@ -1501,14 +1501,6 @@ function ConsultationModal({ pkg, onClose, onPay }: {
 
           <div style={{ height: 1, background: C.sand, marginBottom: 24 }} />
 
-          {/* Price */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
-            <div>
-              <div style={{ fontSize: 32, color: C.dark, lineHeight: 1 }}>{pkg.price}</div>
-              <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 6 }}>{pkg.priceNote}</div>
-            </div>
-          </div>
-
           {/* CTA */}
           <button
             style={{
@@ -1523,7 +1515,7 @@ function ConsultationModal({ pkg, onClose, onPay }: {
             onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
             onClick={onPay}
           >
-            ZAPLATIT
+            MÁM ZÁJEM — VYPLNIT DOTAZNÍK
           </button>
 
           {/* Calendar link */}
