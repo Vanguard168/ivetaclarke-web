@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
 async function sendPaymentEmail(to: string, name: string, productName: string, priceDisplay: string, link: string) {
   const resendKey = process.env.RESEND_API_KEY;
   const subject = `Platební odkaz — ${productName}`;
-  const text = `Dobrý den ${name},\n\nIveta Clarke pro vás připravila platební odkaz pro produkt:\n${productName}\nCena: ${priceDisplay}\n\nZaplaťte prosím zde:\n${link}\n\nPo úhradě vám bude zaslána faktura.\n\nS pozdravem,\nIveta Clarke`;
+  const text = `Dobrý den ${name},\n\nIveta Clarke pro vás připravila platební odkaz.\n\nForma spolupráce: ${productName}\nCena: ${priceDisplay}\n\nZaplaťte prosím zde:\n${link}\n\nPo úhradě vám bude zaslána faktura.\n\nS pozdravem,\nIveta Clarke`;
   console.log(`📧 Platební odkaz zákazníkovi ${to}: ${link}`);
   if (!resendKey) return;
   await fetch("https://api.resend.com/emails", {

@@ -72,7 +72,7 @@ Iveta Clarke`,
 
 Iveta Clarke pro vás připravila platební odkaz:
 
-Produkt: {productName}
+Forma: {productName}
 Cena: {amount}
 
 Zaplaťte prosím zde:
@@ -125,7 +125,7 @@ function EmailPreview({ s }: { s: EmailSettings }) {
           <div style="margin:0 0 20px;color:#374151;font-size:13px;line-height:1.8;">${bodyHtml}</div>
           <div style="background:${tableBg};border:1px solid ${tableBorder};border-radius:6px;padding:16px;margin-bottom:20px;">
             <table style="width:100%;font-size:13px;color:#374151;border-collapse:collapse;">
-              <tr><td style="padding:3px 0;color:#6b7280;">Produkt:</td><td style="padding:3px 0;font-weight:600;text-align:right;">Krátkodobá spolupráce</td></tr>
+              <tr><td style="padding:3px 0;color:#6b7280;">Forma:</td><td style="padding:3px 0;font-weight:600;text-align:right;">Krátkodobá spolupráce</td></tr>
               <tr><td style="padding:3px 0;color:#6b7280;">Celková částka:</td><td style="padding:3px 0;font-weight:700;font-size:15px;color:${color};text-align:right;">22 990 Kč</td></tr>
             </table>
           </div>
