@@ -87,15 +87,18 @@ export default function AdminPage() {
         const res = await fetch("/api/admin/screening", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        const text = await res.text();
+        let data: { requests?: ScreeningRequest[]; error?: string } = {};
+        try { data = JSON.parse(text); } catch { /**/ }
+
         if (res.status === 403) {
-          setAccessError(`Váš účet (${session.user.email}) nemá admin oprávnění. Zkontrolujte přiřazení role v Supabase.`);
+          setAccessError(`Přístup odepřen (403).\nEmail: ${session.user.email}\nID: ${session.user.id}\nReason: ${data.error ?? "—"}\n\nUjistěte se, že v tabulce profiles máte role='admin' pro toto user ID.`);
           setIsAdmin(false); setLoading(false); return;
         }
         if (!res.ok) {
-          setAccessError(`Chyba serveru (${res.status}). Zkontrolujte Vercel logy.`);
+          setAccessError(`Chyba serveru (${res.status}).\nResponse: ${text.slice(0, 300)}`);
           setIsAdmin(false); setLoading(false); return;
         }
-        const data = await res.json();
         setIsAdmin(true);
         setRequests(data.requests ?? []);
       } catch (e) {
