@@ -1557,6 +1557,8 @@ export default function App() {
   const [proVerejnostOpen, setProVerejnostOpen] = useState(false);
   const [proKouceHover, setProKouceHover] = useState(false);
   const [proVerejnostHover, setProVerejnostHover] = useState(false);
+  const proKouceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const proVerejnostTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [contactSent, setContactSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
@@ -1685,12 +1687,18 @@ export default function App() {
             {navItems.map(item => {
               const isDropdown = item === "Pro Kouče" || item === "Pro veřejnost";
               const isHovered = item === "Pro Kouče" ? proKouceHover : proVerejnostHover;
+              const timerRef = item === "Pro Kouče" ? proKouceTimer : proVerejnostTimer;
               const setHovered = item === "Pro Kouče" ? setProKouceHover : setProVerejnostHover;
               const subItems = item === "Pro Kouče" ? proKouceItems : proVerejnostItems;
               if (isDropdown) return (
                 <div key={item} style={{ position: "relative" }}
-                  onMouseEnter={() => setHovered(true)}
-                  onMouseLeave={() => setHovered(false)}
+                  onMouseEnter={() => {
+                    if (timerRef.current) clearTimeout(timerRef.current);
+                    setHovered(true);
+                  }}
+                  onMouseLeave={() => {
+                    timerRef.current = setTimeout(() => setHovered(false), 220);
+                  }}
                 >
                   <button style={{
                     background: "none", border: "none", cursor: "pointer",
