@@ -713,7 +713,7 @@ export default function AdminPage() {
               </div>
 
               {/* Send payment */}
-              {(selected.status === "screening_paid" || selected.status === "screening_done" || selected.status === "pending") && (
+              {selected.status !== "cancelled" && (
                 <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
                   <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>ODESLAT PLATEBNÍ ODKAZ</div>
                   <div style={{ marginBottom: 12 }}>
