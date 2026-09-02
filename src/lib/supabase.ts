@@ -15,6 +15,7 @@ export type Profile = {
   zip: string;
   company?: string;
   ico?: string;
+  role?: string;
 };
 
 export type Order = {

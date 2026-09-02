@@ -1974,6 +1974,9 @@ export default function App() {
             <Btn small onClick={() => scrollTo("pro veřejnost")}>Rezervovat</Btn>
             {user ? (
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 6 }}>
+                {profile?.role === "admin" && (
+                  <a href="/admin" style={{ fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", color: C.gold, textDecoration: "none", border: `1px solid ${C.gold}`, borderRadius: 12, padding: "2px 8px", opacity: 0.8 }}>Admin</a>
+                )}
                 <a href="/muj-ucet" style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: C.gold, textDecoration: "none", whiteSpace: "nowrap" }}>
                   {profile?.first_name ? `${profile.first_name} · Můj účet` : "Můj účet"}
                 </a>

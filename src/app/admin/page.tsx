@@ -64,6 +64,7 @@ type ScreeningRequest = {
 export default function AdminPage() {
   const [jwt, setJwt] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [accessError, setAccessError] = useState("");
   const [requests, setRequests] = useState<ScreeningRequest[]>([]);
   const [selected, setSelected] = useState<ScreeningRequest | null>(null);
   const [filter, setFilter] = useState("all");
@@ -76,16 +77,31 @@ export default function AdminPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { setIsAdmin(false); setLoading(false); return; }
+      if (!session) {
+        setAccessError("Nejste přihlášeni. Přihlaste se nejprve na hlavní stránce.");
+        setIsAdmin(false); setLoading(false); return;
+      }
       const token = session.access_token;
       setJwt(token);
-      const res = await fetch("/api/admin/screening", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) { setIsAdmin(false); setLoading(false); return; }
-      const data = await res.json();
-      setIsAdmin(true);
-      setRequests(data.requests ?? []);
+      try {
+        const res = await fetch("/api/admin/screening", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 403) {
+          setAccessError(`Váš účet (${session.user.email}) nemá admin oprávnění. Zkontrolujte přiřazení role v Supabase.`);
+          setIsAdmin(false); setLoading(false); return;
+        }
+        if (!res.ok) {
+          setAccessError(`Chyba serveru (${res.status}). Zkontrolujte Vercel logy.`);
+          setIsAdmin(false); setLoading(false); return;
+        }
+        const data = await res.json();
+        setIsAdmin(true);
+        setRequests(data.requests ?? []);
+      } catch (e) {
+        setAccessError(`Síťová chyba: ${e}`);
+        setIsAdmin(false);
+      }
       setLoading(false);
     });
   }, []);
@@ -166,8 +182,13 @@ export default function AdminPage() {
   );
 
   if (isAdmin === false) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: C.cream, flexDirection: "column", gap: 16 }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: C.cream, flexDirection: "column", gap: 16, padding: 24 }}>
       <div style={{ fontSize: 18, color: C.dark }}>Přístup odepřen</div>
+      {accessError && (
+        <div style={{ maxWidth: 480, padding: "14px 18px", background: "rgba(200,80,80,0.07)", borderRadius: 12, border: "1px solid rgba(200,80,80,0.25)", fontSize: 13, color: "#C85050", fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.6, textAlign: "center" }}>
+          {accessError}
+        </div>
+      )}
       <a href="/" style={{ fontSize: 13, color: C.gold, fontFamily: "Trebuchet MS, sans-serif" }}>← Zpět na web</a>
     </div>
   );
