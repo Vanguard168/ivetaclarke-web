@@ -8,7 +8,7 @@ const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
 // Screening fee: 2 999 Kč incl. 21% VAT
 const SCREENING_PRICE = 299900; // haléře
 const SCREENING_PRICE_EX_VAT = 247851; // haléře
-const SCREENING_LABEL = "Screening – 45minutové online setkání s Ivetou Clarke";
+const SCREENING_LABEL = "Screening – 30minutové online setkání s Ivetou Clarke";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

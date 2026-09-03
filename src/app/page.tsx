@@ -1661,7 +1661,7 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
                 {step === 1 ? "KROK 1 / 2 — DOTAZNÍK" : "KROK 2 / 2 — PLATBA SCREENINGU"}
               </div>
               <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: 0 }}>
-                {step === 1 ? "Mám zájem o spolupráci" : "Screening — 45 min online setkání"}
+                {step === 1 ? "Mám zájem o spolupráci" : "Screening — 30 min online setkání"}
               </h3>
             </div>
             <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
@@ -1703,14 +1703,14 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
             <form onSubmit={handlePay}>
               {/* Description */}
               <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 20px" }}>
-                Níže se prosím zaregistrujte. Poté uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za 45minutové online screening setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
+                Níže se prosím zaregistrujte. Poté uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za 30minutové online screening setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
               </p>
 
               {/* Order summary */}
               <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ fontSize: 13, color: C.text }}>Screening setkání s Ivetou Clarke</div>
-                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>45 min online · vč. DPH / 2 478 Kč bez DPH</div>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>30 min online · vč. DPH / 2 478 Kč bez DPH</div>
                 </div>
                 <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>2 999 Kč</div>
               </div>

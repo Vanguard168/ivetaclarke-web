@@ -11,7 +11,7 @@ const SCREENING_FEE = 299900; // 2 999 Kč in haléře
 const DEDUCTIBLE_PRODUCTS = ["3m", "6m", "12m"];
 
 const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: number; label: string }> = {
-  "screening":      { price: 299900,  vatRate: 21, priceExVat: 247851,  label: "Screening – 45minutové online setkání s Ivetou Clarke" },
+  "screening":      { price: 299900,  vatRate: 21, priceExVat: 247851,  label: "Screening – 30minutové online setkání s Ivetou Clarke" },
   "1x":             { price: 599000,  vatRate: 21, priceExVat: 495041,  label: "Jednorázová konzultace" },
   "1x-personal":    { price: 899000,  vatRate: 21, priceExVat: 742975,  label: "Konzultace osobní" },
   "3m":             { price: 2499000, vatRate: 21, priceExVat: 2065289, label: "Krátkodobá spolupráce (3 měsíce)" },
