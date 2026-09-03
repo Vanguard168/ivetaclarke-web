@@ -203,6 +203,10 @@ export default function MujUcet() {
                 </div>
               </div>
               <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 5 }}>E-MAIL</label>
+                <input value={user?.email ?? ""} readOnly style={{ ...inputStyle, background: C.warm, color: C.muted, cursor: "default" }} />
+              </div>
+              <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 5 }}>TELEFON</label>
                 <input value={editForm.phone ?? ""} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} style={inputStyle} />
               </div>
@@ -218,6 +222,16 @@ export default function MujUcet() {
                 <div>
                   <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 5 }}>PSČ</label>
                   <input value={editForm.zip ?? ""} onChange={e => setEditForm(f => ({ ...f, zip: e.target.value }))} style={inputStyle} />
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 5 }}>FIRMA</label>
+                  <input value={editForm.company ?? ""} onChange={e => setEditForm(f => ({ ...f, company: e.target.value }))} style={inputStyle} placeholder="volitelné" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 5 }}>IČO</label>
+                  <input value={editForm.ico ?? ""} onChange={e => setEditForm(f => ({ ...f, ico: e.target.value }))} style={inputStyle} placeholder="volitelné" />
                 </div>
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
@@ -236,10 +250,11 @@ export default function MujUcet() {
               {profile ? (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   {[
-                    ["Jméno", `${profile.first_name} ${profile.last_name}`],
+                    ["Jméno", [profile.first_name, profile.last_name].filter(Boolean).join(" ")],
+                    ["E-mail", user?.email],
                     ["Telefon", profile.phone],
                     ["Ulice", profile.street],
-                    ["Město / PSČ", `${profile.city}, ${profile.zip}`],
+                    ["Město / PSČ", [profile.city, profile.zip].filter(Boolean).join(", ")],
                     ...(profile.company ? [["Firma", profile.company]] : []),
                     ...(profile.ico ? [["IČO", profile.ico]] : []),
                   ].map(([label, value]) => (
