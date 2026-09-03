@@ -1518,23 +1518,6 @@ function ConsultationModal({ pkg, onClose, onPay }: {
             MÁM ZÁJEM — VYPLNIT DOTAZNÍK
           </button>
 
-          {/* Calendar link */}
-          <div style={{ textAlign: "center" }}>
-            <a
-              href="#kontakt"
-              onClick={e => { e.preventDefault(); onClose(); document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" }); }}
-              style={{
-                fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif",
-                textDecoration: "none", letterSpacing: "0.04em",
-                borderBottom: `1px solid ${C.sand}`, paddingBottom: 1,
-                transition: "color 0.2s, border-color 0.2s",
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.gold; (e.currentTarget as HTMLElement).style.borderBottomColor = C.gold; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; (e.currentTarget as HTMLElement).style.borderBottomColor = C.sand; }}
-            >
-              Naplánujte setkání zde →
-            </a>
-          </div>
         </div>
       </div>
     </div>
