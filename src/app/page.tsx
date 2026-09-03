@@ -1711,13 +1711,23 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
                       {useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark, marginBottom: 4 }}>
+                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark, marginBottom: 6 }}>
                         Fakturační údaje stejné jako registrační
                       </div>
-                      <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.5 }}>
-                        {profileForm.firstName} {profileForm.lastName} · {profileForm.email}<br />
-                        {profileForm.street}{profileForm.city ? `, ${profileForm.city}` : ""}{profileForm.zip ? ` ${profileForm.zip}` : ""}
-                        {profileForm.company ? ` · ${profileForm.company}` : ""}
+                      <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.7 }}>
+                        {(() => {
+                          const name = [profileForm.firstName, profileForm.lastName].filter(Boolean).join(" ");
+                          const addr = [profileForm.street, [profileForm.city, profileForm.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                          return (
+                            <>
+                              <span style={{ color: C.text }}>{name || "—"}</span><br />
+                              {profileForm.email}<br />
+                              {profileForm.phone && <>{profileForm.phone}<br /></>}
+                              {addr || <span style={{ fontStyle: "italic" }}>Adresa nevyplněna — doplňte v profilu</span>}
+                              {profileForm.company && <><br />{profileForm.company}{profileForm.ico ? ` · IČO: ${profileForm.ico}` : ""}</>}
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </button>
