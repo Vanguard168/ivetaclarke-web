@@ -1552,7 +1552,7 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
 
   // Step 2 — registration & payment
   const nameParts = userName.trim().split(" ");
-  const [form, setForm] = useState({
+  const profileForm = {
     firstName: profile?.first_name || nameParts[0] || "",
     lastName:  profile?.last_name  || nameParts.slice(1).join(" ") || "",
     email:     userEmail || "",
@@ -1562,7 +1562,9 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
     zip:       profile?.zip    || "",
     company:   profile?.company || "",
     ico:       profile?.ico    || "",
-  });
+  };
+  const [useSameAddress, setUseSameAddress] = useState(true);
+  const [form, setForm] = useState(profileForm);
   const [payMethod, setPayMethod] = useState("ALL");
   const [payMethodIdx, setPayMethodIdx] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -1698,22 +1700,61 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
                 <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>2 999 Kč</div>
               </div>
 
-              {/* Form */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-                <div><Label>JMÉNO *</Label><input value={form.firstName} onChange={setF("firstName")} placeholder="Jana" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-                <div><Label>PŘÍJMENÍ *</Label><input value={form.lastName} onChange={setF("lastName")} placeholder="Nováková" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+              {/* Billing address toggle */}
+              <div style={{ marginBottom: 20 }}>
+                <Label>FAKTURAČNÍ ÚDAJE</Label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {/* Option 1 — same as profile */}
+                  <button type="button" onClick={() => { setUseSameAddress(true); setForm(profileForm); }}
+                    style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? C.gold : "transparent", flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark, marginBottom: 4 }}>
+                        Fakturační údaje stejné jako registrační
+                      </div>
+                      <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.5 }}>
+                        {profileForm.firstName} {profileForm.lastName} · {profileForm.email}<br />
+                        {profileForm.street}{profileForm.city ? `, ${profileForm.city}` : ""}{profileForm.zip ? ` ${profileForm.zip}` : ""}
+                        {profileForm.company ? ` · ${profileForm.company}` : ""}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Option 2 — custom */}
+                  <button type="button" onClick={() => setUseSameAddress(false)}
+                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {!useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
+                    </div>
+                    <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: !useSameAddress ? C.gold : C.dark }}>
+                      Změnit fakturační údaje
+                    </div>
+                  </button>
+                </div>
               </div>
-              <div style={{ marginBottom: 12 }}><Label>E-MAIL *</Label><input value={form.email} onChange={setF("email")} type="email" placeholder="jana@example.com" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-              <div style={{ marginBottom: 12 }}><Label>TELEFON *</Label><input value={form.phone} onChange={setF("phone")} type="tel" placeholder="+420 777 123 456" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-              <div style={{ marginBottom: 12 }}><Label>ULICE A ČÍSLO *</Label><input value={form.street} onChange={setF("street")} placeholder="Např. Václavské náměstí 1" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 12 }}>
-                <div><Label>MĚSTO *</Label><input value={form.city} onChange={setF("city")} placeholder="Praha" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-                <div><Label>PSČ *</Label><input value={form.zip} onChange={setF("zip")} placeholder="110 00" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 20 }}>
-                <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={form.company} onChange={setF("company")} placeholder="Název firmy" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-                <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={form.ico} onChange={setF("ico")} placeholder="12345678" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
-              </div>
+
+              {/* Editable form — only when custom */}
+              {!useSameAddress && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                    <div><Label>JMÉNO *</Label><input value={form.firstName} onChange={setF("firstName")} placeholder="Jana" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                    <div><Label>PŘÍJMENÍ *</Label><input value={form.lastName} onChange={setF("lastName")} placeholder="Nováková" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                  </div>
+                  <div style={{ marginBottom: 12 }}><Label>E-MAIL *</Label><input value={form.email} onChange={setF("email")} type="email" placeholder="jana@example.com" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                  <div style={{ marginBottom: 12 }}><Label>TELEFON *</Label><input value={form.phone} onChange={setF("phone")} type="tel" placeholder="+420 777 123 456" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                  <div style={{ marginBottom: 12 }}><Label>ULICE A ČÍSLO *</Label><input value={form.street} onChange={setF("street")} placeholder="Např. Václavské náměstí 1" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12, marginBottom: 12 }}>
+                    <div><Label>MĚSTO *</Label><input value={form.city} onChange={setF("city")} placeholder="Praha" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                    <div><Label>PSČ *</Label><input value={form.zip} onChange={setF("zip")} placeholder="110 00" required style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12 }}>
+                    <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={form.company} onChange={setF("company")} placeholder="Název firmy" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                    <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={form.ico} onChange={setF("ico")} placeholder="12345678" style={inputStyle} onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.sand)} /></div>
+                  </div>
+                </div>
+              )}
 
               {/* Payment method — 2×2 tiles */}
               <div style={{ marginBottom: 20 }}>
