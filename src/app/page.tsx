@@ -2385,7 +2385,7 @@ export default function App() {
               {([
                 { target: 25, suffix: "+", label: "let zkušeností" },
                 { target: 500, suffix: "+", label: "klientů" },
-                { target: 3500, suffix: "+", label: "hodin s klienty" },
+                { target: 5000, suffix: "+", label: "hodin s klienty" },
               ]).map(({ target, suffix, label }) => (
                 <div key={label} style={{ textAlign: "center", padding: "20px 12px", background: C.warm, borderRadius: 12, border: `1px solid ${C.sand}` }}>
                   <div style={{ fontSize: 28, color: C.gold, marginBottom: 4 }}>
@@ -2536,7 +2536,7 @@ export default function App() {
                   <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{pkg.title}</h3>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Mám zájem</Btn>
+                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Chci vědět více</Btn>
                   </div>
                 </div>
               </Reveal>
@@ -2575,7 +2575,7 @@ export default function App() {
                       }}
                       onMouseEnter={e => (e.currentTarget.style.background = C.goldLight)}
                       onMouseLeave={e => (e.currentTarget.style.background = C.gold)}
-                    >Mám zájem</button>
+                    >Chci vědět více</button>
                   </div>
                 </div>
               </Reveal>
@@ -2706,7 +2706,7 @@ export default function App() {
                   <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 12px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Mám zájem</Btn>
+                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Chci vědět více</Btn>
                   </div>
                 </div>
               </Reveal>
