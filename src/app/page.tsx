@@ -2541,15 +2541,15 @@ export default function App() {
 
           {/* Intro text + photo */}
           <Reveal delay={0.05}>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "360px 1fr", gap: isMobile ? 32 : 56, alignItems: "center", marginBottom: 52 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(260px, 38%) 1fr", gap: "clamp(24px, 4vw, 56px)", alignItems: "center", marginBottom: 52 }}>
               <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
-                <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – konzultace" style={{ width: "100%", display: "block" }} />
+                <img src="/iveta-supervize.jpg" alt="Iveta Clarke – konzultace" style={{ width: "100%", display: "block" }} />
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
               <div>
                 {consultationData.intro.map((para, i) => (
                   <p key={i} style={{
-                    fontSize: i === 0 ? 18 : 15,
+                    fontSize: i === 0 ? "clamp(15px, 1.4vw, 18px)" : "clamp(13px, 1.2vw, 15px)",
                     color: i === 0 ? C.text : C.muted,
                     lineHeight: 1.85,
                     marginBottom: i === consultationData.intro.length - 1 ? 0 : 14,
@@ -2696,15 +2696,15 @@ export default function App() {
 
           {/* Photo */}
           <Reveal delay={0.05}>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "380px 1fr", gap: isMobile ? 32 : 56, alignItems: "center", marginBottom: 52 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(260px, 38%) 1fr", gap: "clamp(24px, 4vw, 56px)", alignItems: "center", marginBottom: 52 }}>
               <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
-                <img src="/iveta-supervize.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", display: "block" }} />
+                <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", display: "block" }} />
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
               <div>
-                <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
-                <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
-                <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{supervisionData.introSub}</p>
+                <h3 style={{ fontSize: "clamp(17px, 1.6vw, 20px)", fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
+                <p style={{ fontSize: "clamp(13px, 1.2vw, 15px)", color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
+                <p style={{ fontSize: "clamp(12px, 1.1vw, 14px)", color: C.muted, lineHeight: 1.8 }}>{supervisionData.introSub}</p>
               </div>
             </div>
           </Reveal>
