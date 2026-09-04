@@ -525,6 +525,17 @@ export default function AdminPage() {
   const [selectedPkg, setSelectedPkg] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+
+  const parseNotes = (raw?: string): { text: string; created_at: string }[] => {
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch { return raw ? [{ text: raw, created_at: "" }] : []; }
+  };
+  const formatNoteDate = (iso: string) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit", year: "numeric" })
+      + " " + d.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
+  };
   const [section, setSection] = useState<"requests" | "emails">("requests");
 
   useEffect(() => {
@@ -599,15 +610,21 @@ export default function AdminPage() {
   };
 
   const handleSaveNotes = async () => {
-    if (!selected || !jwt) return;
+    if (!selected || !jwt || !adminNotes.trim()) return;
     setSavingNotes(true);
-    await fetch("/api/admin/screening", {
+    const res = await fetch("/api/admin/screening", {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
-      body: JSON.stringify({ id: selected.id, admin_notes: adminNotes }),
+      body: JSON.stringify({ id: selected.id, new_note: adminNotes.trim() }),
     });
+    const data = await res.json();
     setSavingNotes(false);
-    setSelected(prev => prev ? { ...prev, admin_notes: adminNotes } : null);
+    if (data.ok) {
+      // Prepend new note locally so UI updates without reload
+      const newEntry = JSON.stringify([{ text: adminNotes.trim(), created_at: new Date().toISOString() }, ...parseNotes(selected.admin_notes)]);
+      setSelected(prev => prev ? { ...prev, admin_notes: newEntry } : null);
+      setAdminNotes("");
+    }
     await reload();
   };
 
@@ -816,11 +833,29 @@ export default function AdminPage() {
 
               {/* Admin notes */}
               <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}` }}>
-                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 12 }}>POZNÁMKY (INTERNÍ)</div>
-                <textarea value={adminNotes} onChange={e => setAdminNotes(e.target.value)} rows={4}
-                  style={{ ...inputStyle, resize: "vertical" }} placeholder="Poznámky k zákazníkovi, domluvené termíny apod." />
-                <button onClick={handleSaveNotes} disabled={savingNotes}
-                  style={{ marginTop: 10, padding: "8px 20px", borderRadius: 20, background: C.gold, border: "none", color: C.darker, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", cursor: "pointer", opacity: savingNotes ? 0.7 : 1 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>POZNÁMKY (INTERNÍ)</div>
+
+                {/* Existing notes */}
+                {parseNotes(selected.admin_notes).length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                    {parseNotes(selected.admin_notes).map((note, i) => (
+                      <div key={i} style={{ background: C.warm, borderRadius: 10, padding: "12px 14px", border: `1px solid ${C.sand}` }}>
+                        {note.created_at && (
+                          <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", marginBottom: 6 }}>
+                            {formatNoteDate(note.created_at)}
+                          </div>
+                        )}
+                        <div style={{ fontSize: 13, color: C.text, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{note.text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* New note input */}
+                <textarea value={adminNotes} onChange={e => setAdminNotes(e.target.value)} rows={3}
+                  style={{ ...inputStyle, resize: "vertical" }} placeholder="Přidat novou poznámku…" />
+                <button onClick={handleSaveNotes} disabled={savingNotes || !adminNotes.trim()}
+                  style={{ marginTop: 10, padding: "8px 20px", borderRadius: 20, background: C.gold, border: "none", color: C.darker, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", cursor: adminNotes.trim() ? "pointer" : "default", opacity: (savingNotes || !adminNotes.trim()) ? 0.5 : 1 }}>
                   {savingNotes ? "Ukládám…" : "Uložit poznámky"}
                 </button>
               </div>

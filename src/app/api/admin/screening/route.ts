@@ -54,12 +54,22 @@ export async function PATCH(req: NextRequest) {
     const result = await verifyAdmin(req);
     if (result.error) return NextResponse.json({ error: result.error }, { status: 403 });
 
-    const { id, admin_notes, status } = await req.json();
+    const { id, new_note, status } = await req.json();
     if (!id) return NextResponse.json({ error: "Chybí id." }, { status: 400 });
 
     const db = createServerClient();
-    const update: Record<string, string> = {};
-    if (admin_notes !== undefined) update.admin_notes = admin_notes;
+    const update: Record<string, unknown> = {};
+
+    if (new_note !== undefined) {
+      // Load existing notes, prepend new entry with timestamp
+      const { data: row } = await db.from("screening_requests").select("admin_notes").eq("id", id).single();
+      let existing: { text: string; created_at: string }[] = [];
+      if (row?.admin_notes) {
+        try { existing = JSON.parse(row.admin_notes); } catch { existing = []; }
+      }
+      const entry = { text: new_note, created_at: new Date().toISOString() };
+      update.admin_notes = JSON.stringify([entry, ...existing]);
+    }
     if (status !== undefined) update.status = status;
 
     const { error } = await db.from("screening_requests").update(update).eq("id", id);
