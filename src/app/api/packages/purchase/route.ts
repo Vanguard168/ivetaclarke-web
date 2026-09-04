@@ -90,6 +90,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Screening (vstupní konzultace) is always 2 999 Kč — package choice saved for context only
+  const SCREENING_PRICE = 299900;
+  const SCREENING_PRICE_EX_VAT = 247851;
+  const SCREENING_LABEL = "Vstupní konzultace";
+
   // Save screening request with questions
   const refId = `PKG-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   await db.from("screening_requests").insert({
@@ -117,11 +122,6 @@ export async function POST(req: NextRequest) {
     comgate_ref_id: refId,
     status: "PENDING",
   });
-
-  // Screening (vstupní konzultace) is always 2 999 Kč — package choice is saved for context only
-  const SCREENING_PRICE = 299900; // haléře = 2 999 Kč
-  const SCREENING_PRICE_EX_VAT = 247851; // haléře ≈ 2 479 Kč bez DPH (2999/1.21)
-  const SCREENING_LABEL = "Vstupní konzultace";
 
   // Create PaymentRequest in faktura-app
   if (FAKTURA_API_KEY) {
