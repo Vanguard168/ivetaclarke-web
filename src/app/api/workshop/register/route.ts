@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
-import { sendRegistrationEmail } from "@/lib/email";
+import { sendRegistrationEmail, sendScreeningEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -64,6 +64,8 @@ export async function POST(req: NextRequest) {
     }
     sendRegistrationEmail(`${firstName} ${lastName}`, email).catch(e => console.error("Welcome email failed:", e));
   }
+
+  sendScreeningEmail(`${firstName} ${lastName}`, userEmail).catch(e => console.error("Screening email failed:", e));
 
   await db.from("screening_requests").insert({
     user_id: userId,

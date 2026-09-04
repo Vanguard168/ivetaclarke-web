@@ -138,8 +138,11 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
               <tr><td style="padding:3px 0;color:#6b7280;">Celková částka:</td><td style="padding:3px 0;font-weight:700;font-size:15px;color:${color};text-align:right;">22 990 Kč</td></tr>
             </table>
           </div>
-          <div style="text-align:center;margin-bottom:20px;">
+          <div style="text-align:center;margin-bottom:16px;">
             <a href="#" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Zaplatit</a>
+          </div>
+          <div style="text-align:center;margin-bottom:20px;">
+            <a href="https://calendly.com/iveta-clarke/individual-session" style="display:inline-block;background:#ffffff;color:${color};text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;border:2px solid ${color};">Rezervovat Termín →</a>
           </div>` : "";
 
   const html = `
@@ -386,7 +389,7 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", padding: "8px 12px", background: C.warm, borderRadius: 8 }}>
               Tokeny: <code style={{ marginLeft: 4 }}>{"{customerName}"}</code>
-              {" — odesílá se zákazníkovi po zaplacení screeningového poplatku."}
+              {" — odesílá se automaticky ihned po vyplnění přihlášky na výcvik (bez platby)."}
             </div>
             <div>
               <label style={lbl}>PŘEDMĚT</label>
@@ -397,10 +400,6 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
               <textarea value={settings.screeningBody} onChange={e => set("screeningBody", e.target.value)}
                 rows={10} style={{ ...inp, resize: "vertical", fontFamily: "monospace", fontSize: 12, lineHeight: 1.6 }} />
             </div>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13, color: C.text, fontFamily: "Trebuchet MS, sans-serif" }}>
-              <input type="checkbox" checked={settings.autoSend} onChange={e => set("autoSend", e.target.checked)} style={{ width: 16, height: 16 }} />
-              Automaticky odeslat po přijetí platby přes ComGate
-            </label>
           </div>
         )}
 
