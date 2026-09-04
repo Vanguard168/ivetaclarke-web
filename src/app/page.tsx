@@ -2560,32 +2560,7 @@ export default function App() {
             </div>
           </Reveal>
 
-          {/* Top 2 individual cards */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20, marginBottom: 32 }}>
-            {consultationData.packages.slice(0, 2).map((pkg, i) => (
-              <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
-                <div style={{
-                  background: C.white, borderRadius: 20, padding: "28px 32px",
-                  border: `1px solid ${C.sand}`,
-                  boxShadow: "0 4px 32px rgba(44,44,62,0.06)",
-                  display: "flex", flexDirection: "column", height: "100%",
-                }}>
-                  <div style={{ width: 4, height: 3, background: C.gold, borderRadius: 2, marginBottom: 16 }} />
-                  <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.2em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>{pkg.format?.toUpperCase()}</div>
-                  <h3 style={{ fontSize: 18, fontWeight: "normal", margin: "0 0 12px" }}>{pkg.title}</h3>
-                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
-                  <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Chci vědět více</Btn>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* Bottom 3 package cards */}
-          <Reveal delay={0.15}>
-            <h3 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 20px" }}>Možnosti spolupráce</h3>
-          </Reveal>
+          {/* 3 package cards */}
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: 20 }}>
             {consultationData.packages.slice(2).map((pkg, i) => (
               <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
