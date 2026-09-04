@@ -131,12 +131,7 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
     ? `<img src="${s.logoUrl}" alt="${headerLabel}" style="max-height:48px;max-width:240px;object-fit:contain;">`
     : `<span style="color:#fff;font-size:20px;font-weight:700;">${headerLabel}</span>`;
 
-  const html = `
-    <div style="font-family:Arial,sans-serif;background:${bgColor};padding:16px;">
-      <div style="max-width:560px;margin:0 auto;background:${cardBg};border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
-        <div style="background:${color};padding:20px 28px;">${logoSection}</div>
-        <div style="padding:28px;">
-          <div style="margin:0 0 20px;color:#374151;font-size:13px;line-height:1.8;">${bodyHtml}</div>
+  const paymentBlock = type === "payment" ? `
           <div style="background:${tableBg};border:1px solid ${tableBorder};border-radius:6px;padding:16px;margin-bottom:20px;">
             <table style="width:100%;font-size:13px;color:#374151;border-collapse:collapse;">
               <tr><td style="padding:3px 0;color:#6b7280;">Forma:</td><td style="padding:3px 0;font-weight:600;text-align:right;">Krátkodobá spolupráce</td></tr>
@@ -145,7 +140,15 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
           </div>
           <div style="text-align:center;margin-bottom:20px;">
             <a href="#" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Zaplatit</a>
-          </div>
+          </div>` : "";
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;background:${bgColor};padding:16px;">
+      <div style="max-width:560px;margin:0 auto;background:${cardBg};border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+        <div style="background:${color};padding:20px 28px;">${logoSection}</div>
+        <div style="padding:28px;">
+          <div style="margin:0 0 20px;color:#374151;font-size:13px;line-height:1.8;">${bodyHtml}</div>
+          ${paymentBlock}
         </div>
         <div style="background:${footerBg};border-top:1px solid ${tableBorder};padding:14px 28px;text-align:center;">
           <p style="margin:0;color:#9ca3af;font-size:11px;">${footer}</p>
@@ -159,7 +162,7 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
         <div style={{ display: "flex", gap: 5 }}>
           {["#f87171", "#fbbf24", "#4ade80"].map((c, i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
         </div>
-        <span style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>Náhled e-mailu (platební odkaz)</span>
+        <span style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>Náhled e-mailu ({type === "registration" ? "uvítací" : type === "screening" ? "screening" : "platební odkaz"})</span>
       </div>
       <iframe srcDoc={html} style={{ width: "100%", border: 0, height: 500 }} title="Email preview" sandbox="allow-same-origin" />
     </div>
