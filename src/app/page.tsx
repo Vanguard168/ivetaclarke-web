@@ -208,7 +208,7 @@ const supervisionData = {
     note: "Exkluzivita obsahu workshopu je důvodem k tomu, že kurz není akreditován žádnou profesní organizací. Účastníkům vystavím potvrzení o absolvování aktuálního počtu hodin supervizní práce, která je součástí workshopu. Potvrzení lze použít pro re-akreditaci v ICF.",
     preCondition: "Účasti na workshopu předchází individuální rozhovor, ve kterém si ujasníme relevanci obsahu k vaší současné koučovací praxi.",
     date: "Nejbližší termín: 13.–14. 11. 2026",
-    earlyBird: "Early bird sleva 15 % do konce září 2026",
+    earlyBird: "Early bird sleva 15 % do 13. 10. 2026",
     maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční · 2× ročně",
     hours: "Časová dotace: 12 hodin výcviku – 2 dny",
     packages: [
@@ -694,7 +694,7 @@ function Btn({ children, primary = true, onClick, small = false, pulse = false }
 }
 
 // ── Workshop Modal ────────────────────────────────────────────────────────────
-const EARLY_BIRD_DEADLINE = new Date("2026-10-01");
+const EARLY_BIRD_DEADLINE = new Date("2026-10-14");
 const EARLY_BIRD_DISCOUNT = 0.15;
 
 function applyEarlyBird(priceStr: string): string {
@@ -777,7 +777,7 @@ function WorkshopModal({ onClose, onPay }: {
               <div>
                 <div style={{ fontSize: 13, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif" }}>Early bird sleva 15 %</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>
-                  Platí do 30. 9. 2026 &nbsp;·&nbsp; zbývá {daysLeft} {daysLeft === 1 ? "den" : daysLeft < 5 ? "dny" : "dní"}
+                  Platí do 13. 10. 2026 &nbsp;·&nbsp; zbývá {daysLeft} {daysLeft === 1 ? "den" : daysLeft < 5 ? "dny" : "dní"}
                 </div>
               </div>
             </div>
