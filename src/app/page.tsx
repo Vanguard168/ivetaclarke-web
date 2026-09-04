@@ -1660,8 +1660,12 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
               <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 6 }}>
                 KROK {step} / {totalSteps} — {step === 1 ? "REGISTRACE & OTÁZKY" : "PLATBA"}
               </div>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: "0 0 2px" }}>{pkg.title}</h3>
-              <div style={{ fontSize: 13, color: C.gold, fontStyle: "italic" }}>{pkg.tagline}</div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: "0 0 2px" }}>
+                {step === 1 ? pkg.title : "Vstupní konzultace"}
+              </h3>
+              <div style={{ fontSize: 13, color: C.gold, fontStyle: "italic" }}>
+                {step === 1 ? pkg.tagline : "Online setkání 45 minut s Ivetou Clarke"}
+              </div>
             </div>
             <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
