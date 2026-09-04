@@ -2542,11 +2542,9 @@ export default function App() {
           {/* Intro text + photo */}
           <Reveal delay={0.05}>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "360px 1fr", gap: isMobile ? 32 : 56, alignItems: "center", marginBottom: 52 }}>
-              <div style={{ position: "relative" }}>
-                <div style={{ width: "100%", aspectRatio: "3/4", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
-                  <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – konzultace" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
-                </div>
+              <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
+                <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – konzultace" style={{ width: "100%", display: "block" }} />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
               <div>
                 {consultationData.intro.map((para, i) => (
@@ -2699,8 +2697,9 @@ export default function App() {
           {/* Photo */}
           <Reveal delay={0.05}>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "380px 1fr", gap: isMobile ? 32 : 56, alignItems: "center", marginBottom: 52 }}>
-              <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
-                <img src="/iveta-supervize.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", display: "block", objectFit: "cover" }} />
+              <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
+                <img src="/iveta-supervize.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", display: "block" }} />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
               <div>
                 <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
