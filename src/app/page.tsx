@@ -3512,13 +3512,21 @@ export default function App() {
 
           {/* Kód Moudrosti – coming soon */}
           <Reveal delay={0.25}>
-            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "28px", border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-              <div>
+            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "28px", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em", marginBottom: 6 }}>MODEROVANÝ PODCAST S HOSTY</div>
                 <h3 style={{ fontSize: 20, color: C.white, fontWeight: "normal", margin: "0 0 6px" }}>Zámyslník 2.0 – Moudrost je</h3>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.</p>
               </div>
-              <div style={{ fontSize: 9, background: "rgba(201,168,76,0.2)", color: C.gold, padding: "6px 16px", borderRadius: 12, fontFamily: "Trebuchet MS", border: `1px solid rgba(201,168,76,0.3)`, whiteSpace: "nowrap" }}>BRZY</div>
+              <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, borderRadius: 12, overflow: "hidden" }}>
+                <iframe
+                  src="https://www.youtube.com/embed/80KxxlWaPRA"
+                  title="Zámyslník 2.0 – Moudrost je"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
+                />
+              </div>
             </div>
           </Reveal>
         </div>
