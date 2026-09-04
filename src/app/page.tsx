@@ -1558,6 +1558,9 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   };
   const [useSameAddress, setUseSameAddress] = useState(true);
 
+  // Preferred product (pre-filled from clicked package, editable)
+  const [preferredProduct, setPreferredProduct] = useState(pkg.id);
+
   // 3 questions
   const [q1, setQ1] = useState("");
   const [q2, setQ2] = useState("");
@@ -1565,11 +1568,11 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
 
   // Payment
   const [payMethodIdx, setPayMethodIdx] = useState(0);
-  const payMethods = [
-    { id: "APPLEPAY_REDIRECT", label: "Platba kartou", sub: "Visa, Mastercard, Apple Pay, Google Pay" },
-    { id: "ALL", label: "QR platba", sub: "Okamžité potvrzení platby" },
-    { id: "ALL", label: "Bankovní převod", sub: "Okamžité potvrzení platby" },
-    { id: "ALL", label: "Odložená platba", sub: "Twisto, Skip Pay, splátky" },
+  const payMethods: { id: string; label: string; sub: string; icon: React.ReactNode }[] = [
+    { id: "APPLEPAY_REDIRECT", label: "Platba kartou", sub: "Mastercard, Visa, Apple Pay, Google Pay", icon: <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="0.5" y="0.5" width="21" height="15" rx="2.5" stroke="currentColor" strokeOpacity="0.4"/><rect y="4" width="22" height="3" fill="currentColor" fillOpacity="0.25"/><rect x="2" y="10" width="5" height="2" rx="1" fill="currentColor" fillOpacity="0.5"/></svg> },
+    { id: "ALL", label: "QR platba", sub: "Okamžité potvrzení platby", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg> },
+    { id: "ALL", label: "Bankovní převod", sub: "Okamžité potvrzení platby", icon: <svg width="22" height="20" viewBox="0 0 24 22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="2" fill="currentColor" stroke="none" rx="1"/><line x1="4" y1="11" x2="4" y2="18"/><line x1="8" y1="11" x2="8" y2="18"/><line x1="12" y1="11" x2="12" y2="18"/><line x1="16" y1="11" x2="16" y2="18"/><line x1="20" y1="11" x2="20" y2="18"/><rect x="2" y="18" width="20" height="2" fill="currentColor" stroke="none" rx="1"/></svg> },
+    { id: "ALL", label: "Odložená platba", sub: "Twisto, Skip Pay, splátky", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> },
   ];
 
   useEffect(() => {
@@ -1593,6 +1596,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const blur  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.sand);
 
   const validateStep1 = () => {
+    if (!preferredProduct) { setError("Vyberte prosím formu spolupráce."); return false; }
     if (!q1 || !q2 || !q3) { setError("Vyplňte prosím všechny otázky."); return false; }
     if (!isLoggedIn) {
       if (!firstName || !lastName || !email || !phone || !street || !city || !zip) {
@@ -1619,7 +1623,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        packageId: pkg.id,
+        packageId: preferredProduct,
         ...(isLoggedIn ? {} : { password }),
         email: isLoggedIn ? user!.email : email,
         ...billing,
@@ -1728,6 +1732,15 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                 </div>
               )}
 
+              {/* Preferred product */}
+              <div>
+                <Label>O JAKOU FORMU SPOLUPRÁCE MÁTE ZÁJEM? *</Label>
+                <select value={preferredProduct} onChange={e => setPreferredProduct(e.target.value)} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1px solid ${C.sand}`, background: C.cream, fontSize: 14, fontFamily: "Georgia, serif", color: C.text, outline: "none", boxSizing: "border-box" as const, height: 44 }}>
+                  <option value="">— zvolte —</option>
+                  {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                </select>
+              </div>
+
               {/* 3 Questions */}
               <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>OTÁZKY PRO IVETU</div>
               <div><Label>PROČ VÁS ZAJÍMÁ SPOLUPRÁCE S IVETOU? *</Label><textarea rows={3} value={q1} onChange={e => setQ1(e.target.value)} placeholder="Popište svou motivaci..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
@@ -1745,25 +1758,87 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
           {/* ── STEP 2: Payment ── */}
           {step === 2 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Description */}
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 4px" }}>
+                Uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za vstupní konzultaci — 30minutové online setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
+              </p>
+
               {/* Order summary */}
-              <div style={{ background: C.warm, borderRadius: 12, padding: "16px 20px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 14, color: C.text, marginBottom: 4 }}>Vstupní konzultace s Ivetou Clarke</div>
-                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>30 min online · vč. DPH / 2 479 Kč bez DPH</div>
+                  <div style={{ fontSize: 13, color: C.text }}>Vstupní konzultace s Ivetou Clarke</div>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>30 min online · vč. DPH / 2 479 Kč bez DPH</div>
                 </div>
-                <div style={{ fontSize: 22, color: C.dark }}>2 999 Kč</div>
+                <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>2 999 Kč</div>
               </div>
 
-              {/* Payment method */}
+              {/* Billing tiles */}
+              <div>
+                <Label>FAKTURAČNÍ ÚDAJE</Label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {/* Tile 1 — summary (always selected) */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${C.gold}`, background: "rgba(201,168,76,0.06)" }}>
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${C.gold}`, background: C.gold, flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: C.gold, marginBottom: 6 }}>Fakturační údaje z registrace</div>
+                      <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.7 }}>
+                        {(() => {
+                          const fn = isLoggedIn && useSameAddress ? profileForm.firstName : firstName;
+                          const ln = isLoggedIn && useSameAddress ? profileForm.lastName : lastName;
+                          const em = isLoggedIn ? (user?.email ?? "") : email;
+                          const ph = isLoggedIn && useSameAddress ? profileForm.phone : phone;
+                          const st = isLoggedIn && useSameAddress ? profileForm.street : street;
+                          const ci = isLoggedIn && useSameAddress ? profileForm.city : city;
+                          const zp = isLoggedIn && useSameAddress ? profileForm.zip : zip;
+                          const co = isLoggedIn && useSameAddress ? profileForm.company : company;
+                          const ic = isLoggedIn && useSameAddress ? profileForm.ico : ico;
+                          const name = [fn, ln].filter(Boolean).join(" ");
+                          const addr = [st, [ci, zp].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                          return (
+                            <>
+                              <span style={{ color: C.text }}>{name || "—"}</span><br />
+                              {em}<br />
+                              {ph && <>{ph}<br /></>}
+                              {addr || <span style={{ fontStyle: "italic" }}>Adresa nevyplněna</span>}
+                              {co && <><br />{co}{ic ? ` · IČO: ${ic}` : ""}</>}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tile 2 — go back to edit */}
+                  <button type="button" onClick={() => { setStep(1); setError(""); }}
+                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${C.sand}`, background: C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = C.muted)}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = C.sand)}
+                  >
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${C.sand}`, background: "transparent", flexShrink: 0 }} />
+                    <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: C.dark }}>Změnit fakturační údaje</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Payment method — 2×2 tiles with icons */}
               <div>
                 <Label>ZPŮSOB PLATBY</Label>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
                   {payMethods.map((m, idx) => {
                     const active = payMethodIdx === idx;
                     return (
-                      <button key={idx} type="button" onClick={() => setPayMethodIdx(idx)} style={{ padding: "12px 14px", borderRadius: 12, cursor: "pointer", textAlign: "left", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? "rgba(201,168,76,0.08)" : C.cream, transition: "all 0.18s" }}>
-                        <div style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: active ? C.gold : C.dark }}>{m.label}</div>
-                        <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>{m.sub}</div>
+                      <button key={idx} type="button" onClick={() => setPayMethodIdx(idx)}
+                        style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, cursor: "pointer", textAlign: "left", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? "rgba(201,168,76,0.08)" : C.cream, transition: "all 0.18s" }}
+                        onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.borderColor = C.muted; }}
+                        onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.borderColor = C.sand; }}
+                      >
+                        <span style={{ color: active ? C.gold : C.muted, flexShrink: 0 }}>{m.icon}</span>
+                        <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                          <span style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.03em", fontWeight: "bold", color: active ? C.gold : C.dark }}>{m.label}</span>
+                          <span style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{m.sub}</span>
+                        </span>
                       </button>
                     );
                   })}
@@ -1774,8 +1849,12 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
 
               <div style={{ display: "flex", gap: 10 }}>
                 <button onClick={() => { setStep(1); setError(""); }} style={{ padding: "15px 20px", borderRadius: 12, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
-                <button onClick={handlePay} disabled={loading} style={{ flex: 1, padding: "15px 0", borderRadius: 12, background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.06em", cursor: loading ? "not-allowed" : "pointer" }}>
-                  {loading ? "Přesměrování…" : "ZAPLATIT 2 999 Kč"}
+                <button onClick={handlePay} disabled={loading}
+                  style={{ flex: 1, padding: "15px 0", borderRadius: 12, background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "not-allowed" : "pointer", transition: "opacity 0.2s" }}
+                  onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.opacity = "0.88"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                >
+                  {loading ? "Přesměrování na platební bránu…" : "ZAPLATIT 2 999 Kč"}
                 </button>
               </div>
               <p style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", lineHeight: 1.6 }}>
