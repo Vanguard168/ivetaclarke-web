@@ -858,7 +858,7 @@ function WorkshopModal({ onClose, onPay }: {
               transition: "all 0.22s",
             }}
           >
-            {selectedPkg ? "ZAREGISTROVAT SE NA SCREENING (ZDARMA)" : "NEJPRVE ZVOLTE VARIANTU"}
+            {selectedPkg ? "ZAREGISTROVAT SE NA VSTUPNÍ KONZULTACI" : "NEJPRVE ZVOLTE VARIANTU"}
           </button>
         </div>
       </div>
@@ -2190,110 +2190,192 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
 }
 
 // ── Workshop Screening Modal (free) ───────────────────────────────────────────
-function WorkshopScreeningModal({ userId, userEmail, userName, phone, workshopVariantId, workshopVariantLabel, onClose }: {
-  userId: string; userEmail: string; userName: string; phone: string;
+function WorkshopScreeningModal({ user, profile, workshopVariantId, workshopVariantLabel, onClose }: {
+  user: { id: string; email?: string } | null;
+  profile?: Profile | null;
   workshopVariantId?: string; workshopVariantLabel?: string;
   onClose: () => void;
 }) {
-  const [motivation, setMotivation] = useState("");
+  const isLoggedIn = !!user;
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  const [firstName, setFirstName] = useState(profile?.first_name || "");
+  const [lastName, setLastName]   = useState(profile?.last_name  || "");
+  const [email, setEmail]         = useState(user?.email || "");
+  const [emailConfirm, setEmailConfirm] = useState("");
+  const [password, setPassword]   = useState("");
+  const [phone, setPhone]         = useState(profile?.phone  || "");
+  const [street, setStreet]       = useState(profile?.street || "");
+  const [city, setCity]           = useState(profile?.city   || "");
+  const [zip, setZip]             = useState(profile?.zip    || "");
+  const [company, setCompany]     = useState(profile?.company || "");
+  const [ico, setIco]             = useState(profile?.ico    || "");
+
   const [background, setBackground] = useState("");
   const [experience, setExperience] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState("");
+  const [motivation, setMotivation] = useState("");
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+    return () => { window.removeEventListener("keydown", h); document.body.style.overflow = ""; };
   }, [onClose]);
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "11px 14px", borderRadius: 10,
+    border: `1px solid ${C.sand}`, background: C.cream,
+    fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
+    outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
+  };
+  const taStyle: React.CSSProperties = { ...inputStyle, resize: "vertical" };
+  const Label = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>{children}</label>
+  );
+  const focus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.gold);
+  const blur  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.sand);
+
+  const validateStep1 = () => {
+    if (!background || !experience || !motivation) { setError("Vyplňte prosím všechny otázky."); return false; }
+    if (!isLoggedIn) {
+      if (!firstName || !lastName || !email || !phone || !street || !city || !zip) {
+        setError("Vyplňte prosím všechna povinná pole."); return false;
+      }
+      if (email !== emailConfirm) { setError("E-mailové adresy se neshodují."); return false; }
+      if (password.length < 6) { setError("Heslo musí mít alespoň 6 znaků."); return false; }
+    }
+    setError(""); return true;
+  };
+
   const handleSubmit = async () => {
-    if (!background || !experience || !motivation) { setError("Vyplňte prosím všechna povinná pole."); return; }
     setLoading(true); setError("");
-    const res = await fetch("/api/screening/request", {
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+    const fn = isLoggedIn ? (profile?.first_name || "") : firstName;
+    const ln = isLoggedIn ? (profile?.last_name  || "") : lastName;
+
+    const res = await fetch("/api/workshop/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId, userEmail, userName, phone,
-        screeningType: "free",
-        workshopMotivation: motivation,
-        workshopBackground: background,
-        workshopExperience: experience,
-        preferredWorkshopVariant: workshopVariantId,
-        preferredWorkshopVariantLabel: workshopVariantLabel,
+        firstName: fn, lastName: ln,
+        email: isLoggedIn ? (user?.email ?? "") : email,
+        ...(isLoggedIn ? {} : { password }),
+        phone: isLoggedIn ? (profile?.phone || "") : phone,
+        street: isLoggedIn ? (profile?.street || "") : street,
+        city: isLoggedIn ? (profile?.city || "") : city,
+        zip: isLoggedIn ? (profile?.zip || "") : zip,
+        company: isLoggedIn ? (profile?.company || "") : company,
+        ico: isLoggedIn ? (profile?.ico || "") : ico,
+        workshopVariantId, workshopVariantLabel,
+        workshopBackground: background, workshopExperience: experience, workshopMotivation: motivation,
+        ...(token ? { userToken: token } : {}),
       }),
     });
     const data = await res.json();
     setLoading(false);
-    if (data.ok) { setDone(true); return; }
-    setError(data.error ?? "Nastala chyba. Zkuste to prosím znovu.");
+    if (data.error) { setError(data.error); return; }
+    if (data.session) await supabase.auth.setSession(data.session);
+    setDone(true);
   };
 
-  const taStyle: React.CSSProperties = {
-    width: "100%", padding: "10px 14px", borderRadius: 10,
-    border: `1px solid ${C.sand}`, background: "#1E1D2E",
-    fontSize: 14, fontFamily: "Georgia, serif", color: "rgba(255,255,255,0.85)",
-    outline: "none", resize: "vertical", boxSizing: "border-box",
-  };
+  const totalSteps = 2;
 
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.9)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#1E1D2E", borderRadius: 24, maxWidth: 520, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.6)", position: "relative" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.85)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.cream, borderRadius: 24, maxWidth: 560, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.4)", position: "relative" }}>
         <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
         <div style={{ padding: "28px 32px 36px" }}>
+
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
             <div>
-              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>REGISTRACE — VÝCVIK</div>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.white, margin: 0 }}>Zájem o výcvik Průvodcem v midlife®</h3>
+              {!done && <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 6 }}>
+                KROK {step} / {totalSteps} — {step === 1 ? "REGISTRACE & OTÁZKY" : "POTVRZENÍ"}
+              </div>}
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: "0 0 2px" }}>Výcvik Průvodcem v midlife®</h3>
+              <div style={{ fontSize: 13, color: C.gold, fontStyle: "italic" }}>Vstupní konzultace zdarma</div>
             </div>
-            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
 
           {done ? (
             <div style={{ textAlign: "center", padding: "32px 0" }}>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>✓</div>
-              <div style={{ fontSize: 18, color: C.gold, marginBottom: 12 }}>Registrace odeslána</div>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>Iveta vás brzy kontaktuje pro domluvení bezplatného screeningového rozhovoru.</p>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>✓</div>
+              <div style={{ fontSize: 18, color: C.gold, marginBottom: 12, fontFamily: "Georgia, serif" }}>Přihláška odeslána</div>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>Děkujeme! Iveta vás brzy kontaktuje pro domluvení vstupní konzultace.</p>
               <button onClick={onClose} style={{ marginTop: 24, padding: "12px 28px", borderRadius: 24, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", cursor: "pointer" }}>Zavřít</button>
             </div>
+          ) : step === 1 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {!isLoggedIn && (
+                <>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8 }}>REGISTRAČNÍ ÚDAJE</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div><Label>JMÉNO *</Label><input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jana" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                  <div><Label>E-MAIL *</Label><input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>POTVRDIT E-MAIL *</Label><input value={emailConfirm} onChange={e => setEmailConfirm(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>HESLO *</Label><input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="min. 6 znaků" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>FAKTURAČNÍ ADRESA</div>
+                  <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
+                    <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12 }}>
+                    <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={company} onChange={e => setCompany(e.target.value)} placeholder="Název firmy" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={ico} onChange={e => setIco(e.target.value)} placeholder="12345678" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                </>
+              )}
+
+              <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>OTÁZKY PRO IVETU</div>
+              <div><Label>VAŠE KVALIFIKACE V KOUČOVÁNÍ NEBO ÚROVEŇ AKREDITACE *</Label><textarea rows={3} value={background} onChange={e => setBackground(e.target.value)} placeholder="Např. ICF PCC, akreditovaný výcvik, certifikace..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
+              <div><Label>JAK DLOUHO PRACUJETE JAKO KOUČ? *</Label><input value={experience} onChange={e => setExperience(e.target.value)} placeholder="Např. 3 roky" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+              <div><Label>CO VÁS PŘIVÁDÍ K ZÁJMU O VÝCVIK? *</Label><textarea rows={3} value={motivation} onChange={e => setMotivation(e.target.value)} placeholder="Popište svou motivaci..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
+
+              {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+              <button onClick={() => { if (validateStep1()) setStep(2); }} style={{ marginTop: 8, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: "pointer" }}>
+                POKRAČOVAT →
+              </button>
+            </div>
           ) : (
-            <>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 4px" }}>
+                Vstupní konzultace pro zájemce o výcvik je <strong style={{ color: C.dark }}>zdarma</strong>. Po odeslání přihlášky vás Iveta brzy kontaktuje.
+              </p>
+
               {workshopVariantLabel && (
-                <div style={{ padding: "10px 14px", background: "rgba(201,168,76,0.1)", borderRadius: 10, border: "1px solid rgba(201,168,76,0.25)", marginBottom: 20 }}>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS, sans-serif" }}>Vybraná varianta</div>
-                  <div style={{ fontSize: 14, color: C.gold, marginTop: 2 }}>{workshopVariantLabel}</div>
+                <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}` }}>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 4 }}>VYBRANÁ VARIANTA</div>
+                  <div style={{ fontSize: 14, color: C.dark }}>{workshopVariantLabel}</div>
                 </div>
               )}
 
-              <div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.04)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", marginBottom: 20 }}>
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>
-                  Screening pro zájemce o výcvik je <strong style={{ color: C.gold }}>zdarma</strong>. Po odeslání registrace vás Iveta brzy kontaktuje.
+              <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}` }}>
+                <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 8 }}>SOUHRN PŘIHLÁŠKY</div>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.8 }}>
+                  <strong>{isLoggedIn ? `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() : `${firstName} ${lastName}`.trim()}</strong><br />
+                  {isLoggedIn ? user?.email : email}
                 </div>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>VAŠE KVALIFIKACE V KOUČOVÁNÍ NEBO ÚROVEŇ AKREDITACE *</label>
-                  <textarea rows={3} value={background} onChange={e => setBackground(e.target.value)} style={taStyle} placeholder="Např. ICF PCC, akreditovaný výcvik, certifikace..." />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JAK DLOUHO PRACUJETE JAKO KOUČ? *</label>
-                  <input value={experience} onChange={e => setExperience(e.target.value)} style={{ ...taStyle, resize: "none", padding: "10px 14px" }} placeholder="Např. 3 roky" />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>CO VÁS PŘIVÁDÍ K ZÁJMU O VÝCVIK? *</label>
-                  <textarea rows={3} value={motivation} onChange={e => setMotivation(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
-                </div>
-              </div>
-
-              {error && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#ef9a9a", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
-
-              <button onClick={handleSubmit} disabled={loading} style={{ marginTop: 24, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
-                {loading ? "Odesílám…" : "ODESLAT REGISTRACI"}
+              <button onClick={() => setStep(1)} style={{ background: "none", border: "none", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer", textAlign: "left", padding: 0 }}>
+                ← Zpět
               </button>
-            </>
+
+              {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+              <button onClick={handleSubmit} disabled={loading} style={{ width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1 }}>
+                {loading ? "Odesílám…" : "ODESLAT PŘIHLÁŠKU"}
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -2891,12 +2973,10 @@ export default function App() {
         />
       )}
 
-      {workshopScreeningModal?.open && user && (
+      {workshopScreeningModal?.open && (
         <WorkshopScreeningModal
-          userId={user.id}
-          userEmail={user.email ?? ""}
-          userName={profile ? `${profile.first_name} ${profile.last_name}` : ""}
-          phone={profile?.phone ?? ""}
+          user={user}
+          profile={profile}
           workshopVariantId={workshopScreeningModal.workshopVariantId}
           workshopVariantLabel={workshopScreeningModal.workshopVariantLabel}
           onClose={() => setWorkshopScreeningModal(null)}
@@ -3240,7 +3320,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <Btn onClick={() => requireAuth(() => setOpenWorkshopModal(true))} pulse>Zaregistrovat se na screening</Btn>
+                <Btn onClick={() => setOpenWorkshopModal(true)} pulse>Zaregistrovat se na vstupní konzultaci</Btn>
               </div>
             </div>
           </Reveal>
