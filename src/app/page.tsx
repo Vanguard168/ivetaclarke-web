@@ -1566,6 +1566,10 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const [q2, setQ2] = useState("");
   const [q3, setQ3] = useState("");
 
+  // Billing override for invoice (different person / company)
+  const [billingForm, setBillingForm] = useState({ firstName: "", lastName: "", company: "", ico: "", street: "", city: "", zip: "" });
+  const setBF = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => setBillingForm(f => ({ ...f, [field]: e.target.value }));
+
   // Payment
   const [payMethodIdx, setPayMethodIdx] = useState(0);
   const payMethods: { id: string; label: string; sub: string; icon: React.ReactNode }[] = [
@@ -1613,11 +1617,13 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
     const session = await supabase.auth.getSession();
     const token = session.data.session?.access_token;
 
-    const billing = isLoggedIn && !useSameAddress
-      ? { firstName, lastName, phone, street, city, zip, company, ico }
-      : isLoggedIn
-        ? { firstName: profileForm.firstName, lastName: profileForm.lastName, phone: profileForm.phone, street: profileForm.street, city: profileForm.city, zip: profileForm.zip, company: profileForm.company, ico: profileForm.ico }
-        : { firstName, lastName, phone, street, city, zip, company, ico };
+    // Registration data always goes to profile
+    const regData = isLoggedIn
+      ? { firstName: profileForm.firstName, lastName: profileForm.lastName, phone: profileForm.phone, street: profileForm.street, city: profileForm.city, zip: profileForm.zip, company: profileForm.company, ico: profileForm.ico }
+      : { firstName, lastName, phone, street, city, zip, company, ico };
+
+    // Invoice billing — null means use registration data, object means use custom
+    const invoiceBilling = useSameAddress ? null : billingForm;
 
     const res = await fetch("/api/packages/purchase", {
       method: "POST",
@@ -1626,7 +1632,8 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
         packageId: preferredProduct,
         ...(isLoggedIn ? {} : { password }),
         email: isLoggedIn ? user!.email : email,
-        ...billing,
+        ...regData,
+        billing: invoiceBilling,
         whyInterested: q1, previousExperience: q2, goals: q3,
         payMethod: payMethods[payMethodIdx].id,
         ...(token ? { userToken: token } : {}),
@@ -1776,13 +1783,13 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
               <div>
                 <Label>FAKTURAČNÍ ÚDAJE</Label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {/* Tile 1 — summary (always selected) */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${C.gold}`, background: "rgba(201,168,76,0.06)" }}>
-                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${C.gold}`, background: C.gold, flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />
+                  {/* Tile 1 — registration data */}
+                  <button type="button" onClick={() => setUseSameAddress(true)} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s", width: "100%" }}>
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? C.gold : "transparent", flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: C.gold, marginBottom: 6 }}>Fakturační údaje z registrace</div>
+                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark, marginBottom: 6 }}>Fakturační údaje z registrace</div>
                       <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.7 }}>
                         {(() => {
                           const fn = isLoggedIn && useSameAddress ? profileForm.firstName : firstName;
@@ -1808,17 +1815,38 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                         })()}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Tile 2 — go back to edit */}
-                  <button type="button" onClick={() => { setStep(1); setError(""); }}
-                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${C.sand}`, background: C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = C.muted)}
-                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = C.sand)}
-                  >
-                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${C.sand}`, background: "transparent", flexShrink: 0 }} />
-                    <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: C.dark }}>Změnit fakturační údaje</div>
                   </button>
+
+                  {/* Tile 2 — custom billing (expands inline) */}
+                  <button type="button" onClick={() => setUseSameAddress(false)}
+                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
+                    onMouseEnter={e => { if (useSameAddress) (e.currentTarget as HTMLElement).style.borderColor = C.muted; }}
+                    onMouseLeave={e => { if (useSameAddress) (e.currentTarget as HTMLElement).style.borderColor = C.sand; }}
+                  >
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {!useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
+                    </div>
+                    <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: !useSameAddress ? C.gold : C.dark }}>Zadat jiné fakturační údaje</div>
+                  </button>
+
+                  {/* Expanded billing form */}
+                  {!useSameAddress && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "16px", borderRadius: 12, border: `1px solid ${C.sand}`, background: C.cream }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div><Label>JMÉNO *</Label><input value={billingForm.firstName} onChange={setBF("firstName")} placeholder="Jana" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>PŘÍJMENÍ *</Label><input value={billingForm.lastName} onChange={setBF("lastName")} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                      <div><Label>ULICE A ČÍSLO *</Label><input value={billingForm.street} onChange={setBF("street")} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
+                        <div><Label>MĚSTO *</Label><input value={billingForm.city} onChange={setBF("city")} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>PSČ *</Label><input value={billingForm.zip} onChange={setBF("zip")} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 130px", gap: 12 }}>
+                        <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={billingForm.company} onChange={setBF("company")} placeholder="Název firmy" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={billingForm.ico} onChange={setBF("ico")} placeholder="12345678" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1870,13 +1898,11 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
 
 // ── Screening Modal (paid — konzultace/supervize) ─────────────────────────────
 const SCREENING_PRODUCTS = [
-  { id: "1x",          label: "Jednorázová konzultace" },
-  { id: "1x-personal", label: "Konzultace osobní" },
-  { id: "3m",          label: "Krátkodobá spolupráce (3 měsíce)" },
-  { id: "6m",          label: "Střednědobá spolupráce (6 měsíců)" },
-  { id: "12m",         label: "Roční spolupráce (12 měsíců)" },
-  { id: "sup-1x",      label: "Supervize – Ochutnávka" },
-  { id: "sup-6x",      label: "Supervizní balíček (6 setkání)" },
+  { id: "3m",      label: "Krátkodobá spolupráce (3 měsíce)" },
+  { id: "6m",      label: "Střednědobá spolupráce (6 měsíců)" },
+  { id: "12m",     label: "Roční spolupráce (12 měsíců)" },
+  { id: "sup-1x",  label: "Supervize – Ochutnávka" },
+  { id: "sup-6x",  label: "Supervizní balíček (6 setkání)" },
 ];
 
 function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillProductId, prefillProductLabel, onClose }: {

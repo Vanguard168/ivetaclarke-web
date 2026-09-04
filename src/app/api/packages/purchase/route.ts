@@ -22,9 +22,11 @@ export async function POST(req: NextRequest) {
     packageId,
     // New user registration fields (optional — omit if logged in)
     password,
-    // Billing / user data
+    // Registration / user data (saved to profile)
     firstName, lastName, email, phone,
     street, city, zip, company, ico,
+    // Invoice billing override (null = use registration data)
+    billing,
     // 3 questions
     whyInterested, previousExperience, goals,
     // Payment
@@ -126,15 +128,16 @@ export async function POST(req: NextRequest) {
   // Create PaymentRequest in faktura-app
   if (FAKTURA_API_KEY) {
     try {
+      const inv = billing ?? { firstName, lastName, street, city, zip, company, ico };
       await fetch(`${FAKTURA_URL}/api/public/payment-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
           productName: SCREENING_LABEL, productPrice: SCREENING_PRICE_EX_VAT / 100,
           productVatRate: 21, quantity: 1,
-          customerName: `${firstName} ${lastName}`, customerEmail: userEmail,
-          customerStreet: street, customerCity: city, customerZip: zip,
-          customerIco: ico ?? "",
+          customerName: `${inv.firstName} ${inv.lastName}`, customerEmail: userEmail,
+          customerStreet: inv.street, customerCity: inv.city, customerZip: inv.zip,
+          customerIco: inv.ico ?? "",
         }),
       });
     } catch (e) { console.error("PaymentRequest create failed:", e); }
