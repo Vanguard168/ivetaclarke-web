@@ -2561,6 +2561,9 @@ export default function App() {
           </Reveal>
 
           {/* 3 package cards */}
+          <Reveal delay={0.15}>
+            <h3 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 20px" }}>Možnosti spolupráce</h3>
+          </Reveal>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: 20 }}>
             {consultationData.packages.slice(2).map((pkg, i) => (
               <Reveal key={pkg.id} delay={0.1 + i * 0.1}>
