@@ -138,11 +138,8 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
               <tr><td style="padding:3px 0;color:#6b7280;">Celková částka:</td><td style="padding:3px 0;font-weight:700;font-size:15px;color:${color};text-align:right;">22 990 Kč</td></tr>
             </table>
           </div>
-          <div style="text-align:center;margin-bottom:16px;">
-            <a href="#" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Zaplatit</a>
-          </div>
           <div style="text-align:center;margin-bottom:20px;">
-            <a href="https://calendly.com/iveta-clarke/individual-session" style="display:inline-block;background:#ffffff;color:${color};text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;border:2px solid ${color};">Rezervovat Termín →</a>
+            <a href="#" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Zaplatit</a>
           </div>` : "";
 
   const html = `
