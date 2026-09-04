@@ -3065,7 +3065,7 @@ export default function App() {
             <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px" }}>Napište mi</h2>
             <Divider />
             <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 40 }}>
-              Ráda se dozvím více o vás a vašich potřebách před prvním sezením.
+              Ráda se dozvím více o vás a vašich potřebách.
             </p>
           </Reveal>
 
