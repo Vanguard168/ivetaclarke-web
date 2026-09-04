@@ -2441,7 +2441,7 @@ export default function App() {
                 boxShadow: "0 8px 40px rgba(44,44,62,0.12)",
               }}>
                 <img
-                  src="/iveta-photo.png"
+                  src="/iveta-photo.jpg"
                   alt="Iveta Clarke"
                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
                 />
