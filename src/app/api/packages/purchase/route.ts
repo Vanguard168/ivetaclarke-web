@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
     ...(testMode ? { test: "true" } : {}),
     returnUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=paid`,
     cancelUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=cancelled`,
-    notifUrl: `${NEXTAUTH_URL}/api/comgate/notify`,
+    notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
   });
 
   const cgRes = await fetch("https://payments.comgate.cz/v1.0/create", {
