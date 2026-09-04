@@ -2210,7 +2210,7 @@ function WorkshopScreeningModal({ userId, userEmail, userName, phone, workshopVa
   }, [onClose]);
 
   const handleSubmit = async () => {
-    if (!motivation || !background) { setError("Vyplňte prosím povinná pole."); return; }
+    if (!background || !experience || !motivation) { setError("Vyplňte prosím všechna povinná pole."); return; }
     setLoading(true); setError("");
     const res = await fetch("/api/screening/request", {
       method: "POST",
@@ -2275,16 +2275,16 @@ function WorkshopScreeningModal({ userId, userEmail, userName, phone, workshopVa
 
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>CO VÁS PŘIVÁDÍ K ZÁJMU O VÝCVIK PRŮVODCEM V MIDLIFE®? *</label>
-                  <textarea rows={3} value={motivation} onChange={e => setMotivation(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>VAŠE KVALIFIKACE V KOUČOVÁNÍ NEBO ÚROVEŇ AKREDITACE *</label>
+                  <textarea rows={3} value={background} onChange={e => setBackground(e.target.value)} style={taStyle} placeholder="Např. ICF PCC, akreditovaný výcvik, certifikace..." />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JAKÉ MÁTE ZKUŠENOSTI S KOUČINKEM A VÝCVIKEM? *</label>
-                  <textarea rows={3} value={background} onChange={e => setBackground(e.target.value)} style={taStyle} placeholder="Absolvované výcviky, certifikace, roky praxe..." />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JAK DLOUHO PRACUJETE JAKO KOUČ NEBO TERAPEUT?</label>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JAK DLOUHO PRACUJETE JAKO KOUČ? *</label>
                   <input value={experience} onChange={e => setExperience(e.target.value)} style={{ ...taStyle, resize: "none", padding: "10px 14px" }} placeholder="Např. 3 roky" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>CO VÁS PŘIVÁDÍ K ZÁJMU O VÝCVIK? *</label>
+                  <textarea rows={3} value={motivation} onChange={e => setMotivation(e.target.value)} style={taStyle} placeholder="Popište svou motivaci..." />
                 </div>
               </div>
 
