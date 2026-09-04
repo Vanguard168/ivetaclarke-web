@@ -2539,19 +2539,23 @@ export default function App() {
             <Divider />
           </Reveal>
 
-          {/* Intro text */}
+          {/* Intro text + photo */}
           <Reveal delay={0.05}>
-            <div style={{ marginBottom: 52 }}>
-              {consultationData.intro.map((para, i) => (
-                <p key={i} style={{
-                  fontSize: i === 0 ? 18 : 15,
-                  color: i === 0 ? C.text : C.muted,
-                  lineHeight: 1.85,
-                  marginBottom: i === consultationData.intro.length - 1 ? 0 : 14,
-                  fontStyle: i === 0 ? "italic" : "normal",
-                  fontWeight: i === 0 ? "normal" : "normal",
-                }}>{para}</p>
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 420px", gap: isMobile ? 32 : 56, alignItems: "center", marginBottom: 52 }}>
+              <div>
+                {consultationData.intro.map((para, i) => (
+                  <p key={i} style={{
+                    fontSize: i === 0 ? 18 : 15,
+                    color: i === 0 ? C.text : C.muted,
+                    lineHeight: 1.85,
+                    marginBottom: i === consultationData.intro.length - 1 ? 0 : 14,
+                    fontStyle: i === 0 ? "italic" : "normal",
+                  }}>{para}</p>
+                ))}
+              </div>
+              <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
+                <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – konzultace" style={{ width: "100%", display: "block", objectFit: "cover" }} />
+              </div>
             </div>
           </Reveal>
 
@@ -2689,12 +2693,24 @@ export default function App() {
             <Divider />
           </Reveal>
 
+          {/* Photo */}
+          <Reveal delay={0.05}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "380px 1fr", gap: isMobile ? 32 : 56, alignItems: "center", marginBottom: 52 }}>
+              <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
+                <img src="/iveta-supervize.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", display: "block", objectFit: "cover" }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
+                <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
+                <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{supervisionData.introSub}</p>
+              </div>
+            </div>
+          </Reveal>
+
           {/* Info grid */}
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 60, marginBottom: 52 }}>
             <Reveal>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
-              <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
-              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 20 }}>{supervisionData.introSub}</p>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 16px" }}>Jak supervize funguje</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {supervisionData.functions.map(f => (
                   <div key={f.label} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
