@@ -97,8 +97,29 @@ export async function POST(req: NextRequest) {
   const SCREENING_PRICE_EX_VAT = 247851;
   const SCREENING_LABEL = "Vstupní konzultace";
 
+  // Create PaymentRequest in faktura-app first — get its UUID to use as ComGate refId
+  // This is critical: ComGate webhook sends refId back to faktura-app, which looks up PaymentRequest by id
+  let refId = `PKG-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  if (FAKTURA_API_KEY) {
+    try {
+      const inv = billing ?? { firstName, lastName, street, city, zip, company, ico };
+      const prRes = await fetch(`${FAKTURA_URL}/api/public/payment-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
+        body: JSON.stringify({
+          productName: SCREENING_LABEL, productPrice: SCREENING_PRICE_EX_VAT / 100,
+          productVatRate: 21, quantity: 1,
+          customerName: `${inv.firstName} ${inv.lastName}`, customerEmail: userEmail,
+          customerStreet: inv.street, customerCity: inv.city, customerZip: inv.zip,
+          customerIco: inv.ico ?? "",
+        }),
+      });
+      const prData = await prRes.json();
+      if (prData.id) refId = prData.id; // Use faktura-app UUID so webhook can match
+    } catch (e) { console.error("PaymentRequest create failed:", e); }
+  }
+
   // Save screening request with questions
-  const refId = `PKG-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   await db.from("screening_requests").insert({
     user_id: userId,
     user_email: userEmail,
@@ -114,7 +135,7 @@ export async function POST(req: NextRequest) {
     screening_comgate_ref: refId,
   });
 
-  // Save order — screening payment, package interest saved separately in screening_requests
+  // Save order
   await db.from("orders").insert({
     user_id: userId,
     package_id: "vstupni-konzultace",
@@ -124,24 +145,6 @@ export async function POST(req: NextRequest) {
     comgate_ref_id: refId,
     status: "PENDING",
   });
-
-  // Create PaymentRequest in faktura-app
-  if (FAKTURA_API_KEY) {
-    try {
-      const inv = billing ?? { firstName, lastName, street, city, zip, company, ico };
-      await fetch(`${FAKTURA_URL}/api/public/payment-request`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
-        body: JSON.stringify({
-          productName: SCREENING_LABEL, productPrice: SCREENING_PRICE_EX_VAT / 100,
-          productVatRate: 21, quantity: 1,
-          customerName: `${inv.firstName} ${inv.lastName}`, customerEmail: userEmail,
-          customerStreet: inv.street, customerCity: inv.city, customerZip: inv.zip,
-          customerIco: inv.ico ?? "",
-        }),
-      });
-    } catch (e) { console.error("PaymentRequest create failed:", e); }
-  }
 
   // Create ComGate payment
   const merchant = process.env.COMGATE_MERCHANT;
