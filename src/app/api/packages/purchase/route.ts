@@ -107,17 +107,21 @@ export async function POST(req: NextRequest) {
     screening_comgate_ref: refId,
   });
 
-  // Save order
-  const priceDisplay = `${(pkg.price / 100).toLocaleString("cs-CZ")} Kč`;
+  // Save order — screening payment, package interest saved separately in screening_requests
   await db.from("orders").insert({
     user_id: userId,
-    package_id: packageId,
-    package_title: pkg.label,
-    price_czk: pkg.price,
-    price_display: priceDisplay,
+    package_id: "vstupni-konzultace",
+    package_title: SCREENING_LABEL,
+    price_czk: SCREENING_PRICE,
+    price_display: "2 999 Kč",
     comgate_ref_id: refId,
     status: "PENDING",
   });
+
+  // Screening (vstupní konzultace) is always 2 999 Kč — package choice is saved for context only
+  const SCREENING_PRICE = 299900; // haléře = 2 999 Kč
+  const SCREENING_PRICE_EX_VAT = 247851; // haléře ≈ 2 479 Kč bez DPH (2999/1.21)
+  const SCREENING_LABEL = "Vstupní konzultace";
 
   // Create PaymentRequest in faktura-app
   if (FAKTURA_API_KEY) {
@@ -126,8 +130,8 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
-          productName: pkg.label, productPrice: pkg.priceExVat / 100,
-          productVatRate: pkg.vatRate, quantity: 1,
+          productName: SCREENING_LABEL, productPrice: SCREENING_PRICE_EX_VAT / 100,
+          productVatRate: 21, quantity: 1,
           customerName: `${firstName} ${lastName}`, customerEmail: userEmail,
           customerStreet: street, customerCity: city, customerZip: zip,
           customerIco: ico ?? "",
@@ -144,9 +148,9 @@ export async function POST(req: NextRequest) {
   const testMode = process.env.COMGATE_TEST === "true";
   const params = new URLSearchParams({
     merchant, secret,
-    price: pkg.price.toString(),
+    price: SCREENING_PRICE.toString(),
     curr: "CZK",
-    label: pkg.label,
+    label: SCREENING_LABEL,
     refId,
     method: payMethod ?? "ALL",
     email: userEmail,

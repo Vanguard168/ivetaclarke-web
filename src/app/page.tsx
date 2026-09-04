@@ -1748,10 +1748,10 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
               {/* Order summary */}
               <div style={{ background: C.warm, borderRadius: 12, padding: "16px 20px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 14, color: C.text, marginBottom: 4 }}>{pkg.title}</div>
-                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.priceNote}</div>
+                  <div style={{ fontSize: 14, color: C.text, marginBottom: 4 }}>Vstupní konzultace s Ivetou Clarke</div>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>30 min online · vč. DPH / 2 479 Kč bez DPH</div>
                 </div>
-                <div style={{ fontSize: 22, color: C.dark }}>{pkg.price}</div>
+                <div style={{ fontSize: 22, color: C.dark }}>2 999 Kč</div>
               </div>
 
               {/* Payment method */}
@@ -1775,7 +1775,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
               <div style={{ display: "flex", gap: 10 }}>
                 <button onClick={() => { setStep(1); setError(""); }} style={{ padding: "15px 20px", borderRadius: 12, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
                 <button onClick={handlePay} disabled={loading} style={{ flex: 1, padding: "15px 0", borderRadius: 12, background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.06em", cursor: loading ? "not-allowed" : "pointer" }}>
-                  {loading ? "Přesměrování…" : `ZAPLATIT ${pkg.price}`}
+                  {loading ? "Přesměrování…" : "ZAPLATIT 2 999 Kč"}
                 </button>
               </div>
               <p style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", lineHeight: 1.6 }}>
