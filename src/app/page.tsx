@@ -1515,9 +1515,274 @@ function ConsultationModal({ pkg, onClose, onPay }: {
             onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
             onClick={onPay}
           >
-            MÁM ZÁJEM — VYPLNIT DOTAZNÍK
+            MÁM ZÁJEM
           </button>
 
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Package Order Modal (new unified registration + questions + payment) ──────
+function PackageOrderModal({ pkg, user, profile, onClose }: {
+  pkg: { id: string; title: string; price: string; priceNote: string; tagline: string };
+  user: { id: string; email?: string } | null;
+  profile?: Profile | null;
+  onClose: () => void;
+}) {
+  const isLoggedIn = !!user;
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Registration fields (non-logged-in users)
+  const [firstName, setFirstName] = useState(profile?.first_name || "");
+  const [lastName, setLastName]   = useState(profile?.last_name  || "");
+  const [email, setEmail]         = useState(user?.email || "");
+  const [emailConfirm, setEmailConfirm] = useState("");
+  const [password, setPassword]   = useState("");
+  const [phone, setPhone]         = useState(profile?.phone  || "");
+  const [street, setStreet]       = useState(profile?.street || "");
+  const [city, setCity]           = useState(profile?.city   || "");
+  const [zip, setZip]             = useState(profile?.zip    || "");
+  const [company, setCompany]     = useState(profile?.company || "");
+  const [ico, setIco]             = useState(profile?.ico    || "");
+
+  // Billing toggle for logged-in users
+  const profileForm = {
+    firstName: profile?.first_name || "", lastName: profile?.last_name || "",
+    phone: profile?.phone || "", street: profile?.street || "",
+    city: profile?.city || "", zip: profile?.zip || "",
+    company: profile?.company || "", ico: profile?.ico || "",
+  };
+  const [useSameAddress, setUseSameAddress] = useState(true);
+
+  // 3 questions
+  const [q1, setQ1] = useState("");
+  const [q2, setQ2] = useState("");
+  const [q3, setQ3] = useState("");
+
+  // Payment
+  const [payMethodIdx, setPayMethodIdx] = useState(0);
+  const payMethods = [
+    { id: "APPLEPAY_REDIRECT", label: "Platba kartou", sub: "Visa, Mastercard, Apple Pay, Google Pay" },
+    { id: "ALL", label: "QR platba", sub: "Okamžité potvrzení platby" },
+    { id: "ALL", label: "Bankovní převod", sub: "Okamžité potvrzení platby" },
+    { id: "ALL", label: "Odložená platba", sub: "Twisto, Skip Pay, splátky" },
+  ];
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", h); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "11px 14px", borderRadius: 10,
+    border: `1px solid ${C.sand}`, background: C.cream,
+    fontSize: 14, fontFamily: "Georgia, serif", color: C.text,
+    outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
+  };
+  const taStyle: React.CSSProperties = { ...inputStyle, resize: "vertical" };
+  const Label = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>{children}</label>
+  );
+  const focus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.gold);
+  const blur  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.sand);
+
+  const validateStep1 = () => {
+    if (!q1 || !q2 || !q3) { setError("Vyplňte prosím všechny otázky."); return false; }
+    if (!isLoggedIn) {
+      if (!firstName || !lastName || !email || !phone || !street || !city || !zip) {
+        setError("Vyplňte prosím všechna povinná pole."); return false;
+      }
+      if (email !== emailConfirm) { setError("E-mailové adresy se neshodují."); return false; }
+      if (password.length < 6) { setError("Heslo musí mít alespoň 6 znaků."); return false; }
+    }
+    setError(""); return true;
+  };
+
+  const handlePay = async () => {
+    setLoading(true); setError("");
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+
+    const billing = isLoggedIn && !useSameAddress
+      ? { firstName, lastName, phone, street, city, zip, company, ico }
+      : isLoggedIn
+        ? { firstName: profileForm.firstName, lastName: profileForm.lastName, phone: profileForm.phone, street: profileForm.street, city: profileForm.city, zip: profileForm.zip, company: profileForm.company, ico: profileForm.ico }
+        : { firstName, lastName, phone, street, city, zip, company, ico };
+
+    const res = await fetch("/api/packages/purchase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        packageId: pkg.id,
+        ...(isLoggedIn ? {} : { password }),
+        email: isLoggedIn ? user!.email : email,
+        ...billing,
+        whyInterested: q1, previousExperience: q2, goals: q3,
+        payMethod: payMethods[payMethodIdx].id,
+        ...(token ? { userToken: token } : {}),
+      }),
+    });
+    const data = await res.json();
+    setLoading(false);
+    if (data.error) { setError(data.error); return; }
+    if (data.session) await supabase.auth.setSession(data.session);
+    if (data.redirect) window.location.href = data.redirect;
+  };
+
+  const totalSteps = 2;
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.85)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.cream, borderRadius: 24, maxWidth: 560, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.4)", position: "relative" }}>
+        <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
+        <div style={{ padding: "28px 32px 36px" }}>
+
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 6 }}>
+                KROK {step} / {totalSteps} — {step === 1 ? "REGISTRACE & OTÁZKY" : "PLATBA"}
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: "0 0 2px" }}>{pkg.title}</h3>
+              <div style={{ fontSize: 13, color: C.gold, fontStyle: "italic" }}>{pkg.tagline}</div>
+            </div>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+          </div>
+
+          {/* ── STEP 1: Registration + Questions ── */}
+          {step === 1 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+              {/* Registration (only for non-logged-in) */}
+              {!isLoggedIn && (
+                <>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", marginBottom: 4, borderBottom: `1px solid ${C.sand}`, paddingBottom: 8 }}>REGISTRAČNÍ ÚDAJE</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div><Label>JMÉNO *</Label><input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jana" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                  <div><Label>E-MAIL *</Label><input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>POTVRDIT E-MAIL *</Label><input value={emailConfirm} onChange={e => setEmailConfirm(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>HESLO *</Label><input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="min. 6 znaků" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>FAKTURAČNÍ ADRESA</div>
+                  <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
+                    <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12 }}>
+                    <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={company} onChange={e => setCompany(e.target.value)} placeholder="Název firmy" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={ico} onChange={e => setIco(e.target.value)} placeholder="12345678" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                </>
+              )}
+
+              {/* Billing toggle for logged-in */}
+              {isLoggedIn && (
+                <div>
+                  <Label>FAKTURAČNÍ ÚDAJE</Label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <button type="button" onClick={() => setUseSameAddress(true)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left" }}>
+                      <div style={{ width: 16, height: 16, borderRadius: "50%", border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {useSameAddress && <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.white }} />}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark }}>Stejné jako registrační</div>
+                        <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>
+                          {[profileForm.firstName, profileForm.lastName].filter(Boolean).join(" ")} · {profileForm.phone || "—"} · {[profileForm.street, profileForm.city].filter(Boolean).join(", ") || "adresa nevyplněna"}
+                        </div>
+                      </div>
+                    </button>
+                    <button type="button" onClick={() => setUseSameAddress(false)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left" }}>
+                      <div style={{ width: 16, height: 16, borderRadius: "50%", border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {!useSameAddress && <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.white }} />}
+                      </div>
+                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: !useSameAddress ? C.gold : C.dark }}>Zadat jiné fakturační údaje</div>
+                    </button>
+                  </div>
+                  {!useSameAddress && (
+                    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div><Label>JMÉNO *</Label><input value={firstName} onChange={e => setFirstName(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                      <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
+                        <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12 }}>
+                        <div><Label>FIRMA <span style={{ opacity: 0.6 }}>(nepovinné)</span></Label><input value={company} onChange={e => setCompany(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>IČO <span style={{ opacity: 0.6 }}>(nepovinné)</span></Label><input value={ico} onChange={e => setIco(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 3 Questions */}
+              <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>OTÁZKY PRO IVETU</div>
+              <div><Label>PROČ VÁS ZAJÍMÁ SPOLUPRÁCE S IVETOU? *</Label><textarea rows={3} value={q1} onChange={e => setQ1(e.target.value)} placeholder="Popište svou motivaci..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
+              <div><Label>JAKÉ FORMY OSOBNÍHO ROZVOJE JSTE DOSUD ABSOLVOVAL/A? *</Label><textarea rows={3} value={q2} onChange={e => setQ2(e.target.value)} placeholder="Např. koučink, terapie, kurzy, workshopy…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
+              <div><Label>CO CHCETE V ŽIVOTĚ ZMĚNIT NEBO POSUNOUT? *</Label><textarea rows={3} value={q3} onChange={e => setQ3(e.target.value)} placeholder="Popište situaci nebo téma…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
+
+              {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+              <button onClick={() => { if (validateStep1()) setStep(2); }} style={{ marginTop: 8, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: "pointer" }}>
+                POKRAČOVAT K PLATBĚ →
+              </button>
+            </div>
+          )}
+
+          {/* ── STEP 2: Payment ── */}
+          {step === 2 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Order summary */}
+              <div style={{ background: C.warm, borderRadius: 12, padding: "16px 20px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 14, color: C.text, marginBottom: 4 }}>{pkg.title}</div>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{pkg.priceNote}</div>
+                </div>
+                <div style={{ fontSize: 22, color: C.dark }}>{pkg.price}</div>
+              </div>
+
+              {/* Payment method */}
+              <div>
+                <Label>ZPŮSOB PLATBY</Label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                  {payMethods.map((m, idx) => {
+                    const active = payMethodIdx === idx;
+                    return (
+                      <button key={idx} type="button" onClick={() => setPayMethodIdx(idx)} style={{ padding: "12px 14px", borderRadius: 12, cursor: "pointer", textAlign: "left", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? "rgba(201,168,76,0.08)" : C.cream, transition: "all 0.18s" }}>
+                        <div style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: active ? C.gold : C.dark }}>{m.label}</div>
+                        <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>{m.sub}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={() => { setStep(1); setError(""); }} style={{ padding: "15px 20px", borderRadius: 12, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
+                <button onClick={handlePay} disabled={loading} style={{ flex: 1, padding: "15px 0", borderRadius: 12, background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.06em", cursor: loading ? "not-allowed" : "pointer" }}>
+                  {loading ? "Přesměrování…" : `ZAPLATIT ${pkg.price}`}
+                </button>
+              </div>
+              <p style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", lineHeight: 1.6 }}>
+                Platba je zpracována bezpečně přes ComGate.<br />Po zaplacení obdržíte e-mailem potvrzení a fakturu.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1943,6 +2208,7 @@ export default function App() {
   const [openWorkshopModal, setOpenWorkshopModal] = useState(false);
   const [checkoutPkg, setCheckoutPkg] = useState<typeof consultationData.packages[0] | null>(null);
   const [screeningModal, setScreeningModal] = useState<{ open: boolean; prefillProductId?: string; prefillProductLabel?: string } | null>(null);
+  const [packageOrderModal, setPackageOrderModal] = useState<{ pkg: typeof consultationData.packages[0] } | null>(null);
   const [workshopScreeningModal, setWorkshopScreeningModal] = useState<{ open: boolean; workshopVariantId?: string; workshopVariantLabel?: string } | null>(null);
   const reserveBtnRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -2463,11 +2729,20 @@ export default function App() {
             onClose={() => setOpenModal(null)}
             onPay={() => {
               setOpenModal(null);
-              setScreeningModal({ open: true, prefillProductId: pkg.id, prefillProductLabel: pkg.title });
+              setPackageOrderModal({ pkg });
             }}
           />
         ) : null;
       })()}
+
+      {packageOrderModal && (
+        <PackageOrderModal
+          pkg={packageOrderModal.pkg}
+          user={user}
+          profile={profile}
+          onClose={() => setPackageOrderModal(null)}
+        />
+      )}
 
       {openWorkshopModal && !checkoutPkg && (
         <WorkshopModal
@@ -2582,7 +2857,7 @@ export default function App() {
                     <div style={{ fontSize: 17, color: C.dark, marginBottom: 12, lineHeight: 1.3 }}>{pkg.title}</div>
                     <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, marginBottom: 20, flex: 1 }}>{pkg.cardDesc}</p>
                     <button
-                      onClick={() => requireAuth(() => setOpenModal(pkg.id))}
+                      onClick={() => setOpenModal(pkg.id)}
                       style={{
                         width: "100%", padding: "11px 0",
                         background: C.gold, border: "none", borderRadius: 32,
@@ -2739,7 +3014,7 @@ export default function App() {
                   <p style={{ fontSize: 13.5, color: C.gold, fontStyle: "italic", margin: "0 0 12px", lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{pkg.tagline}</p>
                   <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: "0 0 24px", flex: 1 }}>{pkg.cardDesc}</p>
                   <div style={{ borderTop: `1px solid ${C.sand}`, paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-                    <Btn small onClick={() => requireAuth(() => setOpenModal(pkg.id))}>Chci vědět více</Btn>
+                    <Btn small onClick={() => setOpenModal(pkg.id)}>Chci vědět více</Btn>
                   </div>
                 </div>
               </Reveal>
