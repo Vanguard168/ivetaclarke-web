@@ -1499,7 +1499,11 @@ function ConsultationModal({ pkg, onClose, onPay }: {
             </div>
           )}
 
-          <div style={{ height: 1, background: C.sand, marginBottom: 24 }} />
+          <div style={{ height: 1, background: C.sand, marginBottom: 20 }} />
+
+          <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 20, fontStyle: "italic" }}>
+            Pro potvrzení volby tohoto balíčku, je třeba absolvovat vstupní konzultaci online.
+          </p>
 
           {/* CTA */}
           <button
