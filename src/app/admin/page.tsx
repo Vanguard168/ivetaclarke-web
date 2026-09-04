@@ -605,6 +605,23 @@ export default function AdminPage() {
     await reload();
   };
 
+  const handleDeleteUser = async () => {
+    if (!selected || !jwt) return;
+    if (!confirm(`Smazat uživatele ${selected.user_email} a všechna jeho data? Tato akce je nevratná.`)) return;
+    const res = await fetch("/api/admin/delete-user", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+      body: JSON.stringify({ userId: selected.user_id }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      setSelected(null);
+      await reload();
+    } else {
+      alert(`Chyba: ${data.error}`);
+    }
+  };
+
   const handleSaveNotes = async () => {
     if (!selected || !jwt || !adminNotes.trim()) return;
     setSavingNotes(true);
@@ -825,6 +842,14 @@ export default function AdminPage() {
                     <ActionBtn onClick={() => handleMarkDone("cancelled")} label="Zrušit" color={C.red} />
                   )}
                 </div>
+              </div>
+
+              {/* Delete user */}
+              <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid rgba(200,80,80,0.2)`, marginBottom: 20 }}>
+                <div style={{ fontSize: 11, color: C.red, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 12 }}>NEBEZPEČNÁ ZÓNA</div>
+                <button onClick={handleDeleteUser} style={{ padding: "8px 16px", borderRadius: 20, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>
+                  Smazat uživatele a všechna data
+                </button>
               </div>
 
               {/* Admin notes */}
