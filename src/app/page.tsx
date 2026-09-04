@@ -2694,53 +2694,56 @@ export default function App() {
             <Divider />
           </Reveal>
 
-          {/* Photo */}
+          {/* Photo + all text side by side */}
           <Reveal delay={0.05}>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(260px, 38%) 1fr", gap: "clamp(24px, 4vw, 56px)", alignItems: "center", marginBottom: 52 }}>
-              <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)" }}>
-                <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", display: "block" }} />
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(240px, 36%) 1fr", gap: "clamp(24px, 4vw, 52px)", alignItems: "stretch", marginBottom: 52 }}>
+              {/* Photo fills full height of text column */}
+              <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, boxShadow: "0 8px 40px rgba(44,44,62,0.12)", minHeight: isMobile ? 280 : "auto" }}>
+                <img src="/iveta-konzultace.jpg" alt="Iveta Clarke – supervize" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: C.gold }} />
               </div>
-              <div>
-                <h3 style={{ fontSize: "clamp(17px, 1.6vw, 20px)", fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
-                <p style={{ fontSize: "clamp(13px, 1.2vw, 15px)", color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
-                <p style={{ fontSize: "clamp(12px, 1.1vw, 14px)", color: C.muted, lineHeight: 1.8 }}>{supervisionData.introSub}</p>
+
+              {/* All text stacked */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(20px, 2.5vw, 32px)" }}>
+                <div>
+                  <h3 style={{ fontSize: "clamp(16px, 1.5vw, 20px)", fontWeight: "normal", margin: "0 0 10px" }}>Co je supervize?</h3>
+                  <p style={{ fontSize: "clamp(13px, 1.2vw, 15px)", color: C.muted, lineHeight: 1.8, marginBottom: 6 }}>{supervisionData.intro}</p>
+                  <p style={{ fontSize: "clamp(12px, 1.1vw, 14px)", color: C.muted, lineHeight: 1.8 }}>{supervisionData.introSub}</p>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: "clamp(15px, 1.4vw, 18px)", fontWeight: "normal", margin: "0 0 14px" }}>Jak supervize funguje</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {supervisionData.functions.map(f => (
+                      <div key={f.label} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                        <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(201,168,76,0.1)", border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: C.gold, flexShrink: 0, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold" }}>
+                          {f.label[0]}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "clamp(11px, 1vw, 12px)", fontWeight: "bold", color: C.dark, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 2 }}>{f.label}</div>
+                          <div style={{ fontSize: "clamp(12px, 1.1vw, 13px)", color: C.muted, lineHeight: 1.6 }}>{f.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: "clamp(15px, 1.4vw, 18px)", fontWeight: "normal", margin: "0 0 10px" }}>Moje kvalifikace</h3>
+                  <p style={{ fontSize: "clamp(12px, 1.1vw, 14px)", color: C.muted, lineHeight: 1.9, marginBottom: 8 }}>{supervisionData.qualification}</p>
+                  <p style={{ fontSize: "clamp(12px, 1.1vw, 14px)", color: C.muted, lineHeight: 1.9, marginBottom: 16 }}>{supervisionData.qualificationSub}</p>
+                  <a href="https://www.linkedin.com/in/ivetaclarke" target="_blank" rel="noopener noreferrer"
+                    style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.muted, textDecoration: "none", fontSize: "clamp(12px, 1.1vw, 13px)", fontFamily: "Trebuchet MS, sans-serif", transition: "color 0.2s" }}
+                    onMouseEnter={e => (e.currentTarget.style.color = C.gold)}
+                    onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    Certifikáty na LinkedIn →
+                  </a>
+                </div>
               </div>
             </div>
           </Reveal>
-
-          {/* Info grid */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 40 : 60, marginBottom: 52 }}>
-            <Reveal>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 16px" }}>Jak supervize funguje</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {supervisionData.functions.map(f => (
-                  <div key={f.label} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(201,168,76,0.1)", border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: C.gold, flexShrink: 0, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold" }}>
-                      {f.label[0]}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: "bold", color: C.dark, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 2 }}>{f.label}</div>
-                      <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{f.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", margin: "0 0 16px" }}>Moje kvalifikace</h3>
-              <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 12 }}>{supervisionData.qualification}</p>
-              <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.9, marginBottom: 20 }}>{supervisionData.qualificationSub}</p>
-              <a href="https://www.linkedin.com/in/ivetaclarke" target="_blank" rel="noopener noreferrer"
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.muted, textDecoration: "none", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", transition: "color 0.2s" }}
-                onMouseEnter={e => (e.currentTarget.style.color = C.gold)}
-                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                Certifikáty na LinkedIn →
-              </a>
-            </Reveal>
-          </div>
 
           {/* Package cards */}
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
