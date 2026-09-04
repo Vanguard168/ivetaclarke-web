@@ -27,17 +27,18 @@ export async function DELETE(req: NextRequest) {
   const db = createServerClient();
 
   // Delete related data first to avoid FK violations
-  await db.from("screening_requests").delete().eq("user_id", userId);
-  await db.from("orders").delete().eq("user_id", userId);
-  await db.from("profiles").delete().eq("id", userId);
+  const { error: e1 } = await db.from("screening_requests").delete().eq("user_id", userId);
+  if (e1) return NextResponse.json({ error: `screening_requests: ${e1.message}` }, { status: 500 });
+
+  const { error: e2 } = await db.from("orders").delete().eq("user_id", userId);
+  if (e2) return NextResponse.json({ error: `orders: ${e2.message}` }, { status: 500 });
+
+  const { error: e3 } = await db.from("profiles").delete().eq("id", userId);
+  if (e3) return NextResponse.json({ error: `profiles: ${e3.message}` }, { status: 500 });
 
   // Delete the auth user using service role
-  const adminClient = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const { error } = await adminClient.auth.admin.deleteUser(userId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const { error } = await db.auth.admin.deleteUser(userId);
+  if (error) return NextResponse.json({ error: `auth.deleteUser: ${error.message}` }, { status: 500 });
 
   return NextResponse.json({ ok: true });
 }
