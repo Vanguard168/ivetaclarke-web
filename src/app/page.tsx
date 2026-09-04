@@ -1767,14 +1767,14 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Description */}
               <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 4px" }}>
-                Uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za vstupní konzultaci — 30minutové online setkání s Ivetou, po kterém vám doporučí nejvhodnější formu spolupráce.
+                Uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za vstupní konzultaci s Ivetou. Po upřesnění vhodné formy spolupráce se vám tato částka odečte z ceny vybraného balíčku. Ceny jednotlivých balíčků probereme v rámci konzultace.
               </p>
 
               {/* Order summary */}
               <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ fontSize: 13, color: C.text }}>Vstupní konzultace s Ivetou Clarke</div>
-                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>30 min online · vč. DPH / 2 479 Kč bez DPH</div>
+                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>Online setkání 45 minut · vč. DPH / 2 479 Kč bez DPH</div>
                 </div>
                 <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>2 999 Kč</div>
               </div>
