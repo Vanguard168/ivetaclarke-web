@@ -51,6 +51,7 @@ type ScreeningRequest = {
 type EmailSettings = {
   fromName: string; fromEmail: string;
   smtpHost: string; smtpPort: number; smtpUser: string; smtpPass: string; smtpSecure: boolean;
+  registrationSubject: string; registrationBody: string;
   screeningSubject: string; screeningBody: string;
   paymentSubject: string; paymentBody: string;
   autoSend: boolean;
@@ -60,10 +61,19 @@ type EmailSettings = {
 const EMAIL_DEFAULTS: EmailSettings = {
   fromName: "Iveta Clarke", fromEmail: "",
   smtpHost: "", smtpPort: 587, smtpUser: "", smtpPass: "", smtpSecure: false,
-  screeningSubject: "Potvrzení screeningového setkání",
+  registrationSubject: "Vítejte, {customerName}!",
+  registrationBody: `Dobrý den, {customerName},
+
+děkujeme za vaši registraci. Vaše žádost o vstupní konzultaci s Ivetou Clarke byla úspěšně přijata.
+
+Nyní prosím dokončete platbu vstupní konzultace (2 999 Kč). Po přijetí platby vás Iveta kontaktuje s termínem setkání.
+
+S pozdravem,
+Iveta Clarke`,
+  screeningSubject: "Přihláška na výcvik — potvrzení",
   screeningBody: `Dobrý den, {customerName},
 
-děkujeme za uhrazení screeningového poplatku. Iveta vás brzy kontaktuje s termínem setkání.
+obdrželi jsme vaši přihlášku na výcvik. Iveta vás brzy kontaktuje s dalšími informacemi.
 
 S pozdravem,
 Iveta Clarke`,
@@ -96,7 +106,7 @@ function tintColor(hex: string, amount: number): string {
 }
 
 // ─── Email Preview ───────────────────────────────────────────────────────────
-function EmailPreview({ s }: { s: EmailSettings }) {
+function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "registration" | "screening" | "payment" }) {
   const color = s.primaryColor || "#C9A84C";
   const footer = s.footerText || "Tato zpráva byla vygenerována automaticky.";
   const headerLabel = s.headerText || "Iveta Clarke";
@@ -106,7 +116,11 @@ function EmailPreview({ s }: { s: EmailSettings }) {
   const tableBorder = s.bgTint ? tintColor(color, 0.80) : "#e5e7eb";
   const footerBg = s.bgTint ? tintColor(color, 0.90) : "#f9fafb";
 
-  const bodyHtml = s.paymentBody
+  const rawBody = type === "registration" ? s.registrationBody
+    : type === "screening" ? s.screeningBody
+    : s.paymentBody;
+
+  const bodyHtml = (rawBody || "")
     .replace(/\{customerName\}/g, "Jana Nováková")
     .replace(/\{productName\}/g, "Krátkodobá spolupráce (3 měsíce)")
     .replace(/\{amount\}/g, "22 990 Kč")
@@ -163,7 +177,8 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
   const [testEmail, setTestEmail] = useState("");
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [testError, setTestError] = useState("");
-  const [activeTab, setActiveTab] = useState<"smtp" | "screening" | "payment" | "design" | "preview">("smtp");
+  const [activeTab, setActiveTab] = useState<"registration" | "screening" | "payment" | "design" | "preview" | "smtp">("registration");
+  const [previewType, setPreviewType] = useState<"registration" | "screening" | "payment">("registration");
 
   useEffect(() => {
     fetch("/api/admin/email-settings", { headers: { Authorization: `Bearer ${jwt}` } })
@@ -178,6 +193,8 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
             smtpUser: d.smtp_user || "",
             smtpPass: d.smtp_pass || "",
             smtpSecure: d.smtp_secure ?? false,
+            registrationSubject: d.registration_subject || EMAIL_DEFAULTS.registrationSubject,
+            registrationBody: d.registration_body || EMAIL_DEFAULTS.registrationBody,
             screeningSubject: d.screening_subject || EMAIL_DEFAULTS.screeningSubject,
             screeningBody: d.screening_body || EMAIL_DEFAULTS.screeningBody,
             paymentSubject: d.payment_subject || EMAIL_DEFAULTS.paymentSubject,
@@ -228,11 +245,12 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
   };
 
   const TABS = [
-    { id: "smtp", label: "SMTP" },
-    { id: "screening", label: "Screening mail" },
-    { id: "payment", label: "Platební odkaz" },
-    { id: "design", label: "Design" },
-    { id: "preview", label: "Náhled" },
+    { id: "registration", label: "Uvítací email" },
+    { id: "screening",    label: "Screening mail — výcvik" },
+    { id: "payment",      label: "Platební odkaz" },
+    { id: "design",       label: "Design" },
+    { id: "preview",      label: "Náhled" },
+    { id: "smtp",         label: "SMTP" },
   ] as const;
 
   const PRESET_COLORS = [
@@ -341,7 +359,26 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
           </div>
         )}
 
-        {/* ── Screening mail ── */}
+        {/* ── Uvítací email ── */}
+        {activeTab === "registration" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", padding: "8px 12px", background: C.warm, borderRadius: 8 }}>
+              Tokeny: <code style={{ marginLeft: 4 }}>{"{customerName}"}</code>
+              {" — odesílá se zákazníkovi automaticky ihned po registraci (před platbou vstupní konzultace)."}
+            </div>
+            <div>
+              <label style={lbl}>PŘEDMĚT</label>
+              <input value={settings.registrationSubject} onChange={e => set("registrationSubject", e.target.value)} style={inp} />
+            </div>
+            <div>
+              <label style={lbl}>TEXT E-MAILU</label>
+              <textarea value={settings.registrationBody} onChange={e => set("registrationBody", e.target.value)}
+                rows={10} style={{ ...inp, resize: "vertical", fontFamily: "monospace", fontSize: 12, lineHeight: 1.6 }} />
+            </div>
+          </div>
+        )}
+
+        {/* ── Screening mail (výcvik) ── */}
         {activeTab === "screening" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", padding: "8px 12px", background: C.warm, borderRadius: 8 }}>
@@ -443,7 +480,20 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
         )}
 
         {/* ── Náhled ── */}
-        {activeTab === "preview" && <EmailPreview s={settings} />}
+        {activeTab === "preview" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <label style={{ ...lbl, marginBottom: 0, whiteSpace: "nowrap" }}>NÁHLED E-MAILU</label>
+              <select value={previewType} onChange={e => setPreviewType(e.target.value as typeof previewType)}
+                style={{ padding: "7px 12px", borderRadius: 8, border: `1px solid ${C.sand}`, background: C.white, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: C.text, outline: "none" }}>
+                <option value="registration">Uvítací email (po registraci)</option>
+                <option value="screening">Screening mail — výcvik</option>
+                <option value="payment">Platební odkaz</option>
+              </select>
+            </div>
+            <EmailPreview s={settings} type={previewType} />
+          </div>
+        )}
       </div>
 
       {saveError && <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: C.red, border: `1px solid rgba(200,80,80,0.3)` }}>{saveError}</div>}

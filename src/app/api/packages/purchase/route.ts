@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
+import { sendRegistrationEmail } from "@/lib/email";
 
 const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
@@ -90,6 +91,8 @@ export async function POST(req: NextRequest) {
     if (data.session) {
       newSession = { access_token: data.session.access_token, refresh_token: data.session.refresh_token };
     }
+    // Send welcome email (fire-and-forget — don't block payment if it fails)
+    sendRegistrationEmail(`${firstName} ${lastName}`, email).catch(e => console.error("Welcome email failed:", e));
   }
 
   // Screening (vstupní konzultace) is always 2 999 Kč — package choice saved for context only

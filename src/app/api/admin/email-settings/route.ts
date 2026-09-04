@@ -44,6 +44,8 @@ export async function PUT(req: NextRequest) {
     smtp_user: body.smtpUser ?? "",
     smtp_pass: body.smtpPass ?? "",
     smtp_secure: body.smtpSecure ?? false,
+    registration_subject: body.registrationSubject ?? "",
+    registration_body: body.registrationBody ?? "",
     screening_subject: body.screeningSubject ?? "",
     screening_body: body.screeningBody ?? "",
     payment_subject: body.paymentSubject ?? "",
