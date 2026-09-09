@@ -94,7 +94,7 @@ const consultationData = {
       id: "12m",
       title: "Roční spolupráce",
       tagline: "Pro lidi, kteří hledají udržitelný životní posun.",
-      cardDesc: "Dlouhodobé osobní provázení vaším životním kontextem a profesionální mentoring zahrnující informace, zkušenosti a nové mentální koncepty k osvojení. Budujeme vztah. Máme čas na nácvik a osvojení nových návyků a postojů.",
+      cardDesc: "Dlouhodobé osobní provázení vašim životním kontextem a profesionální mentoring zahrnující informace, zkušenosti a nové mentální koncepty k osvojení. Budujeme vztah. Máme čas na nácvik a osvojení nových návyků a postojů.",
       modalDesc: "Máte k dispozici neomezený počet setkání, každé v délce 90 minut, po dobu jednoho ročního cyklu.",
       result: "Jsem vaším důvěrným partnerem, průvodcem, podporovatelem, rádcem a vyzyvatelem.",
       format: "Neomezený počet setkání · 90 min / setkání · 12 měsíců",
@@ -190,7 +190,7 @@ const supervisionData = {
     descParagraphs: [
       "Workshop pro kouče, kteří ve své klientské praxi pracují s lidmi ve zlomovém životním období středního věku.",
       "Lidé v tomto období procházejí významným životním přechodem (midlife), který je charakterizován transformací na mnoha úrovních jejich života. Co přesně se děje a jak tyto jevy ovlivňují naše klienty?",
-      "Ve workshopu nabízím, co jsem se naučila v Modern Elder Academy, první školy moudrosti na světě, a co získávám ze zdrojů, ke kterým mám jako MEA alumni přístup. Přidám navíc vše, co vím o midlife z vlastní praxe i ze svého života. Své zkušenosti a znalosti jsem sestavila do přehledných bloků, které poskytnou strukturu pro práci s lidmi v tomto období životní tranzice.",
+      "Ve workshopu nabízím, co jsem se naučila v Modern Elder Academy, první škole moudrosti na světě, a co získávám ze zdrojů, ke kterým mám jako MEA alumni přístup. Přidám navíc vše, co vím o midlife z vlastní praxe i ze svého života. Své zkušenosti a znalosti jsem sestavila do přehledných bloků, které poskytnou strukturu pro práci s lidmi v tomto období životní tranzice.",
       "Workshop je určen pro uzavřenou skupinu profesionálních koučů, kteří chtějí lépe porozumět specifické cílové skupině svých klientů a seznámit se s nástroji i koncepty, které nejsou v běžných koučovacích výcvicích dostupné.",
     ],
     learns: [
@@ -1502,7 +1502,7 @@ function ConsultationModal({ pkg, onClose, onPay }: {
           <div style={{ height: 1, background: C.sand, marginBottom: 20 }} />
 
           <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 20, fontStyle: "italic" }}>
-            Pro potvrzení volby tohoto balíčku, je třeba absolvovat vstupní konzultaci online.
+            Pro potvrzení volby tohoto balíčku je třeba absolvovat vstupní konzultaci online.
           </p>
 
           {/* CTA */}
@@ -3222,7 +3222,7 @@ export default function App() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
             <SectionLabel>PRO KOUČE</SectionLabel>
-            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Výcvik</h2>
+            <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: "normal", margin: "0 0 8px", color: C.white }}>Masterclass</h2>
             <Divider />
           </Reveal>
 
