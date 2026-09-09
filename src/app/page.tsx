@@ -3551,7 +3551,7 @@ export default function App() {
               <div style={{ background: C.dark, borderRadius: 20, padding: "56px 40px", textAlign: "center", border: `1px solid rgba(201,168,76,0.3)` }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
                 <div style={{ fontSize: 22, color: C.gold, marginBottom: 12 }}>Zpráva odeslána</div>
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS" }}>Ozvu se vám do 2 pracovních dnů</div>
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS" }}>Brzy se vám ozvu</div>
               </div>
             ) : (
               <div style={{ background: C.white, borderRadius: 20, padding: "40px", border: `1px solid ${C.sand}`, boxShadow: "0 4px 32px rgba(44,44,62,0.06)" }}>
