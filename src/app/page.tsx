@@ -222,7 +222,7 @@ const supervisionData = {
 
 const navItems = ["O mně", "Pro veřejnost", "Pro Kouče", "Pro Bono", "Videa", "Podcast", "Kontakt"];
 const proVerejnostItems = ["Konzultace", "Kurzy"];
-const proKouceItems = ["Supervize", "Výcvik"];
+const proKouceItems = ["Supervize", "Masterclass"];
 const seduoCourses = [
   {
     title: "Umění rozhovoru",
@@ -2490,7 +2490,7 @@ export default function App() {
   const hamburgerColor = navLogoColor;
 
   const scrollTo = (id: string) => {
-    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "kurzy": "kurzy", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
+    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "kurzy": "kurzy", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "masterclass": "vycvik", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
     const el = document.getElementById(map[id.toLowerCase()] || id.toLowerCase().replace(/\s/g, "-").replace(/[^\w-]/g, ""));
     el?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
