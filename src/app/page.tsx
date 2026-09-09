@@ -2397,6 +2397,7 @@ export default function App() {
   const proKouceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const proVerejnostTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [contactSent, setContactSent] = useState(false);
+  const [contactSending, setContactSending] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState<string | null>(null);
@@ -3584,7 +3585,17 @@ export default function App() {
                       }}
                     />
                   </div>
-                  <Btn onClick={() => setContactSent(true)}>Odeslat zprávu</Btn>
+                  <Btn onClick={async () => {
+                    if (!form.name || !form.email || !form.message) return;
+                    setContactSending(true);
+                    await fetch("/api/contact", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(form),
+                    });
+                    setContactSending(false);
+                    setContactSent(true);
+                  }}>{contactSending ? "Odesílám…" : "Odeslat zprávu"}</Btn>
                 </div>
               </div>
             )}
@@ -3607,10 +3618,10 @@ export default function App() {
                 onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
                 onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)"}
               >+420 724 001 030</a>
-              <a href="mailto:info@ivetaclarke.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
+              <a href="mailto:iveta@ivetaclarke.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", textDecoration: "none" }}
                 onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = C.gold}
                 onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)"}
-              >info@ivetaclarke.com</a>
+              >iveta@ivetaclarke.com</a>
             </div>
           </div>
 

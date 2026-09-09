@@ -532,7 +532,9 @@ export default function AdminPage() {
     return d.toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit", year: "numeric" })
       + " " + d.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
   };
-  const [section, setSection] = useState<"requests" | "emails">("requests");
+  const [section, setSection] = useState<"requests" | "emails" | "messages">("requests");
+  const [messages, setMessages] = useState<{ id: string; name: string; email: string; message: string; created_at: string; read: boolean }[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -558,6 +560,9 @@ export default function AdminPage() {
         }
         setIsAdmin(true);
         setRequests(data.requests ?? []);
+        // Load messages
+        fetch("/api/admin/messages", { headers: { Authorization: `Bearer ${token}` } })
+          .then(r => r.json()).then(d => setMessages(d.messages ?? [])).catch(() => {});
       } catch (e) {
         setAccessError(`Síťová chyba: ${e}`);
         setIsAdmin(false);
@@ -570,6 +575,14 @@ export default function AdminPage() {
     if (!jwt) return;
     const res = await fetch("/api/admin/screening", { headers: { Authorization: `Bearer ${jwt}` } });
     if (res.ok) { const d = await res.json(); setRequests(d.requests ?? []); }
+  }, [jwt]);
+
+  const loadMessages = useCallback(async () => {
+    if (!jwt) return;
+    setMessagesLoading(true);
+    const res = await fetch("/api/admin/messages", { headers: { Authorization: `Bearer ${jwt}` } });
+    if (res.ok) { const d = await res.json(); setMessages(d.messages ?? []); }
+    setMessagesLoading(false);
   }, [jwt]);
 
   const openDetail = (r: ScreeningRequest) => {
@@ -676,20 +689,73 @@ export default function AdminPage() {
           <a href="/" style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textDecoration: "none" }}>← Web</a>
           <div style={{ width: 1, height: 16, background: C.sand }} />
           {/* Section nav */}
-          {(["requests", "emails"] as const).map(s => (
-            <button key={s} onClick={() => { setSection(s); setSelected(null); }}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: section === s ? C.dark : C.muted, borderBottom: `2px solid ${section === s ? C.gold : "transparent"}`, transition: "all 0.15s" }}>
-              {s === "requests" ? "Screening žádosti" : "Nastavení e-mailů"}
+          {(["requests", "messages", "emails"] as const).map(s => (
+            <button key={s} onClick={() => { setSection(s); setSelected(null); if (s === "messages") loadMessages(); }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: section === s ? C.dark : C.muted, borderBottom: `2px solid ${section === s ? C.gold : "transparent"}`, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+              {s === "requests" ? "Screening žádosti" : s === "messages" ? <>Zprávy z webu{messages.filter(m => !m.read).length > 0 && <span style={{ background: C.gold, color: C.darker, borderRadius: 10, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>{messages.filter(m => !m.read).length}</span>}</> : "Nastavení e-mailů"}
             </button>
           ))}
         </div>
         <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif" }}>
-          {section === "requests" ? `${requests.length} žádostí celkem` : "SMTP & šablony"}
+          {section === "requests" ? `${requests.length} žádostí celkem` : section === "messages" ? `${messages.length} zpráv celkem` : "SMTP & šablony"}
         </div>
       </nav>
 
       {/* Email settings section */}
       {section === "emails" && jwt && <EmailSettingsPanel jwt={jwt} />}
+
+      {/* Messages section */}
+      {section === "messages" && (
+        <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 24px" }}>
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 22, fontWeight: "normal", margin: "0 0 6px", color: C.dark }}>Zprávy z webu</h2>
+            <p style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", margin: 0 }}>Zprávy z kontaktního formuláře na ivetaclarke.com.</p>
+          </div>
+          {messagesLoading ? (
+            <div style={{ textAlign: "center", padding: 40, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", fontSize: 13 }}>Načítám…</div>
+          ) : messages.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 60, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", fontSize: 13 }}>Žádné zprávy zatím.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {messages.map(msg => (
+                <div key={msg.id} style={{ background: C.white, border: `1px solid ${msg.read ? C.sand : C.gold}`, borderRadius: 16, padding: 24, boxShadow: msg.read ? "none" : "0 2px 12px rgba(201,168,76,0.1)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 15, color: C.dark, marginBottom: 2 }}>{msg.name}</div>
+                      <a href={`mailto:${msg.email}`} style={{ fontSize: 12, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", textDecoration: "none" }}>{msg.email}</a>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      {!msg.read && <span style={{ fontSize: 9, background: "rgba(201,168,76,0.2)", color: C.gold, padding: "3px 10px", borderRadius: 10, fontFamily: "Trebuchet MS, sans-serif", border: `1px solid rgba(201,168,76,0.3)` }}>NOVÁ</span>}
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
+                        {new Date(msg.created_at).toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit", year: "numeric" })} {new Date(msg.created_at).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 14, color: C.text, lineHeight: 1.7, whiteSpace: "pre-wrap", marginBottom: 16 }}>{msg.message}</div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {!msg.read && (
+                      <button onClick={async () => {
+                        if (!jwt) return;
+                        await fetch("/api/admin/messages", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` }, body: JSON.stringify({ id: msg.id, read: true }) });
+                        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, read: true } : m));
+                      }} style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${C.sand}`, background: "transparent", color: C.muted, fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>
+                        Označit jako přečtené
+                      </button>
+                    )}
+                    <button onClick={async () => {
+                      if (!jwt) return;
+                      await fetch("/api/admin/messages/forward", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` }, body: JSON.stringify({ id: msg.id }) });
+                      alert("Zpráva přeposlána na iveta@ivetaclarke.com");
+                    }} style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${C.gold}`, background: "transparent", color: C.gold, fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>
+                      Přeposlat →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Screening requests section */}
       {section === "requests" && (

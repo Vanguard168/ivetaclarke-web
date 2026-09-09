@@ -7,7 +7,7 @@ export const company = {
   ico: "03786552",
   dic: "CZ03786552",
   phone: "+420 724 001 030",
-  email: "info@ivetaclarke.com",
+  email: "iveta@ivetaclarke.com",
   web: "https://ivetaclarke.com",
 };
 
