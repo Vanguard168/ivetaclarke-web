@@ -2415,12 +2415,25 @@ export default function App() {
 
   useEffect(() => {
     if (window.location.pathname === "/masterclass") {
+      window.scrollTo(0, 0);
       const tryScroll = () => {
         const el = document.getElementById("masterclass");
-        if (el) { el.scrollIntoView({ behavior: "smooth" }); return true; }
-        return false;
+        if (!el) { setTimeout(tryScroll, 200); return; }
+        const targetY = el.getBoundingClientRect().top + window.scrollY;
+        const duration = 3500;
+        const start = performance.now();
+        const step = (now: number) => {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = progress < 0.5
+            ? 4 * progress ** 3
+            : 1 - (-2 * progress + 2) ** 3 / 2;
+          window.scrollTo(0, targetY * ease);
+          if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
       };
-      if (!tryScroll()) setTimeout(tryScroll, 300);
+      setTimeout(tryScroll, 400);
     }
   }, []);
 
