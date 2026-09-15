@@ -2414,6 +2414,16 @@ export default function App() {
   const [authModal, setAuthModal] = useState<{ open: boolean; afterAuth?: () => void }>({ open: false });
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get("_section");
+    if (section) {
+      const el = document.getElementById(section);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      window.history.replaceState(null, "", "/masterclass");
+    }
+  }, []);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) { setUser({ id: session.user.id, email: session.user.email }); loadProfile(session.user.id); }
     });
