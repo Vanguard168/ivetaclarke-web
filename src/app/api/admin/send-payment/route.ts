@@ -19,14 +19,14 @@ const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: num
   "12m":            { price: 7499000, vatRate: 21, priceExVat: 6197521, label: "Roční spolupráce (12 měsíců)" },
   "sup-1x":         { price: 489000,  vatRate: 21, priceExVat: 404132,  label: "Supervize – Ochutnávka" },
   "sup-6x":         { price: 3599000, vatRate: 21, priceExVat: 2974380, label: "Supervizní balíček (6 setkání)" },
-  "ws-base":        { price: 4359000, vatRate: 21, priceExVat: 3602479, label: "Workshop Průvodcem v midlife® – Základní program" },
-  "ws-b1":          { price: 5999000, vatRate: 21, priceExVat: 4957851, label: "Workshop + Bonus 1 (Kultivace moudrosti)" },
-  "ws-b2":          { price: 5099000, vatRate: 21, priceExVat: 4214050, label: "Workshop + Bonus 2 (Supervize)" },
-  "ws-full":        { price: 6699000, vatRate: 21, priceExVat: 5536364, label: "Workshop – Plný program (oba bonusy)" },
-  "ws-base-eb":     { price: 3705000, vatRate: 21, priceExVat: 3062500, label: "Workshop Základní program – Early bird" },
-  "ws-b1-eb":       { price: 5099000, vatRate: 21, priceExVat: 4214050, label: "Workshop + Bonus 1 – Early bird" },
-  "ws-b2-eb":       { price: 4334000, vatRate: 21, priceExVat: 3581818, label: "Workshop + Bonus 2 – Early bird" },
-  "ws-full-eb":     { price: 5694000, vatRate: 21, priceExVat: 4706612, label: "Workshop Plný program – Early bird" },
+  "ws-base":        { price: 3299000, vatRate: 21, priceExVat: 2726446, label: "Masterclass Průvodcem v midlife® – Základní program" },
+  "ws-b1":          { price: 4499000, vatRate: 21, priceExVat: 3717355, label: "Masterclass + Bonus 1 (Kultivace moudrosti)" },
+  "ws-b2":          { price: 3899000, vatRate: 21, priceExVat: 3222314, label: "Masterclass + Bonus 2 (Supervize)" },
+  "ws-full":        { price: 4849000, vatRate: 21, priceExVat: 4007438, label: "Masterclass – Plný program (oba bonusy)" },
+  "ws-base-eb":     { price: 2799900, vatRate: 21, priceExVat: 2314793, label: "Masterclass Základní program – Early bird" },
+  "ws-b1-eb":       { price: 3799900, vatRate: 21, priceExVat: 3140413, label: "Masterclass + Bonus 1 – Early bird" },
+  "ws-b2-eb":       { price: 3299900, vatRate: 21, priceExVat: 2727190, label: "Masterclass + Bonus 2 – Early bird" },
+  "ws-full-eb":     { price: 4099900, vatRate: 21, priceExVat: 3388347, label: "Masterclass Plný program – Early bird" },
 };
 
 async function verifyAdmin(req: NextRequest) {
