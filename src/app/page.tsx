@@ -2437,8 +2437,8 @@ export default function App() {
 
   // Smooth scroll-based nav color interpolation
   useEffect(() => {
-    const darkSet = new Set(["hero", "vycvik", "podcast"]);
-    const sections = ["hero", "o-mne", "konzultace", "supervize", "vycvik", "pro-bono", "videa", "podcast", "kontakt"];
+    const darkSet = new Set(["hero", "masterclass", "podcast"]);
+    const sections = ["hero", "o-mne", "konzultace", "supervize", "masterclass", "pro-bono", "videa", "podcast", "kontakt"];
 
     const BLEND = 120; // px blend zone around section boundary
     const NAV_H = 58;
@@ -2492,7 +2492,7 @@ export default function App() {
   const hamburgerColor = navLogoColor;
 
   const scrollTo = (id: string) => {
-    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "kurzy": "kurzy", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "vycvik", "masterclass": "vycvik", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
+    const map: Record<string, string> = { "o mně": "o-mne", "konzultace": "konzultace", "kurzy": "kurzy", "pro veřejnost": "konzultace", "supervize": "supervize", "výcvik": "masterclass", "masterclass": "masterclass", "pro kouče": "supervize", "pro bono": "pro-bono", "videa": "videa", "podcast": "podcast", "kontakt": "kontakt" };
     const el = document.getElementById(map[id.toLowerCase()] || id.toLowerCase().replace(/\s/g, "-").replace(/[^\w-]/g, ""));
     el?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
@@ -3220,7 +3220,7 @@ export default function App() {
       </section>
 
       {/* ── VÝCVIK ───────────────────────────────────────────────────────── */}
-      <section id="vycvik" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.dark }}>
+      <section id="masterclass" style={{ padding: isMobile ? "64px 24px" : `80px ${px}`, background: C.dark }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
             <SectionLabel>PRO KOUČE</SectionLabel>

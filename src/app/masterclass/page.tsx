@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 export default function MasterclassRedirect() {
   useEffect(() => {
-    window.location.replace("/#vycvik");
+    window.location.replace("/#masterclass");
   }, []);
   return null;
 }
