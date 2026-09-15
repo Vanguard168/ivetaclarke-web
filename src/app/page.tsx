@@ -111,8 +111,8 @@ const youtubeVideos = [
   { id: "Qu2mKbF3zDw", title: "Iveta Clarke | Nevzdávejte to" },
   { id: "0Gq_aJLfjPs", title: "Podcast Evolucionáři: Iveta Clarke" },
   { id: "kNZncv6sAiM", title: "Stýská se mi po krásných staromódních slovech" },
-  { id: "yr0KNBWPypg", title: "" },
-  { id: "KUk7pPCkGM4", title: "" },
+  { id: "yr0KNBWPypg", title: "Iveta Clarke - Druhý poločas" },
+  { id: "KUk7pPCkGM4", title: "Strach nelze odstranit, pouze transformovat" },
 ];
 
 const videoSeries = [
