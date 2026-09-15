@@ -2414,12 +2414,13 @@ export default function App() {
   const [authModal, setAuthModal] = useState<{ open: boolean; afterAuth?: () => void }>({ open: false });
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get("_section");
-    if (section) {
-      const el = document.getElementById(section);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-      window.history.replaceState(null, "", "/masterclass");
+    if (window.location.pathname === "/masterclass") {
+      const tryScroll = () => {
+        const el = document.getElementById("masterclass");
+        if (el) { el.scrollIntoView({ behavior: "smooth" }); return true; }
+        return false;
+      };
+      if (!tryScroll()) setTimeout(tryScroll, 300);
     }
   }, []);
 

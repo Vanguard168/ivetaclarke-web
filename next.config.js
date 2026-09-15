@@ -2,7 +2,7 @@
 const nextConfig = {
   async rewrites() {
     return [
-      { source: "/masterclass", destination: "/?_section=masterclass" },
+      { source: "/masterclass", destination: "/" },
     ];
   },
 };
