@@ -4,8 +4,8 @@ import { useState } from "react";
 const links = [
   {
     href: "https://ivetaclarke.com",
-    label: "Web",
-    description: "ivetaclarke.com",
+    label: "ivetaclarke.com",
+    description: "Chcete se o mě dozvědět více? Prozkoumejte můj nový web.",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -16,8 +16,8 @@ const links = [
   },
   {
     href: "https://ivetaclarke.com/masterclass",
-    label: "Masterclass",
-    description: "Průvodcem v midlife®",
+    label: "Masterclass pro kouče – Průvodcem v midlife®",
+    description: "Early bird sleva pouze do 13. 10. 2026",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -26,8 +26,8 @@ const links = [
   },
   {
     href: "https://www.youtube.com/@ivetaclarke",
-    label: "Podcast na YouTube",
-    description: "Každopádně k ladně",
+    label: "Zámyslník 2.0 – Moudrost je",
+    description: "Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
         <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
