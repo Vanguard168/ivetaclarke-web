@@ -1537,53 +1537,13 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   profile?: Profile | null;
   onClose: () => void;
 }) {
-  const isLoggedIn = !!user;
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // Registration fields (non-logged-in users)
-  const [firstName, setFirstName] = useState(profile?.first_name || "");
-  const [lastName, setLastName]   = useState(profile?.last_name  || "");
-  const [email, setEmail]         = useState(user?.email || "");
-  const [emailConfirm, setEmailConfirm] = useState("");
-  const [password, setPassword]   = useState("");
-  const [phone, setPhone]         = useState(profile?.phone  || "");
-  const [street, setStreet]       = useState(profile?.street || "");
-  const [city, setCity]           = useState(profile?.city   || "");
-  const [zip, setZip]             = useState(profile?.zip    || "");
-  const [company, setCompany]     = useState(profile?.company || "");
-  const [ico, setIco]             = useState(profile?.ico    || "");
-
-  // Billing toggle for logged-in users
-  const profileForm = {
-    firstName: profile?.first_name || "", lastName: profile?.last_name || "",
-    phone: profile?.phone || "", street: profile?.street || "",
-    city: profile?.city || "", zip: profile?.zip || "",
-    company: profile?.company || "", ico: profile?.ico || "",
-  };
-  const [useSameAddress, setUseSameAddress] = useState(true);
-
-  // Preferred product (pre-filled from clicked package, editable)
+  const [done, setDone] = useState(false);
   const [preferredProduct, setPreferredProduct] = useState(pkg.id);
-
-  // 3 questions
   const [q1, setQ1] = useState("");
   const [q2, setQ2] = useState("");
   const [q3, setQ3] = useState("");
-
-  // Billing override for invoice (different person / company)
-  const [billingForm, setBillingForm] = useState({ firstName: "", lastName: "", company: "", ico: "", street: "", city: "", zip: "" });
-  const setBF = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => setBillingForm(f => ({ ...f, [field]: e.target.value }));
-
-  // Payment
-  const [payMethodIdx, setPayMethodIdx] = useState(0);
-  const payMethods: { id: string; label: string; sub: string; icon: React.ReactNode }[] = [
-    { id: "APPLEPAY_REDIRECT", label: "Platba kartou", sub: "Mastercard, Visa, Apple Pay, Google Pay", icon: <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="0.5" y="0.5" width="21" height="15" rx="2.5" stroke="currentColor" strokeOpacity="0.4"/><rect y="4" width="22" height="3" fill="currentColor" fillOpacity="0.25"/><rect x="2" y="10" width="5" height="2" rx="1" fill="currentColor" fillOpacity="0.5"/></svg> },
-    { id: "ALL", label: "QR platba", sub: "Okamžité potvrzení platby", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg> },
-    { id: "ALL", label: "Bankovní převod", sub: "Okamžité potvrzení platby", icon: <svg width="22" height="20" viewBox="0 0 24 22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="2" fill="currentColor" stroke="none" rx="1"/><line x1="4" y1="11" x2="4" y2="18"/><line x1="8" y1="11" x2="8" y2="18"/><line x1="12" y1="11" x2="12" y2="18"/><line x1="16" y1="11" x2="16" y2="18"/><line x1="20" y1="11" x2="20" y2="18"/><rect x="2" y="18" width="20" height="2" fill="currentColor" stroke="none" rx="1"/></svg> },
-    { id: "ALL", label: "Odložená platba", sub: "Twisto, Skip Pay, splátky", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> },
-  ];
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -1605,151 +1565,65 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const focus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.gold);
   const blur  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.sand);
 
-  const validateStep1 = () => {
-    if (!preferredProduct) { setError("Vyberte prosím formu spolupráce."); return false; }
-    if (!q1 || !q2 || !q3) { setError("Vyplňte prosím všechny otázky."); return false; }
-    if (!isLoggedIn) {
-      if (!firstName || !lastName || !email || !phone || !street || !city || !zip) {
-        setError("Vyplňte prosím všechna povinná pole."); return false;
-      }
-      if (email !== emailConfirm) { setError("E-mailové adresy se neshodují."); return false; }
-      if (password.length < 6) { setError("Heslo musí mít alespoň 6 znaků."); return false; }
+  const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user?.email || "";
+  const userEmail = user?.email || "";
+  const phone = profile?.phone || "";
+
+  const handleSubmit = async () => {
+    if (!preferredProduct || !q1 || !q2 || !q3) {
+      setError("Vyplňte prosím všechna pole."); return;
     }
-    setError(""); return true;
-  };
-
-  const handlePay = async () => {
-    setLoading(true); setError("");
-    const session = await supabase.auth.getSession();
-    const token = session.data.session?.access_token;
-
-    // Registration data always goes to profile
-    const regData = isLoggedIn
-      ? { firstName: profileForm.firstName, lastName: profileForm.lastName, phone: profileForm.phone, street: profileForm.street, city: profileForm.city, zip: profileForm.zip, company: profileForm.company, ico: profileForm.ico }
-      : { firstName, lastName, phone, street, city, zip, company, ico };
-
-    // Invoice billing — null means use registration data, object means use custom
-    const invoiceBilling = useSameAddress ? null : billingForm;
-
-    const res = await fetch("/api/packages/purchase", {
+    setError(""); setLoading(true);
+    const selectedLabel = SCREENING_PRODUCTS.find(p => p.id === preferredProduct)?.label ?? pkg.title;
+    const res = await fetch("/api/screening/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        packageId: preferredProduct,
-        ...(isLoggedIn ? {} : { password }),
-        email: isLoggedIn ? user!.email : email,
-        ...regData,
-        billing: invoiceBilling,
+        userId: user?.id, userEmail, userName, phone,
+        screeningType: "consultation",
         whyInterested: q1, previousExperience: q2, goals: q3,
-        payMethod: payMethods[payMethodIdx].id,
-        ...(token ? { userToken: token } : {}),
+        preferredProduct, preferredProductLabel: selectedLabel,
       }),
     });
     const data = await res.json();
     setLoading(false);
-    if (data.error) { setError(data.error); return; }
-    if (data.session) await supabase.auth.setSession(data.session);
-    if (data.redirect) window.location.href = data.redirect;
+    if (data.ok) { setDone(true); return; }
+    setError(data.error ?? "Nastala chyba. Zkuste to prosím znovu.");
   };
-
-  const totalSteps = 2;
 
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 650, background: "rgba(18,15,30,0.85)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
       <div onClick={e => e.stopPropagation()} style={{ background: C.cream, borderRadius: 24, maxWidth: 560, width: "100%", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.4)", position: "relative" }}>
         <div style={{ height: 4, background: `linear-gradient(to right, ${C.gold}, ${C.goldLight})`, borderRadius: "24px 24px 0 0" }} />
         <div style={{ padding: "28px 32px 36px" }}>
-
-          {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
             <div>
-              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 6 }}>
-                KROK {step} / {totalSteps} — {step === 1 ? "REGISTRACE & OTÁZKY" : "PLATBA"}
-              </div>
-              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: "0 0 2px" }}>
-                {step === 1 ? pkg.title : "Vstupní konzultace"}
-              </h3>
-              <div style={{ fontSize: 13, color: C.gold, fontStyle: "italic" }}>
-                {step === 1 ? pkg.tagline : "Online setkání 45 minut s Ivetou Clarke"}
-              </div>
+              <div style={{ fontSize: 10, color: C.gold, letterSpacing: "0.25em", fontFamily: "Trebuchet MS, sans-serif", marginBottom: 6 }}>DOTAZNÍK</div>
+              <h3 style={{ fontSize: 20, fontWeight: "normal", color: C.dark, margin: "0 0 2px" }}>{pkg.title}</h3>
+              <div style={{ fontSize: 13, color: C.gold, fontStyle: "italic" }}>{pkg.tagline}</div>
             </div>
             <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 22, lineHeight: 1, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
 
-          {/* ── STEP 1: Registration + Questions ── */}
-          {step === 1 && (
+          {done ? (
+            <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(201,168,76,0.12)", border: `2px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h4 style={{ fontSize: 18, fontWeight: "normal", color: C.dark, margin: "0 0 10px" }}>Registrace proběhla úspěšně</h4>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 28px" }}>
+                Zaslali jsme vám e-mail s odkazem pro rezervaci termínu.<br />Vyberte si čas, který vám vyhovuje.
+              </p>
+              <a href="https://calendly.com/iveta-clarke/individual-session" target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-block", padding: "14px 32px", borderRadius: 32, background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", textDecoration: "none" }}>
+                REZERVOVAT TERMÍN →
+              </a>
+              <div style={{ marginTop: 20 }}>
+                <button onClick={onClose} style={{ background: "none", border: "none", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer", textDecoration: "underline" }}>Zavřít</button>
+              </div>
+            </div>
+          ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-              {/* Registration (only for non-logged-in) */}
-              {!isLoggedIn && (
-                <>
-                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", marginBottom: 4, borderBottom: `1px solid ${C.sand}`, paddingBottom: 8 }}>REGISTRAČNÍ ÚDAJE</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <div><Label>JMÉNO *</Label><input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jana" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                    <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  </div>
-                  <div><Label>E-MAIL *</Label><input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  <div><Label>POTVRDIT E-MAIL *</Label><input value={emailConfirm} onChange={e => setEmailConfirm(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  <div><Label>HESLO *</Label><input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="min. 6 znaků" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>FAKTURAČNÍ ADRESA</div>
-                  <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
-                    <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                    <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12 }}>
-                    <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={company} onChange={e => setCompany(e.target.value)} placeholder="Název firmy" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                    <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={ico} onChange={e => setIco(e.target.value)} placeholder="12345678" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  </div>
-                </>
-              )}
-
-              {/* Billing toggle for logged-in */}
-              {isLoggedIn && (
-                <div>
-                  <Label>FAKTURAČNÍ ÚDAJE</Label>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <button type="button" onClick={() => setUseSameAddress(true)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left" }}>
-                      <div style={{ width: 16, height: 16, borderRadius: "50%", border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {useSameAddress && <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.white }} />}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark }}>Stejné jako registrační</div>
-                        <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>
-                          {[profileForm.firstName, profileForm.lastName].filter(Boolean).join(" ")} · {profileForm.phone || "—"} · {[profileForm.street, profileForm.city].filter(Boolean).join(", ") || "adresa nevyplněna"}
-                        </div>
-                      </div>
-                    </button>
-                    <button type="button" onClick={() => setUseSameAddress(false)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left" }}>
-                      <div style={{ width: 16, height: 16, borderRadius: "50%", border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {!useSameAddress && <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.white }} />}
-                      </div>
-                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: !useSameAddress ? C.gold : C.dark }}>Zadat jiné fakturační údaje</div>
-                    </button>
-                  </div>
-                  {!useSameAddress && (
-                    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <div><Label>JMÉNO *</Label><input value={firstName} onChange={e => setFirstName(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                        <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      </div>
-                      <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
-                        <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                        <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 12 }}>
-                        <div><Label>FIRMA <span style={{ opacity: 0.6 }}>(nepovinné)</span></Label><input value={company} onChange={e => setCompany(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                        <div><Label>IČO <span style={{ opacity: 0.6 }}>(nepovinné)</span></Label><input value={ico} onChange={e => setIco(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Preferred product */}
               <div>
                 <Label>O JAKOU FORMU SPOLUPRÁCE MÁTE ZÁJEM? *</Label>
                 <select value={preferredProduct} onChange={e => setPreferredProduct(e.target.value)} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1px solid ${C.sand}`, background: C.cream, fontSize: 14, fontFamily: "Georgia, serif", color: C.text, outline: "none", boxSizing: "border-box" as const, height: 44 }}>
@@ -1757,147 +1631,14 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                   {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
               </div>
-
-              {/* 3 Questions */}
               <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>OTÁZKY PRO IVETU</div>
               <div><Label>PROČ VÁS ZAJÍMÁ SPOLUPRÁCE S IVETOU? *</Label><textarea rows={3} value={q1} onChange={e => setQ1(e.target.value)} placeholder="Popište svou motivaci..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
               <div><Label>JAKÉ FORMY OSOBNÍHO ROZVOJE JSTE DOSUD ABSOLVOVAL/A? *</Label><textarea rows={3} value={q2} onChange={e => setQ2(e.target.value)} placeholder="Např. koučink, terapie, kurzy, workshopy…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
               <div><Label>CO CHCETE V ŽIVOTĚ ZMĚNIT NEBO POSUNOUT? *</Label><textarea rows={3} value={q3} onChange={e => setQ3(e.target.value)} placeholder="Popište situaci nebo téma…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
-
               {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
-
-              <button onClick={() => { if (validateStep1()) setStep(2); }} style={{ marginTop: 8, width: "100%", padding: "15px 24px", borderRadius: 32, background: C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: "pointer" }}>
-                POKRAČOVAT K PLATBĚ →
+              <button onClick={handleSubmit} disabled={loading} style={{ marginTop: 8, width: "100%", padding: "15px 24px", borderRadius: 32, background: loading ? C.sand : C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "not-allowed" : "pointer" }}>
+                {loading ? "Odesílání…" : "ODESLAT REGISTRACI"}
               </button>
-            </div>
-          )}
-
-          {/* ── STEP 2: Payment ── */}
-          {step === 2 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* Description */}
-              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: "0 0 4px" }}>
-                Uhradíte <strong style={{ color: C.dark }}>2 999 Kč</strong> za vstupní konzultaci s Ivetou. Po upřesnění vhodné formy spolupráce se vám tato částka odečte z ceny vybraného balíčku. Ceny jednotlivých balíčků probereme v rámci konzultace.
-              </p>
-
-              {/* Order summary */}
-              <div style={{ background: C.warm, borderRadius: 12, padding: "14px 18px", border: `1px solid ${C.sand}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontSize: 13, color: C.text }}>Vstupní konzultace s Ivetou Clarke</div>
-                  <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>Online setkání 45 minut · vč. DPH / 2 479 Kč bez DPH</div>
-                </div>
-                <div style={{ fontSize: 22, color: C.dark, fontFamily: "Georgia, serif" }}>2 999 Kč</div>
-              </div>
-
-              {/* Billing tiles */}
-              <div>
-                <Label>FAKTURAČNÍ ÚDAJE</Label>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {/* Tile 1 — registration data */}
-                  <button type="button" onClick={() => setUseSameAddress(true)} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s", width: "100%" }}>
-                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${useSameAddress ? C.gold : C.sand}`, background: useSameAddress ? C.gold : "transparent", flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: useSameAddress ? C.gold : C.dark, marginBottom: 6 }}>Fakturační údaje z registrace</div>
-                      <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.7 }}>
-                        {(() => {
-                          const fn = isLoggedIn && useSameAddress ? profileForm.firstName : firstName;
-                          const ln = isLoggedIn && useSameAddress ? profileForm.lastName : lastName;
-                          const em = isLoggedIn ? (user?.email ?? "") : email;
-                          const ph = isLoggedIn && useSameAddress ? profileForm.phone : phone;
-                          const st = isLoggedIn && useSameAddress ? profileForm.street : street;
-                          const ci = isLoggedIn && useSameAddress ? profileForm.city : city;
-                          const zp = isLoggedIn && useSameAddress ? profileForm.zip : zip;
-                          const co = isLoggedIn && useSameAddress ? profileForm.company : company;
-                          const ic = isLoggedIn && useSameAddress ? profileForm.ico : ico;
-                          const name = [fn, ln].filter(Boolean).join(" ");
-                          const addr = [st, [ci, zp].filter(Boolean).join(" ")].filter(Boolean).join(", ");
-                          return (
-                            <>
-                              <span style={{ color: C.text }}>{name || "—"}</span><br />
-                              {em}<br />
-                              {ph && <>{ph}<br /></>}
-                              {addr || <span style={{ fontStyle: "italic" }}>Adresa nevyplněna</span>}
-                              {co && <><br />{co}{ic ? ` · IČO: ${ic}` : ""}</>}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Tile 2 — custom billing (expands inline) */}
-                  <button type="button" onClick={() => setUseSameAddress(false)}
-                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 12, border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? "rgba(201,168,76,0.06)" : C.cream, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
-                    onMouseEnter={e => { if (useSameAddress) (e.currentTarget as HTMLElement).style.borderColor = C.muted; }}
-                    onMouseLeave={e => { if (useSameAddress) (e.currentTarget as HTMLElement).style.borderColor = C.sand; }}
-                  >
-                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${!useSameAddress ? C.gold : C.sand}`, background: !useSameAddress ? C.gold : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {!useSameAddress && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.white }} />}
-                    </div>
-                    <div style={{ fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: !useSameAddress ? C.gold : C.dark }}>Zadat jiné fakturační údaje</div>
-                  </button>
-
-                  {/* Expanded billing form */}
-                  {!useSameAddress && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "16px", borderRadius: 12, border: `1px solid ${C.sand}`, background: C.cream }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <div><Label>JMÉNO *</Label><input value={billingForm.firstName} onChange={setBF("firstName")} placeholder="Jana" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                        <div><Label>PŘÍJMENÍ *</Label><input value={billingForm.lastName} onChange={setBF("lastName")} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      </div>
-                      <div><Label>ULICE A ČÍSLO *</Label><input value={billingForm.street} onChange={setBF("street")} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
-                        <div><Label>MĚSTO *</Label><input value={billingForm.city} onChange={setBF("city")} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                        <div><Label>PSČ *</Label><input value={billingForm.zip} onChange={setBF("zip")} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 130px", gap: 12 }}>
-                        <div><Label>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={billingForm.company} onChange={setBF("company")} placeholder="Název firmy" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                        <div><Label>IČO <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={billingForm.ico} onChange={setBF("ico")} placeholder="12345678" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Payment method — 2×2 tiles with icons */}
-              <div>
-                <Label>ZPŮSOB PLATBY</Label>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
-                  {payMethods.map((m, idx) => {
-                    const active = payMethodIdx === idx;
-                    return (
-                      <button key={idx} type="button" onClick={() => setPayMethodIdx(idx)}
-                        style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, cursor: "pointer", textAlign: "left", border: `2px solid ${active ? C.gold : C.sand}`, background: active ? "rgba(201,168,76,0.08)" : C.cream, transition: "all 0.18s" }}
-                        onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.borderColor = C.muted; }}
-                        onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.borderColor = C.sand; }}
-                      >
-                        <span style={{ color: active ? C.gold : C.muted, flexShrink: 0 }}>{m.icon}</span>
-                        <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                          <span style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.03em", fontWeight: "bold", color: active ? C.gold : C.dark }}>{m.label}</span>
-                          <span style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{m.sub}</span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
-
-              <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => { setStep(1); setError(""); }} style={{ padding: "15px 20px", borderRadius: 12, background: "none", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>← Zpět</button>
-                <button onClick={handlePay} disabled={loading}
-                  style={{ flex: 1, padding: "15px 0", borderRadius: 12, background: loading ? C.sand : `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, border: "none", color: C.darker, fontSize: 14, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.08em", cursor: loading ? "not-allowed" : "pointer", transition: "opacity 0.2s" }}
-                  onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.opacity = "0.88"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
-                >
-                  {loading ? "Přesměrování na platební bránu…" : "ZAPLATIT 2 999 Kč"}
-                </button>
-              </div>
-              <p style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textAlign: "center", lineHeight: 1.6 }}>
-                Platba je zpracována bezpečně přes ComGate.<br />Po zaplacení obdržíte e-mailem potvrzení a fakturu.
-              </p>
             </div>
           )}
         </div>
@@ -2612,23 +2353,35 @@ export default function App() {
               REZERVOVAT KONZULTACI
             </button>
             {user ? (
-              <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
-                <a href="/muj-ucet" onClick={() => setMenuOpen(false)} style={{
-                  flex: 1, padding: "14px 0", textAlign: "center",
-                  border: `1px solid ${C.gold}`, borderRadius: 8,
-                  color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
-                  textDecoration: "none", display: "block",
-                }}>
-                  {profile?.first_name ? `${profile.first_name} · Můj účet` : "Můj účet"}
-                </a>
-                <button onClick={() => { supabase.auth.signOut(); setMenuOpen(false); }} style={{
-                  padding: "14px 16px", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8,
-                  background: "none", color: "rgba(255,255,255,0.45)", fontSize: 13,
-                  fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer",
-                }}>
-                  Odhlásit
-                </button>
-              </div>
+              <>
+                <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
+                  <a href="/muj-ucet" onClick={() => setMenuOpen(false)} style={{
+                    flex: 1, padding: "14px 0", textAlign: "center",
+                    border: `1px solid ${C.gold}`, borderRadius: 8,
+                    color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif",
+                    textDecoration: "none", display: "block",
+                  }}>
+                    {profile?.first_name ? `${profile.first_name} · Můj účet` : "Můj účet"}
+                  </a>
+                  <button onClick={() => { supabase.auth.signOut(); setMenuOpen(false); }} style={{
+                    padding: "14px 16px", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8,
+                    background: "none", color: "rgba(255,255,255,0.45)", fontSize: 13,
+                    fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer",
+                  }}>
+                    Odhlásit
+                  </button>
+                </div>
+                {profile?.role === "admin" && (
+                  <a href="/admin" onClick={() => setMenuOpen(false)} style={{
+                    marginTop: 10, display: "block", width: "100%", padding: "12px 0", textAlign: "center",
+                    border: `1px solid rgba(201,168,76,0.4)`, borderRadius: 8,
+                    color: "rgba(201,168,76,0.7)", fontSize: 12, fontFamily: "Trebuchet MS, sans-serif",
+                    textDecoration: "none", letterSpacing: "0.1em",
+                  }}>
+                    ADMIN PANEL
+                  </a>
+                )}
+              </>
             ) : (
               <button onClick={() => { setMenuOpen(false); setAuthModal({ open: true }); }} style={{
                 width: "100%", marginTop: 12, padding: "14px 0",

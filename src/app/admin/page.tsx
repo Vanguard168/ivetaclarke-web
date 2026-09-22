@@ -577,6 +577,13 @@ export default function AdminPage() {
   const [section, setSection] = useState<"requests" | "emails" | "messages">("requests");
   const [messages, setMessages] = useState<{ id: string; name: string; email: string; message: string; created_at: string; read: boolean }[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -802,8 +809,8 @@ export default function AdminPage() {
       {/* Screening requests section */}
       {section === "requests" && (
         <div style={{ display: "flex", maxWidth: 1300, margin: "0 auto", minHeight: "calc(100vh - 54px)" }}>
-          {/* Left: list */}
-          <div style={{ width: selected ? 380 : "100%", flexShrink: 0, borderRight: selected ? `1px solid ${C.sand}` : "none", padding: "24px 20px" }}>
+          {/* Left: list — hidden on mobile when detail is open */}
+          <div style={{ width: isMobile ? "100%" : (selected ? 380 : "100%"), flexShrink: 0, borderRight: !isMobile && selected ? `1px solid ${C.sand}` : "none", padding: "24px 20px", display: isMobile && selected ? "none" : "block" }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
               {[
                 { key: "all", label: "Vše" },
@@ -862,13 +869,32 @@ export default function AdminPage() {
 
           {/* Right: detail */}
           {selected && (
-            <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-                <div>
-                  <h2 style={{ fontSize: 22, fontWeight: "normal", margin: "0 0 4px" }}>{selected.user_name}</h2>
-                  <div style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{selected.user_email} · {selected.phone ?? "—"}</div>
+            <div style={{ flex: 1, padding: isMobile ? "16px" : "28px 32px", overflowY: "auto", width: isMobile ? "100%" : undefined }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {isMobile && (
+                    <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", color: C.gold, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", padding: "0 0 10px", display: "flex", alignItems: "center", gap: 4 }}>
+                      ← Zpět na seznam
+                    </button>
+                  )}
+                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: "normal", margin: "0 0 4px", wordBreak: "break-word" }}>{selected.user_name}</h2>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", wordBreak: "break-all" }}>
+                    {selected.user_email}
+                    {selected.phone && (
+                      <>
+                        {" · "}
+                        {isMobile
+                          ? <a href={`tel:${selected.phone}`} style={{ color: C.gold, textDecoration: "none" }}>{selected.phone}</a>
+                          : selected.phone
+                        }
+                      </>
+                    )}
+                    {!selected.phone && " · —"}
+                  </div>
                 </div>
-                <button onClick={() => setSelected(null)} style={{ background: "none", border: `1px solid ${C.sand}`, borderRadius: 20, padding: "5px 12px", fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", color: C.muted, cursor: "pointer" }}>Zavřít</button>
+                {!isMobile && (
+                  <button onClick={() => setSelected(null)} style={{ background: "none", border: `1px solid ${C.sand}`, borderRadius: 20, padding: "5px 12px", fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", color: C.muted, cursor: "pointer", flexShrink: 0, marginLeft: 12 }}>Zavřít</button>
+                )}
               </div>
 
               {(() => {
