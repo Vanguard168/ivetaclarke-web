@@ -1544,6 +1544,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const [q1, setQ1] = useState("");
   const [q2, setQ2] = useState("");
   const [q3, setQ3] = useState("");
+  const [howFound, setHowFound] = useState("");
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -1635,13 +1636,24 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
               <div style={{ background: "rgba(201,168,76,0.07)", border: `1px solid rgba(201,168,76,0.3)`, borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
                 <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>✦</span>
                 <div style={{ fontSize: 13, color: C.text, lineHeight: 1.75, fontFamily: "Georgia, serif" }}>
-                  Po odeslání registrace vám na e-mail přijde odkaz pro výběr termínu <strong>vstupní konzultace (30 min)</strong> s Ivetou. Společně proberete vaši situaci a možnosti spolupráce — bez závazků.
+                  Po registraci vám na e-mail přijde odkaz pro výběr termínu <strong>vstupní konzultace (30 min)</strong>. Společně probereme vaši situaci a možnosti vhodné formy spolupráce.
                 </div>
               </div>
               <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>OTÁZKY PRO IVETU</div>
               <div><Label>PROČ VÁS ZAJÍMÁ SPOLUPRÁCE S IVETOU? *</Label><textarea rows={3} value={q1} onChange={e => setQ1(e.target.value)} placeholder="Popište svou motivaci..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
               <div><Label>JAKÉ FORMY OSOBNÍHO ROZVOJE JSTE DOSUD ABSOLVOVAL/A? *</Label><textarea rows={3} value={q2} onChange={e => setQ2(e.target.value)} placeholder="Např. koučink, terapie, kurzy, workshopy…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
               <div><Label>CO CHCETE V ŽIVOTĚ ZMĚNIT NEBO POSUNOUT? *</Label><textarea rows={3} value={q3} onChange={e => setQ3(e.target.value)} placeholder="Popište situaci nebo téma…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
+              <div>
+                <Label>JAK JSTE SE O MNĚ DOZVĚDĚL/A?</Label>
+                <select value={howFound} onChange={e => setHowFound(e.target.value)} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1px solid ${C.sand}`, background: C.cream, fontSize: 14, fontFamily: "Georgia, serif", color: howFound ? C.text : C.muted, outline: "none", boxSizing: "border-box" as const, height: 44 }}>
+                  <option value="">— zvolte —</option>
+                  <option value="social">Sociální sítě</option>
+                  <option value="youtube">YouTube / podcast</option>
+                  <option value="google">Google nebo jiné vyhledávání</option>
+                  <option value="recommendation">Doporučení</option>
+                  <option value="other">Jiné</option>
+                </select>
+              </div>
               {error && <div style={{ padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{error}</div>}
               <button onClick={handleSubmit} disabled={loading} style={{ marginTop: 8, width: "100%", padding: "15px 24px", borderRadius: 32, background: loading ? C.sand : C.gold, border: "none", color: C.darker, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", letterSpacing: "0.1em", cursor: loading ? "not-allowed" : "pointer" }}>
                 {loading ? "Odesílání…" : "ODESLAT REGISTRACI"}
