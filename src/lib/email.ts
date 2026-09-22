@@ -189,6 +189,63 @@ export async function sendScreeningEmail(customerName: string, customerEmail: st
   await transporter.sendMail({ from, to: customerEmail, subject, text, html });
 }
 
+export async function sendConsultationEmail(customerName: string, customerEmail: string) {
+  const db = createServerClient();
+  const { data } = await db
+    .from("email_settings")
+    .select("consultation_subject, consultation_body, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_secure, from_name, from_email, primary_color, logo_url, header_text, footer_text, bg_tint")
+    .eq("id", "default")
+    .single();
+
+  if (!data?.smtp_host || !data?.smtp_user || !data?.smtp_pass) return;
+
+  const color = data.primary_color || "#C9A84C";
+  const bodyTemplate = data.consultation_body || `Dobrý den, {customerName},\n\nděkujeme za váš zájem o spolupráci. Zarezervujte si termín úvodního setkání prostřednictvím odkazu níže.\n\nTěšíme se na setkání s vámi.`;
+  const subject = (data.consultation_subject || "Rezervace termínu — Iveta Clarke").replace(/{customerName}/g, customerName);
+  const text = bodyTemplate.replace(/{customerName}/g, customerName);
+
+  const bgColor = data.bg_tint ? tintColor(color, 0.92) : "#f5f5f5";
+  const cardBg = data.bg_tint ? tintColor(color, 0.97) : "#ffffff";
+  const tableBorder = data.bg_tint ? tintColor(color, 0.80) : "#e5e7eb";
+  const footerBg = data.bg_tint ? tintColor(color, 0.90) : "#f9fafb";
+  const footer = data.footer_text || "Tato zpráva byla vygenerována automaticky.";
+  const header = data.header_text || "Iveta Clarke";
+  const logoSection = data.logo_url
+    ? `<img src="${data.logo_url}" alt="${header}" style="max-height:48px;max-width:240px;object-fit:contain;">`
+    : `<span style="color:#fff;font-size:20px;font-weight:700;">${header}</span>`;
+  const bodyHtml = text.replace(/\n/g, "<br>");
+  const calendlyUrl = CALENDLY_URL;
+
+  const html = `<!DOCTYPE html>
+<html lang="cs">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="font-family:Arial,sans-serif;background:${bgColor};margin:0;padding:20px;">
+  <div style="max-width:560px;margin:0 auto;background:${cardBg};border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+    <div style="background:${color};padding:20px 28px;">${logoSection}</div>
+    <div style="padding:28px;">
+      <div style="margin:0 0 24px;color:#374151;font-size:13px;line-height:1.8;">${bodyHtml}</div>
+      <div style="text-align:center;margin-bottom:20px;">
+        <a href="${calendlyUrl}" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;font-size:14px;">Rezervovat termín →</a>
+      </div>
+    </div>
+    <div style="background:${footerBg};border-top:1px solid ${tableBorder};padding:14px 28px;text-align:center;">
+      <p style="margin:0;color:#9ca3af;font-size:11px;">${footer}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const transporter = nodemailer.createTransport({
+    host: data.smtp_host,
+    port: Number(data.smtp_port) || 587,
+    secure: !!data.smtp_secure,
+    auth: { user: data.smtp_user, pass: data.smtp_pass },
+  });
+
+  const from = `"${data.from_name || "Iveta Clarke"}" <${data.from_email || data.smtp_user}>`;
+  await transporter.sendMail({ from, to: customerEmail, subject, text: text + `\n\nRezerujte si termín: ${calendlyUrl}`, html });
+}
+
 export async function sendRegistrationEmail(customerName: string, customerEmail: string) {
   const db = createServerClient();
   const { data } = await db

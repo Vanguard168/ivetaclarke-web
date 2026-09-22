@@ -54,6 +54,7 @@ type EmailSettings = {
   registrationSubject: string; registrationBody: string;
   screeningSubject: string; screeningBody: string;
   paymentSubject: string; paymentBody: string;
+  consultationSubject: string; consultationBody: string;
   autoSend: boolean;
   primaryColor: string; logoUrl: string; headerText: string; footerText: string; bgTint: boolean;
 };
@@ -74,6 +75,17 @@ Iveta Clarke`,
   screeningBody: `Dobrý den, {customerName},
 
 obdrželi jsme vaši přihlášku na výcvik. Iveta vás brzy kontaktuje s dalšími informacemi.
+
+S pozdravem,
+Iveta Clarke`,
+  consultationSubject: "Rezervace termínu — Iveta Clarke",
+  consultationBody: `Dobrý den, {customerName},
+
+děkujeme za váš zájem o spolupráci s Ivetou Clarke.
+
+Zarezervujte si prosím termín úvodního setkání na odkazu níže. Vyberete si čas, který vám nejlépe vyhovuje.
+
+Těšíme se na setkání s vámi.
 
 S pozdravem,
 Iveta Clarke`,
@@ -106,7 +118,7 @@ function tintColor(hex: string, amount: number): string {
 }
 
 // ─── Email Preview ───────────────────────────────────────────────────────────
-function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "registration" | "screening" | "payment" }) {
+function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "registration" | "consultation" | "screening" | "payment" }) {
   const color = s.primaryColor || "#C9A84C";
   const footer = s.footerText || "Tato zpráva byla vygenerována automaticky.";
   const headerLabel = s.headerText || "Iveta Clarke";
@@ -117,6 +129,7 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
   const footerBg = s.bgTint ? tintColor(color, 0.90) : "#f9fafb";
 
   const rawBody = type === "registration" ? s.registrationBody
+    : type === "consultation" ? s.consultationBody
     : type === "screening" ? s.screeningBody
     : s.paymentBody;
 
@@ -140,6 +153,9 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
           </div>
           <div style="text-align:center;margin-bottom:20px;">
             <a href="#" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Zaplatit</a>
+          </div>` : type === "consultation" ? `
+          <div style="text-align:center;margin-bottom:20px;">
+            <a href="#" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;font-size:14px;">Rezervovat termín →</a>
           </div>` : "";
 
   const html = `
@@ -162,7 +178,7 @@ function EmailPreview({ s, type = "payment" }: { s: EmailSettings; type?: "regis
         <div style={{ display: "flex", gap: 5 }}>
           {["#f87171", "#fbbf24", "#4ade80"].map((c, i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
         </div>
-        <span style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>Náhled e-mailu ({type === "registration" ? "uvítací" : type === "screening" ? "screening" : "platební odkaz"})</span>
+        <span style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>Náhled e-mailu ({type === "registration" ? "uvítací" : type === "consultation" ? "konzultace" : type === "screening" ? "screening" : "platební odkaz"})</span>
       </div>
       <iframe srcDoc={html} style={{ width: "100%", border: 0, height: 500 }} title="Email preview" sandbox="allow-same-origin" />
     </div>
@@ -180,8 +196,8 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
   const [testEmail, setTestEmail] = useState("");
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [testError, setTestError] = useState("");
-  const [activeTab, setActiveTab] = useState<"registration" | "screening" | "payment" | "design" | "preview" | "smtp">("registration");
-  const [previewType, setPreviewType] = useState<"registration" | "screening" | "payment">("registration");
+  const [activeTab, setActiveTab] = useState<"registration" | "consultation" | "screening" | "payment" | "design" | "preview" | "smtp">("registration");
+  const [previewType, setPreviewType] = useState<"registration" | "consultation" | "screening" | "payment">("registration");
 
   useEffect(() => {
     fetch("/api/admin/email-settings", { headers: { Authorization: `Bearer ${jwt}` } })
@@ -202,6 +218,8 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
             screeningBody: d.screening_body || EMAIL_DEFAULTS.screeningBody,
             paymentSubject: d.payment_subject || EMAIL_DEFAULTS.paymentSubject,
             paymentBody: d.payment_body || EMAIL_DEFAULTS.paymentBody,
+            consultationSubject: d.consultation_subject || EMAIL_DEFAULTS.consultationSubject,
+            consultationBody: d.consultation_body || EMAIL_DEFAULTS.consultationBody,
             autoSend: d.auto_send ?? false,
             primaryColor: d.primary_color || "#C9A84C",
             logoUrl: d.logo_url || "",
@@ -248,12 +266,13 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
   };
 
   const TABS = [
-    { id: "registration", label: "Uvítací email" },
-    { id: "screening",    label: "Screening mail — výcvik" },
-    { id: "payment",      label: "Platební odkaz" },
-    { id: "design",       label: "Design" },
-    { id: "preview",      label: "Náhled" },
-    { id: "smtp",         label: "SMTP" },
+    { id: "registration",  label: "Uvítací email" },
+    { id: "consultation",  label: "Konzultace — Calendly" },
+    { id: "screening",     label: "Screening mail — výcvik" },
+    { id: "payment",       label: "Platební odkaz" },
+    { id: "design",        label: "Design" },
+    { id: "preview",       label: "Náhled" },
+    { id: "smtp",          label: "SMTP" },
   ] as const;
 
   const PRESET_COLORS = [
@@ -381,6 +400,28 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
           </div>
         )}
 
+        {/* ── Konzultace — Calendly ── */}
+        {activeTab === "consultation" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", padding: "8px 12px", background: C.warm, borderRadius: 8 }}>
+              Tokeny: <code style={{ marginLeft: 4 }}>{"{customerName}"}</code>
+              {" — odesílá se automaticky po vyplnění dotazníku o zájem o konzultaci. Mail obsahuje Calendly tlačítko pro rezervaci termínu."}
+            </div>
+            <div>
+              <label style={lbl}>PŘEDMĚT</label>
+              <input value={settings.consultationSubject} onChange={e => set("consultationSubject", e.target.value)} style={inp} />
+            </div>
+            <div>
+              <label style={lbl}>TEXT E-MAILU</label>
+              <textarea value={settings.consultationBody} onChange={e => set("consultationBody", e.target.value)}
+                rows={10} style={{ ...inp, resize: "vertical", fontFamily: "monospace", fontSize: 12, lineHeight: 1.6 }} />
+            </div>
+            <div style={{ padding: "12px 16px", background: "rgba(201,168,76,0.06)", border: `1px solid rgba(201,168,76,0.25)`, borderRadius: 10, fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
+              Pod textem mailu se automaticky zobrazí zlaté tlačítko <strong style={{ color: C.text }}>„Rezervovat termín →"</strong> s Calendly odkazem.
+            </div>
+          </div>
+        )}
+
         {/* ── Screening mail (výcvik) ── */}
         {activeTab === "screening" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -486,6 +527,7 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
               <select value={previewType} onChange={e => setPreviewType(e.target.value as typeof previewType)}
                 style={{ padding: "7px 12px", borderRadius: 8, border: `1px solid ${C.sand}`, background: C.white, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: C.text, outline: "none" }}>
                 <option value="registration">Uvítací email (po registraci)</option>
+                <option value="consultation">Konzultace — Calendly</option>
                 <option value="screening">Screening mail — výcvik</option>
                 <option value="payment">Platební odkaz</option>
               </select>

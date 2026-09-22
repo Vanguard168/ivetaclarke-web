@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import { sendConsultationEmail } from "@/lib/email";
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
@@ -30,6 +31,31 @@ export async function POST(req: NextRequest) {
   }
 
   const db = createServerClient();
+
+  if (screeningType === "consultation") {
+    const { error } = await db.from("screening_requests").insert({
+      user_id: userId,
+      user_email: userEmail,
+      user_name: userName,
+      phone: phone ?? null,
+      screening_type: "consultation",
+      why_interested: whyInterested ?? null,
+      previous_experience: previousExperience ?? null,
+      goals: goals ?? null,
+      preferred_product: preferredProduct ?? null,
+      preferred_product_label: preferredProductLabel ?? null,
+      status: "pending",
+    });
+
+    if (error) {
+      console.error("Consultation insert error:", error);
+      return NextResponse.json({ error: "Registraci se nepodařilo uložit." }, { status: 500 });
+    }
+
+    sendConsultationEmail(userName, userEmail).catch(e => console.error("Consultation email error:", e));
+    await sendNotification(userEmail, userName, "paid", preferredProductLabel ?? "");
+    return NextResponse.json({ ok: true });
+  }
 
   if (screeningType === "free") {
     // Workshop screening — no payment, just save and notify Iveta

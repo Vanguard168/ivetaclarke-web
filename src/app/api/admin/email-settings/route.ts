@@ -50,6 +50,8 @@ export async function PUT(req: NextRequest) {
     screening_body: body.screeningBody ?? "",
     payment_subject: body.paymentSubject ?? "",
     payment_body: body.paymentBody ?? "",
+    consultation_subject: body.consultationSubject ?? "",
+    consultation_body: body.consultationBody ?? "",
     auto_send: body.autoSend ?? false,
     primary_color: body.primaryColor ?? "#C9A84C",
     logo_url: body.logoUrl ?? "",
