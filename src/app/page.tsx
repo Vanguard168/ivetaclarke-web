@@ -210,14 +210,11 @@ const supervisionData = {
     note: "Exkluzivita obsahu workshopu je důvodem k tomu, že kurz není akreditován žádnou profesní organizací. Účastníkům vystavím potvrzení o absolvování aktuálního počtu hodin supervizní práce, která je součástí workshopu. Potvrzení lze použít pro re-akreditaci v ICF.",
     preCondition: "Účasti na workshopu předchází individuální rozhovor, ve kterém si ujasníme relevanci obsahu k vaší současné koučovací praxi.",
     date: "Nejbližší termín: 13.–14. 11. 2026",
-    earlyBird: "Early bird sleva 15 % do 13. 10. 2026",
     maxParticipants: "Max. 12 účastníků · Prezenční, rezidenční · 2× ročně",
     hours: "Časová dotace: 12 hodin výcviku – 2 dny",
     packages: [
-      { id: "ws-full", title: "Plný program včetně obou bonusů", tagline: "Kompletní výcvik: základní program + oba bonusy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + workshop 3 h + supervize 2 h", price: "48 490 Kč", priceNote: "vč. DPH / 40 074 Kč bez DPH", ebPrice: "40 999 Kč" },
-      { id: "ws-b1", title: "S Bonusem 1 – Kultivace moudrosti", tagline: "Základní program + 3hodinový online workshop o lidské moudrosti.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + online workshop · 3 hodiny", price: "44 990 Kč", priceNote: "vč. DPH / 37 182 Kč bez DPH", ebPrice: "37 999 Kč" },
-      { id: "ws-b2", title: "S Bonusem 2 – Midlife coaching supervize", tagline: "Základní program + 2 hodiny supervizní práce s midlife tématy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + supervize · 2 hodiny", price: "38 990 Kč", priceNote: "vč. DPH / 32 223 Kč bez DPH", ebPrice: "32 999 Kč" },
-      { id: "ws-base", title: "Základní program (2 dny)", tagline: "Dvoudenní prezenční výcvik – základ práce s midlife klienty.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny · 12 hodin výcviku", price: "32 990 Kč", priceNote: "vč. DPH / 27 264 Kč bez DPH", ebPrice: "27 999 Kč", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
+      { id: "ws-base", title: "Základní program", tagline: "Dvoudenní prezenční výcvik – základ práce s midlife klienty.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny · 12 hodin výcviku", price: "23 999 Kč", priceNote: "vč. DPH / 19 834 Kč bez DPH", note: "V ceně je zahrnuto malé občerstvení a nápoje. Doprava, ubytování a stravování nejsou zahrnuty." },
+      { id: "ws-b2", title: "Základní program se supervizí", tagline: "Základní program + 2 hodiny supervizní práce s midlife tématy.", cardDesc: "", modalDesc: "", result: "", format: "Prezenční · 2 dny + supervize · 2 hodiny", price: "27 999 Kč", priceNote: "vč. DPH / 23 140 Kč bez DPH" },
     ],
   },
 }
@@ -717,8 +714,6 @@ function WorkshopModal({ onClose, onPay }: {
 }) {
   const w = supervisionData.workshop;
   const [selected, setSelected] = useState<string | null>(null);
-  const isEarlyBird = new Date() < EARLY_BIRD_DEADLINE;
-  const daysLeft = Math.ceil((EARLY_BIRD_DEADLINE.getTime() - Date.now()) / 86400000);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -728,14 +723,7 @@ function WorkshopModal({ onClose, onPay }: {
   }, [onClose]);
 
   const selectedPkg = w.packages.find(p => p.id === selected) ?? null;
-
-  // Build the pkg object sent to checkout — early bird gets discounted price + eb- id
-  const checkoutPkg = selectedPkg ? (isEarlyBird ? {
-    ...selectedPkg,
-    id: selectedPkg.id + "-eb",
-    price: selectedPkg.ebPrice ?? applyEarlyBird(selectedPkg.price),
-    priceNote: ebPriceNote(selectedPkg.ebPrice ?? applyEarlyBird(selectedPkg.price)),
-  } : selectedPkg) : null;
+  const checkoutPkg = selectedPkg;
 
   return (
     <div onClick={onClose} style={{
@@ -767,24 +755,6 @@ function WorkshopModal({ onClose, onPay }: {
               onMouseLeave={e => (e.currentTarget.style.background = "none")}>×</button>
           </div>
 
-          {/* Early bird banner */}
-          {isEarlyBird && (
-            <div style={{
-              display: "flex", alignItems: "center", gap: 12,
-              padding: "12px 16px", borderRadius: 12, marginBottom: 20,
-              background: "linear-gradient(135deg, rgba(201,168,76,0.18) 0%, rgba(201,168,76,0.08) 100%)",
-              border: "1px solid rgba(201,168,76,0.4)",
-            }}>
-              <div style={{ fontSize: 20 }}>🎁</div>
-              <div>
-                <div style={{ fontSize: 13, color: C.gold, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif" }}>Early bird sleva 15 %</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 2 }}>
-                  Platí do 13. 10. 2026 &nbsp;·&nbsp; zbývá {daysLeft} {daysLeft === 1 ? "den" : daysLeft < 5 ? "dny" : "dní"}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Logistics chips */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
             {[w.date, w.maxParticipants, w.hours].map(info => (
@@ -797,7 +767,6 @@ function WorkshopModal({ onClose, onPay }: {
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
             {w.packages.map(pkg => {
               const active = selected === pkg.id;
-              const discPrice = isEarlyBird ? (pkg.ebPrice ?? applyEarlyBird(pkg.price)) : null;
               return (
                 <div key={pkg.id} onClick={() => setSelected(pkg.id)} style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -808,18 +777,11 @@ function WorkshopModal({ onClose, onPay }: {
                 }}>
                   <div style={{ flex: 1, minWidth: 0, marginRight: 16 }}>
                     <div style={{ fontSize: 14, color: active ? C.gold : C.white, fontWeight: active ? "bold" : "normal", transition: "color 0.18s", lineHeight: 1.3 }}>{pkg.title}</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>
-                      {discPrice ? ebPriceNote(discPrice) : pkg.priceNote}
-                    </div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>{pkg.priceNote}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
                     <div style={{ textAlign: "right" }}>
-                      {discPrice && (
-                        <div style={{ fontSize: 16, color: C.gold, textDecoration: "line-through", fontFamily: "Trebuchet MS, sans-serif", opacity: 0.7 }}>{pkg.price}</div>
-                      )}
-                      <div style={{ fontSize: 18, color: discPrice ? "#D94F4F" : C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>
-                        {discPrice ?? pkg.price}
-                      </div>
+                      <div style={{ fontSize: 18, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", whiteSpace: "nowrap" }}>{pkg.price}</div>
                     </div>
                     <div style={{
                       width: 20, height: 20, borderRadius: "50%",
@@ -1714,6 +1676,8 @@ const SCREENING_PRODUCTS = [
   { id: "12m",     label: "Roční spolupráce (12 měsíců)" },
   { id: "sup-1x",  label: "Supervize – Ochutnávka" },
   { id: "sup-6x",  label: "Supervizní balíček (6 setkání)" },
+  { id: "ws-base", label: "Masterclass – Základní program" },
+  { id: "ws-b2",   label: "Masterclass – Základní program se supervizí" },
 ];
 
 function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillProductId, prefillProductLabel, onClose }: {
@@ -2985,7 +2949,7 @@ export default function App() {
               {/* Logistics */}
               <div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>ORGANIZAČNÍ INFORMACE</div>
-                {[supervisionData.workshop.date, supervisionData.workshop.earlyBird, supervisionData.workshop.maxParticipants, supervisionData.workshop.hours].map(info => (
+                {[supervisionData.workshop.date, supervisionData.workshop.maxParticipants, supervisionData.workshop.hours].map(info => (
                   <div key={info} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
                     <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.gold, flexShrink: 0, marginTop: 6 }} />
                     <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.5 }}>{info}</span>

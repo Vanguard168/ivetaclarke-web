@@ -17,14 +17,8 @@ const PRODUCTS = [
   { id: "12m",        label: "Roční spolupráce (12 měsíců)",      price: "74 990 Kč (−2 999 Kč po odečtení screeningu)" },
   { id: "sup-1x",     label: "Supervize – Ochutnávka",            price: "4 890 Kč" },
   { id: "sup-6x",     label: "Supervizní balíček (6 setkání)",    price: "35 990 Kč" },
-  { id: "ws-base",    label: "Workshop – Základní program",       price: "43 590 Kč" },
-  { id: "ws-b1",      label: "Workshop + Bonus 1",                price: "59 990 Kč" },
-  { id: "ws-b2",      label: "Workshop + Bonus 2",                price: "50 990 Kč" },
-  { id: "ws-full",    label: "Workshop – Plný program",           price: "66 990 Kč" },
-  { id: "ws-base-eb", label: "Workshop Základní – Early bird",    price: "37 050 Kč" },
-  { id: "ws-b1-eb",   label: "Workshop + Bonus 1 – Early bird",   price: "50 990 Kč" },
-  { id: "ws-b2-eb",   label: "Workshop + Bonus 2 – Early bird",   price: "43 340 Kč" },
-  { id: "ws-full-eb", label: "Workshop Plný – Early bird",        price: "56 940 Kč" },
+  { id: "ws-base",    label: "Masterclass – Základní program",              price: "23 999 Kč" },
+  { id: "ws-b2",      label: "Masterclass – Základní program se supervizí", price: "27 999 Kč" },
 ];
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
