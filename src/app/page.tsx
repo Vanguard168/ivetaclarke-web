@@ -204,8 +204,7 @@ const supervisionData = {
     day1: { title: "Den 1 – Klient", items: ["Životní přechody a jejich specifika relevantní pro pomáhající profese.", "Midlife mýty a předsudky.", "Potřeby lidí v midlife.", "Midlife kompetence."] },
     day2: { title: "Den 2 – Kouč", items: ["Kompetence kouče pro práci s midlifery.", "Práce s vizí a cíli v midlife.", "Emoce v midlife."] },
     bonuses: [
-      { id: "b1", label: "Bonus 1", name: "Kultivace moudrosti", desc: "3 hodinový online workshop o tom, co je lidská moudrost, jak se liší od zkušenosti a jak se dá kultivovat. Nástavba kurzu Průvodcem midlife." },
-      { id: "b2", label: "Bonus 2", name: "Midlife coaching supervize", desc: "2 hodiny supervizní práce s tématy midlife. Reflektivní prostor pro kouče jako nástavba kurzu Průvodcem midlife." },
+      { id: "b2", label: "", name: "Midlife coaching supervize", desc: "2 hodiny supervizní práce s tématy midlife. Reflektivní prostor pro kouče jako nástavba kurzu Průvodcem midlife." },
     ],
     note: "Exkluzivita obsahu workshopu je důvodem k tomu, že kurz není akreditován žádnou profesní organizací. Účastníkům vystavím potvrzení o absolvování aktuálního počtu hodin supervizní práce, která je součástí workshopu. Potvrzení lze použít pro re-akreditaci v ICF.",
     preCondition: "Účasti na workshopu předchází individuální rozhovor, ve kterém si ujasníme relevanci obsahu k vaší současné koučovací praxi.",
@@ -2974,7 +2973,7 @@ export default function App() {
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {supervisionData.workshop.bonuses.map(b => (
                   <div key={b.id} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 18px", border: "1px solid rgba(255,255,255,0.1)", flex: 1 }}>
-                    <div style={{ fontSize: 10, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 6 }}>{b.label.toUpperCase()}</div>
+                    {b.label && <div style={{ fontSize: 10, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 6 }}>{b.label.toUpperCase()}</div>}
                     <div style={{ fontSize: 13, color: C.white, marginBottom: 6 }}>{b.name}</div>
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{b.desc}</div>
                   </div>
