@@ -1513,6 +1513,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
   const [phone, setPhone] = useState("");
   const [street, setStreet] = useState(profile?.street || "");
   const [city, setCity] = useState(profile?.city || "");
@@ -1554,6 +1555,9 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
     }
     if (!isLoggedIn && (!firstName || !lastName || !email || !phone)) {
       setError("Vyplňte prosím jméno, příjmení, e-mail a telefon."); return;
+    }
+    if (!isLoggedIn && email !== emailConfirm) {
+      setError("E-mailové adresy se neshodují."); return;
     }
     if (!resolvedStreet || !resolvedCity || !resolvedZip) {
       setError("Vyplňte prosím adresu (ulice, město, PSČ)."); return;
@@ -1652,6 +1656,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                     <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
                   </div>
                   <div><Label>E-MAIL *</Label><input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>POTVRDIT E-MAIL *</Label><input value={emailConfirm} onChange={e => setEmailConfirm(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
                   <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
                   <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>ADRESA</div>
                   <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
