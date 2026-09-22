@@ -1537,6 +1537,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   profile?: Profile | null;
   onClose: () => void;
 }) {
+  const isLoggedIn = !!user;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -1545,6 +1546,12 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const [q2, setQ2] = useState("");
   const [q3, setQ3] = useState("");
   const [howFound, setHowFound] = useState("");
+
+  // Contact fields — only for non-logged-in users
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -1566,13 +1573,18 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const focus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.gold);
   const blur  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = C.sand);
 
-  const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user?.email || "";
-  const userEmail = user?.email || "";
-  const phone = profile?.phone || "";
+  const resolvedName = isLoggedIn
+    ? ([profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user?.email || "")
+    : [firstName, lastName].filter(Boolean).join(" ");
+  const resolvedEmail = isLoggedIn ? (user?.email || "") : email;
+  const resolvedPhone = isLoggedIn ? (profile?.phone || "") : phone;
 
   const handleSubmit = async () => {
     if (!preferredProduct || !q1 || !q2 || !q3) {
-      setError("Vyplňte prosím všechna pole."); return;
+      setError("Vyplňte prosím všechna povinná pole."); return;
+    }
+    if (!isLoggedIn && (!firstName || !lastName || !email)) {
+      setError("Vyplňte prosím jméno, příjmení a e-mail."); return;
     }
     setError(""); setLoading(true);
     const selectedLabel = SCREENING_PRODUCTS.find(p => p.id === preferredProduct)?.label ?? pkg.title;
@@ -1580,10 +1592,14 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: user?.id, userEmail, userName, phone,
+        userId: user?.id ?? null,
+        userEmail: resolvedEmail,
+        userName: resolvedName,
+        phone: resolvedPhone,
         screeningType: "consultation",
         whyInterested: q1, previousExperience: q2, goals: q3,
         preferredProduct, preferredProductLabel: selectedLabel,
+        howFound: howFound || null,
       }),
     });
     const data = await res.json();
@@ -1625,6 +1641,30 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+              {/* Contact — logged in: summary panel; logged out: input fields */}
+              {isLoggedIn ? (
+                <div style={{ background: C.warm, border: `1px solid ${C.sand}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: `rgba(201,168,76,0.15)`, border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, color: C.dark }}>{resolvedName || user?.email}</div>
+                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{user?.email}{resolvedPhone ? ` · ${resolvedPhone}` : ""}</div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8 }}>KONTAKTNÍ ÚDAJE</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div><Label>JMÉNO *</Label><input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jana" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
+                  <div><Label>E-MAIL *</Label><input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>TELEFON <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                </>
+              )}
+
               <div>
                 <Label>O JAKOU FORMU SPOLUPRÁCE MÁTE ZÁJEM? *</Label>
                 <select value={preferredProduct} onChange={e => setPreferredProduct(e.target.value)} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1px solid ${C.sand}`, background: C.cream, fontSize: 14, fontFamily: "Georgia, serif", color: C.text, outline: "none", boxSizing: "border-box" as const, height: 44 }}>
@@ -1632,6 +1672,7 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                   {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
               </div>
+
               {/* Info box */}
               <div style={{ background: "rgba(201,168,76,0.07)", border: `1px solid rgba(201,168,76,0.3)`, borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
                 <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>✦</span>
