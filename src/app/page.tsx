@@ -1631,6 +1631,13 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                   {SCREENING_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
               </div>
+              {/* Info box */}
+              <div style={{ background: "rgba(201,168,76,0.07)", border: `1px solid rgba(201,168,76,0.3)`, borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>✦</span>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.75, fontFamily: "Georgia, serif" }}>
+                  Po odeslání registrace vám na e-mail přijde odkaz pro výběr termínu <strong>vstupní konzultace (30 min)</strong> s Ivetou. Společně proberete vaši situaci a možnosti spolupráce — bez závazků.
+                </div>
+              </div>
               <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>OTÁZKY PRO IVETU</div>
               <div><Label>PROČ VÁS ZAJÍMÁ SPOLUPRÁCE S IVETOU? *</Label><textarea rows={3} value={q1} onChange={e => setQ1(e.target.value)} placeholder="Popište svou motivaci..." style={taStyle} onFocus={focus} onBlur={blur} /></div>
               <div><Label>JAKÉ FORMY OSOBNÍHO ROZVOJE JSTE DOSUD ABSOLVOVAL/A? *</Label><textarea rows={3} value={q2} onChange={e => setQ2(e.target.value)} placeholder="Např. koučink, terapie, kurzy, workshopy…" style={taStyle} onFocus={focus} onBlur={blur} /></div>
