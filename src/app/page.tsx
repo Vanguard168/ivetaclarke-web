@@ -1509,11 +1509,14 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
   const [q3, setQ3] = useState("");
   const [howFound, setHowFound] = useState("");
 
-  // Contact fields — only for non-logged-in users
+  // Contact fields — for non-logged-in users; address also for logged-in if missing
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [street, setStreet] = useState(profile?.street || "");
+  const [city, setCity] = useState(profile?.city || "");
+  const [zip, setZip] = useState(profile?.zip || "");
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -1539,14 +1542,21 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
     ? ([profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user?.email || "")
     : [firstName, lastName].filter(Boolean).join(" ");
   const resolvedEmail = isLoggedIn ? (user?.email || "") : email;
-  const resolvedPhone = isLoggedIn ? (profile?.phone || "") : phone;
+  const resolvedPhone = isLoggedIn ? (profile?.phone || phone) : phone;
+  const resolvedStreet = isLoggedIn ? (profile?.street || street) : street;
+  const resolvedCity   = isLoggedIn ? (profile?.city   || city)   : city;
+  const resolvedZip    = isLoggedIn ? (profile?.zip    || zip)    : zip;
+  const needsAddress = !resolvedStreet || !resolvedCity || !resolvedZip;
 
   const handleSubmit = async () => {
     if (!preferredProduct || !q1 || !q2 || !q3) {
       setError("Vyplňte prosím všechna povinná pole."); return;
     }
-    if (!isLoggedIn && (!firstName || !lastName || !email)) {
-      setError("Vyplňte prosím jméno, příjmení a e-mail."); return;
+    if (!isLoggedIn && (!firstName || !lastName || !email || !phone)) {
+      setError("Vyplňte prosím jméno, příjmení, e-mail a telefon."); return;
+    }
+    if (!resolvedStreet || !resolvedCity || !resolvedZip) {
+      setError("Vyplňte prosím adresu (ulice, město, PSČ)."); return;
     }
     setError(""); setLoading(true);
     const selectedLabel = SCREENING_PRODUCTS.find(p => p.id === preferredProduct)?.label ?? pkg.title;
@@ -1558,6 +1568,9 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
         userEmail: resolvedEmail,
         userName: resolvedName,
         phone: resolvedPhone,
+        street: resolvedStreet,
+        city: resolvedCity,
+        zip: resolvedZip,
         screeningType: "consultation",
         whyInterested: q1, previousExperience: q2, goals: q3,
         preferredProduct, preferredProductLabel: selectedLabel,
@@ -1606,15 +1619,31 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
 
               {/* Contact — logged in: summary panel; logged out: input fields */}
               {isLoggedIn ? (
-                <div style={{ background: C.warm, border: `1px solid ${C.sand}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: `rgba(201,168,76,0.15)`, border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <>
+                  <div style={{ background: C.warm, border: `1px solid ${C.sand}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `rgba(201,168,76,0.15)`, border: `1px solid ${C.gold}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, color: C.dark }}>{resolvedName || user?.email}</div>
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
+                        {user?.email}{resolvedPhone ? ` · ${resolvedPhone}` : ""}
+                        {resolvedStreet ? ` · ${resolvedStreet}, ${resolvedCity}` : ""}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: 13, color: C.dark }}>{resolvedName || user?.email}</div>
-                    <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{user?.email}{resolvedPhone ? ` · ${resolvedPhone}` : ""}</div>
-                  </div>
-                </div>
+                  {/* Address fields if missing from profile */}
+                  {needsAddress && (
+                    <>
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.08em" }}>Doplňte prosím adresu pro dokončení registrace:</div>
+                      <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
+                        <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                        <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <>
                   <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8 }}>KONTAKTNÍ ÚDAJE</div>
@@ -1623,7 +1652,13 @@ function PackageOrderModal({ pkg, user, profile, onClose }: {
                     <div><Label>PŘÍJMENÍ *</Label><input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nováková" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
                   </div>
                   <div><Label>E-MAIL *</Label><input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="jana@example.com" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
-                  <div><Label>TELEFON <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div><Label>TELEFON *</Label><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+420 777 123 456" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.05em", borderBottom: `1px solid ${C.sand}`, paddingBottom: 8, marginTop: 4 }}>ADRESA</div>
+                  <div><Label>ULICE A ČÍSLO *</Label><input value={street} onChange={e => setStreet(e.target.value)} placeholder="Václavské náměstí 1" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
+                    <div><Label>MĚSTO *</Label><input value={city} onChange={e => setCity(e.target.value)} placeholder="Praha" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                    <div><Label>PSČ *</Label><input value={zip} onChange={e => setZip(e.target.value)} placeholder="110 00" style={inputStyle} onFocus={focus} onBlur={blur} /></div>
+                  </div>
                 </>
               )}
 

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     preferredWorkshopVariant, preferredWorkshopVariantLabel,
   } = body;
 
-  if (!userId || !userEmail || !userName) {
+  if (!userEmail || !userName) {
     return NextResponse.json({ error: "Chybí povinné údaje." }, { status: 400 });
   }
 
@@ -34,10 +34,13 @@ export async function POST(req: NextRequest) {
 
   if (screeningType === "consultation") {
     const { error } = await db.from("screening_requests").insert({
-      user_id: userId,
+      user_id: userId ?? null,
       user_email: userEmail,
       user_name: userName,
       phone: phone ?? null,
+      street: street ?? null,
+      city: city ?? null,
+      zip: zip ?? null,
       screening_type: "consultation",
       why_interested: whyInterested ?? null,
       previous_experience: previousExperience ?? null,
