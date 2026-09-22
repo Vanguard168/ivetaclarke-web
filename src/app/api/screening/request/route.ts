@@ -52,9 +52,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Registraci se nepodařilo uložit." }, { status: 500 });
     }
 
-    sendConsultationEmail(userName, userEmail).catch(e => console.error("Consultation email error:", e));
+    let emailSent = false;
+    let emailError: string | null = null;
+    try {
+      await sendConsultationEmail(userName, userEmail);
+      emailSent = true;
+    } catch (e) {
+      emailError = e instanceof Error ? e.message : String(e);
+      console.error("Consultation email error:", emailError);
+    }
+
     await sendNotification(userEmail, userName, "paid", preferredProductLabel ?? "");
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, emailSent, emailError });
   }
 
   if (screeningType === "free") {

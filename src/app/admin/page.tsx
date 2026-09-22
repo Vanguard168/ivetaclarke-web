@@ -30,9 +30,17 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   cancelled:      { label: "Zrušeno",                  color: C.red },
 };
 
+// "pending" znamená u konzultace "čeká na termín", ne "čeká na platbu"
+function statusOf(r: { status: string; screening_type?: string }) {
+  if (r.status === "pending" && r.screening_type === "consultation") {
+    return { label: "Čeká na termín", color: C.gold };
+  }
+  return STATUS_LABELS[r.status] ?? { label: r.status, color: C.muted };
+}
+
 type ScreeningRequest = {
   id: string; user_id: string; user_email: string; user_name: string; phone?: string;
-  screening_type: "paid" | "free";
+  screening_type: "paid" | "free" | "consultation";
   why_interested?: string; previous_experience?: string; goals?: string;
   preferred_product?: string; preferred_product_label?: string;
   workshop_motivation?: string; workshop_background?: string; workshop_experience?: string;
@@ -829,7 +837,7 @@ export default function AdminPage() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {filtered.map(r => {
-                  const st = STATUS_LABELS[r.status] ?? { label: r.status, color: C.muted };
+                  const st = statusOf(r);
                   const isActive = selected?.id === r.id;
                   return (
                     <div key={r.id} onClick={() => openDetail(r)} style={{
@@ -846,7 +854,7 @@ export default function AdminPage() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                           <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", padding: "2px 8px", borderRadius: 10, background: `${st.color}18`, color: st.color, fontWeight: "bold", whiteSpace: "nowrap" }}>{st.label}</div>
-                          <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{r.screening_type === "free" ? "Výcvik (zdarma)" : "Placený screening"}</div>
+                          <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{r.screening_type === "free" ? "Výcvik (zdarma)" : r.screening_type === "consultation" ? "Vstupní konzultace" : "Placený screening"}</div>
                         </div>
                       </div>
                       <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 6 }}>
@@ -892,12 +900,14 @@ export default function AdminPage() {
               </div>
 
               {(() => {
-                const st = STATUS_LABELS[selected.status] ?? { label: selected.status, color: C.muted };
+                const st = statusOf(selected);
                 return (
                   <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 24 }}>
                     <div style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", padding: "4px 12px", borderRadius: 12, background: `${st.color}18`, color: st.color, fontWeight: "bold" }}>{st.label}</div>
                     <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
-                      {selected.screening_type === "free" ? "Výcvik — screening ZDARMA" : "Konzultace/koučink — screening 2 999 Kč"}
+                      {selected.screening_type === "free" ? "Výcvik — screening ZDARMA"
+                        : selected.screening_type === "consultation" ? "Vstupní konzultace 30 min — ZDARMA (Calendly)"
+                        : "Konzultace/koučink — screening 2 999 Kč"}
                     </div>
                   </div>
                 );
@@ -906,7 +916,7 @@ export default function AdminPage() {
               {/* Questionnaire */}
               <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
                 <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>DOTAZNÍK</div>
-                {selected.screening_type === "paid" ? (
+                {selected.screening_type === "paid" || selected.screening_type === "consultation" ? (
                   <>
                     <QA label="Zájem o produkt" value={selected.preferred_product_label} />
                     <QA label="Proč vás zajímá koučink?" value={selected.why_interested} />
