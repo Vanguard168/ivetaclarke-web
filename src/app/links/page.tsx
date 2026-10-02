@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { hasNewZamyslnik2 } from "@/lib/podcast";
 
 const links = [
   {
+    id: "web",
     href: "https://ivetaclarke.com",
     label: "ivetaclarke.com",
     description: "Chcete se o mě dozvědět více? Prozkoumejte můj nový web.",
@@ -15,6 +17,7 @@ const links = [
     ),
   },
   {
+    id: "masterclass",
     href: "https://ivetaclarke.com/masterclass",
     label: "Masterclass pro kouče – Průvodcem v midlife®",
     description: "Early bird sleva pouze do 13. 10. 2026",
@@ -25,6 +28,7 @@ const links = [
     ),
   },
   {
+    id: "zamyslnik2",
     href: "https://www.youtube.com/@IvetaClarke",
     label: "Zámyslník 2.0 – Moudrost je",
     description: "Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.",
@@ -36,8 +40,9 @@ const links = [
   },
 ];
 
-function LinkCard({ href, label, description, icon }: typeof links[0]) {
+function LinkCard({ href, label, description, icon, badge }: typeof links[0] & { badge?: string }) {
   const [hover, setHover] = useState(false);
+  const highlight = !!badge;
   return (
     <a
       href={href}
@@ -45,6 +50,8 @@ function LinkCard({ href, label, description, icon }: typeof links[0]) {
       rel="noopener noreferrer"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      // pulzuje jen dokud je díl nový a kurzor není na kartě
+      className={highlight && !hover ? "pulse-card" : undefined}
       style={{
         display: "flex",
         alignItems: "center",
@@ -62,6 +69,18 @@ function LinkCard({ href, label, description, icon }: typeof links[0]) {
     >
       <span style={{ color: "#C9A84C", flexShrink: 0, display: "flex" }}>{icon}</span>
       <span style={{ flex: 1 }}>
+        {badge && (
+          <span className="pulse-badge" style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: "linear-gradient(135deg, #C9A84C, #E8C96A)",
+            color: "#1E1E2E", fontSize: 10, fontFamily: "Trebuchet MS, sans-serif",
+            fontWeight: "bold", letterSpacing: "0.12em",
+            padding: "3px 9px", borderRadius: 20, marginBottom: 6,
+          }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#1E1E2E", flexShrink: 0 }} />
+            {badge}
+          </span>
+        )}
         <span style={{ display: "block", color: "#FFFFFF", fontSize: 17, fontFamily: "Georgia, serif", fontWeight: "normal", letterSpacing: "0.01em" }}>
           {label}
         </span>
@@ -77,6 +96,10 @@ function LinkCard({ href, label, description, icon }: typeof links[0]) {
 }
 
 export default function LinksPage() {
+  // Vyhodnotí se až po mountu, aby se server a klient nelišily při hydrataci.
+  const [newEpisode, setNewEpisode] = useState(false);
+  useEffect(() => { setNewEpisode(hasNewZamyslnik2()); }, []);
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -88,6 +111,22 @@ export default function LinksPage() {
       padding: "40px 20px",
       fontFamily: "Georgia, serif",
     }}>
+      <style>{`
+        @keyframes cardPulse {
+          0%, 100% { border-color: rgba(201,168,76,0.25); box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+          50%      { border-color: #E8C96A;              box-shadow: 0 0 26px 2px rgba(201,168,76,0.35); }
+        }
+        @keyframes badgePulse {
+          0%, 100% { opacity: 1; }
+          50%      { opacity: 0.5; }
+        }
+        .pulse-card  { animation: cardPulse  1.8s ease-in-out infinite; }
+        .pulse-badge { animation: badgePulse 1.8s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .pulse-card, .pulse-badge { animation: none; }
+        }
+      `}</style>
+
       {/* Gold accent line */}
       <div style={{ width: 48, height: 3, background: "linear-gradient(to right, #C9A84C, #E8C96A)", borderRadius: 2, marginBottom: 32 }} />
 
@@ -113,7 +152,11 @@ export default function LinksPage() {
       {/* Links */}
       <div style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 14 }}>
         {links.map((l) => (
-          <LinkCard key={l.href} {...l} />
+          <LinkCard
+            key={l.href}
+            {...l}
+            badge={l.id === "zamyslnik2" && newEpisode ? "NOVÝ DÍL" : undefined}
+          />
         ))}
       </div>
 

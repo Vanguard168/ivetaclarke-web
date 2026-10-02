@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { supabase, type Profile } from "@/lib/supabase";
+import { zamyslnik2Episodes } from "@/lib/podcast";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -135,12 +136,6 @@ const episodes = [
   { id: "4kVuXUggzHZHmpPdgaoBXB", title: "Dojít pod Everest s Katarinou Schapiro", type: "Epizoda s hosty" },
 ];
 
-// Zámyslník 2.0 – Moudrost je: videopodcast na YouTube (id = YouTube video id).
-// Nejnovější díl první – ten se v sekci přehrává jako výchozí.
-const zamyslnik2Episodes = [
-  { id: "EmUD5uGqbQc", title: "Liběna Rochová" },
-  { id: "80KxxlWaPRA", title: "Lucie Konášová" },
-];
 
 const podcasts = [
   {
