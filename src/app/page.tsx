@@ -135,6 +135,11 @@ const episodes = [
   { id: "4kVuXUggzHZHmpPdgaoBXB", title: "Dojít pod Everest s Katarinou Schapiro", type: "Epizoda s hosty" },
 ];
 
+// Zámyslník 2.0 – Moudrost je: videopodcast na YouTube (id = YouTube video id)
+const zamyslnik2Episodes = [
+  { id: "EmUD5uGqbQc", title: "Moudrost je – Liběna Rochová" },
+];
+
 const podcasts = [
   {
     name: "Zámyslník 1.0 – Každopádně (k)ladně",
@@ -3179,6 +3184,60 @@ export default function App() {
                   </div>
                 ))}
               </div>
+            </div>
+          </Reveal>
+
+          {/* Zámyslník 2.0 – Moudrost je (videopodcast na YouTube) */}
+          <Reveal delay={0.18}>
+            <div style={{ marginBottom: 40 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.15em" }}>ZÁMYSLNÍK 2.0 – MOUDROST JE</div>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+              </div>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", fontFamily: "Trebuchet MS", margin: "0 0 16px" }}>
+                Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {zamyslnik2Episodes.map((ep, i) => (
+                  <div key={ep.id}>
+                    <button
+                      onClick={() => setActiveEpisode(activeEpisode === ep.id ? null : ep.id)}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 14,
+                        background: activeEpisode === ep.id ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${activeEpisode === ep.id ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.07)"}`,
+                        borderRadius: activeEpisode === ep.id ? "12px 12px 0 0" : 12,
+                        padding: "14px 18px", cursor: "pointer", textAlign: "left",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: activeEpisode === ep.id ? C.gold : "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }}>
+                        <span style={{ fontSize: 10, color: activeEpisode === ep.id ? "#000" : "rgba(255,255,255,0.5)" }}>{activeEpisode === ep.id ? "▼" : "▶"}</span>
+                      </div>
+                      <span style={{ fontSize: 15, color: C.white, fontWeight: "normal", flex: 1 }}>{ep.title}</span>
+                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS" }}>EP {i + 1}</span>
+                    </button>
+                    {activeEpisode === ep.id && (
+                      <div style={{ borderRadius: "0 0 12px 12px", overflow: "hidden", border: "1px solid rgba(201,168,76,0.3)", borderTop: "none" }}>
+                        <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, background: "#000" }}>
+                          <iframe
+                            src={`https://www.youtube.com/embed/${ep.id}?autoplay=1`}
+                            title={ep.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <a href="https://www.youtube.com/@IvetaClarke" target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-block", marginTop: 14, fontSize: 12, color: C.gold, fontFamily: "Trebuchet MS", textDecoration: "none", borderBottom: `1px solid rgba(201,168,76,0.4)`, paddingBottom: 2 }}>
+                Všechny díly na YouTube →
+              </a>
             </div>
           </Reveal>
 

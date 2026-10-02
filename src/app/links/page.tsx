@@ -25,7 +25,7 @@ const links = [
     ),
   },
   {
-    href: "https://www.youtube.com/@ivetaclarke",
+    href: "https://www.youtube.com/@IvetaClarke",
     label: "Zámyslník 2.0 – Moudrost je",
     description: "Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.",
     icon: (
