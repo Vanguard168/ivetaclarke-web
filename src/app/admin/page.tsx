@@ -661,7 +661,12 @@ export default function AdminPage() {
     const data = await res.json();
     setSending(false);
     if (data.ok) {
-      setSendMsg({ ok: true, text: "Platební odkaz byl odeslán zákazníkovi e-mailem." });
+      // Odkaz vznikl, ale e-mail mohl selhat – to se nesmí tvářit jako úspěch.
+      setSendMsg(
+        data.emailSent === false
+          ? { ok: false, text: `Platební odkaz se vytvořil, ale e-mail se nepodařilo odeslat: ${data.emailError ?? "neznámá chyba"}. Odkaz můžete zákazníkovi poslat ručně: ${data.paymentLink}` }
+          : { ok: true, text: "Platební odkaz byl odeslán zákazníkovi e-mailem." }
+      );
       await reload(); setSelected(prev => prev ? { ...prev, status: "payment_sent" } : null);
     } else {
       setSendMsg({ ok: false, text: data.error ?? "Nastala chyba." });

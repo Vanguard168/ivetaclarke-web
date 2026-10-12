@@ -62,13 +62,17 @@ export async function sendPaymentEmailFromDB(opts: {
 }) {
   const { customerName, customerEmail, productName, priceDisplay, paymentLink } = opts;
   const db = createServerClient();
-  const { data } = await db
+  // select("*") — nesmí spadnout, když některý sloupec v tabulce chybí
+  const { data, error } = await db
     .from("email_settings")
-    .select("payment_subject, payment_body, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_secure, from_name, from_email, primary_color, logo_url, header_text, footer_text, bg_tint")
+    .select("*")
     .eq("id", "default")
     .single();
 
-  if (!data?.smtp_host || !data?.smtp_user || !data?.smtp_pass) return;
+  if (error) throw new Error(`email_settings read failed: ${error.message}`);
+  if (!data?.smtp_host || !data?.smtp_user || !data?.smtp_pass) {
+    throw new Error("SMTP není nakonfigurováno v email_settings.");
+  }
 
   const color = data.primary_color || "#C9A84C";
   const header = data.header_text || "Iveta Clarke";

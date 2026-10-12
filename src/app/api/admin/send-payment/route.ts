@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
+import { sendPaymentEmailFromDB } from "@/lib/email";
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
@@ -142,21 +143,21 @@ export async function POST(req: NextRequest) {
     product_payment_sent_at: new Date().toISOString(),
   }).eq("id", screeningRequestId);
 
-  // Send email to customer
-  await sendPaymentEmail(sr.user_email, sr.user_name, pkg.label, finalPriceDisplay, paymentLink);
+  // Odeslání zákazníkovi přes SMTP z email_settings (dřív to šlo přes Resend,
+  // který nemá nastavený klíč – mail se tedy nikdy neodeslal a admin přesto hlásil úspěch).
+  let emailError: string | null = null;
+  try {
+    await sendPaymentEmailFromDB({
+      customerName: sr.user_name,
+      customerEmail: sr.user_email,
+      productName: pkg.label,
+      priceDisplay: finalPriceDisplay,
+      paymentLink,
+    });
+  } catch (e) {
+    emailError = e instanceof Error ? e.message : String(e);
+    console.error("Payment email error:", emailError);
+  }
 
-  return NextResponse.json({ ok: true, paymentLink });
-}
-
-async function sendPaymentEmail(to: string, name: string, productName: string, priceDisplay: string, link: string) {
-  const resendKey = process.env.RESEND_API_KEY;
-  const subject = `Platební odkaz — ${productName}`;
-  const text = `Dobrý den ${name},\n\nIveta Clarke pro vás připravila platební odkaz.\n\nForma spolupráce: ${productName}\nCena: ${priceDisplay}\n\nZaplaťte prosím zde:\n${link}\n\nPo úhradě vám bude zaslána faktura.\n\nS pozdravem,\nIveta Clarke`;
-  console.log(`📧 Platební odkaz zákazníkovi ${to}: ${link}`);
-  if (!resendKey) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${resendKey}` },
-    body: JSON.stringify({ from: "iveta@ivetaclarke.com", to, subject, text }),
-  }).catch(e => console.error("Resend error:", e));
+  return NextResponse.json({ ok: true, paymentLink, emailSent: !emailError, emailError });
 }
