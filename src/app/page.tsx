@@ -1731,6 +1731,7 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
   const [previousExperience, setPreviousExperience] = useState("");
   const [goals, setGoals] = useState("");
   const [preferredProduct, setPreferredProduct] = useState(prefillProductId ?? "");
+  const [howFound, setHowFound] = useState("");
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -1757,6 +1758,7 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
         screeningType: "consultation",
         whyInterested, previousExperience, goals,
         preferredProduct, preferredProductLabel: selectedLabel,
+        howFound: howFound || null,
       }),
     });
     const data = await res.json();
@@ -1830,6 +1832,17 @@ function ScreeningModal({ userId, userEmail, userName, phone, profile, prefillPr
                 <div>
                   <Label>CO BYSTE CHTĚLI V ŽIVOTĚ ZMĚNIT NEBO ŘEŠIT? *</Label>
                   <textarea rows={3} value={goals} onChange={e => setGoals(e.target.value)} style={taStyle} placeholder="Popište situaci nebo téma, na které se chcete zaměřit." />
+                </div>
+                <div>
+                  <Label>JAK JSTE SE O MNĚ DOZVĚDĚL/A?</Label>
+                  <select value={howFound} onChange={e => setHowFound(e.target.value)} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1px solid ${C.sand}`, background: C.cream, fontSize: 14, fontFamily: "Georgia, serif", color: howFound ? C.text : C.muted, outline: "none", boxSizing: "border-box" as const, height: 44 }}>
+                    <option value="">— zvolte —</option>
+                    <option value="social">Sociální sítě</option>
+                    <option value="youtube">YouTube / podcast</option>
+                    <option value="google">Google nebo jiné vyhledávání</option>
+                    <option value="recommendation">Doporučení</option>
+                    <option value="other">Jiné</option>
+                  </select>
                 </div>
               </div>
               {formError && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: "rgba(200,80,80,0.08)", color: "#C85050", border: "1px solid rgba(200,80,80,0.3)" }}>{formError}</div>}

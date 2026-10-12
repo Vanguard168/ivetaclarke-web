@@ -936,10 +936,6 @@ export default function AdminPage() {
                       label="Jak se o Ivetě dozvěděl/a"
                       value={selected.how_found ? (HOW_FOUND_LABELS[selected.how_found] ?? selected.how_found) : undefined}
                     />
-                    <QA
-                      label="Adresa"
-                      value={[selected.street, [selected.zip, selected.city].filter(Boolean).join(" ")].filter(Boolean).join(", ") || undefined}
-                    />
                   </>
                 ) : (
                   <>
