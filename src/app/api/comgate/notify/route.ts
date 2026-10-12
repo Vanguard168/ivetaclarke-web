@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import { notifyAdmins } from "@/lib/email";
 
 /**
  * ComGate payment notification endpoint.
@@ -45,19 +46,35 @@ export async function POST(req: NextRequest) {
         .eq("comgate_ref_id", refId);
     } catch (err) { console.error("DB orders update failed:", err); }
 
-    // Check if this is a screening payment
+    // Platba za screening (vstupní poplatek)
     const { data: screening } = await db.from("screening_requests")
       .select("id, user_email, user_name, preferred_product_label")
       .eq("screening_comgate_ref", refId)
       .maybeSingle();
 
     if (screening) {
+      // screening_paid_at se musí zapsat i nadále – podle něj admin počítá
+      // odečet 2 999 Kč z ceny produktu.
       await db.from("screening_requests")
-        .update({ status: "screening_paid", screening_paid_at: new Date().toISOString() })
+        .update({ status: "completed", screening_paid_at: new Date().toISOString() })
         .eq("id", screening.id);
 
-      // Notify Iveta that screening was paid
       await notifyIveta(screening.user_email, screening.user_name, screening.preferred_product_label ?? "");
+    }
+
+    // Platba za produkt z platebního odkazu – bez tohohle by žádost zůstala
+    // navždy ve stavu "Odkaz odeslán" a na "Zaplaceno" se nedalo dostat.
+    const { data: product } = await db.from("screening_requests")
+      .select("id, user_email, user_name, selected_package_title")
+      .eq("product_comgate_ref", refId)
+      .maybeSingle();
+
+    if (product) {
+      await db.from("screening_requests")
+        .update({ status: "completed" })
+        .eq("id", product.id);
+
+      await notifyIveta(product.user_email, product.user_name, product.selected_package_title ?? "");
     }
   }
 
@@ -71,17 +88,18 @@ export async function POST(req: NextRequest) {
   return new NextResponse("OK", { status: 200 });
 }
 
+// Jde přes stejné SMTP jako ostatní maily – dřív to viselo na Resendu,
+// který nemá nastavený klíč, takže se neodeslalo nic.
 async function notifyIveta(userEmail: string, userName: string, product: string) {
-  const resendKey = process.env.RESEND_API_KEY;
-  const subject = `Screening zaplacen — ${userName}`;
-  const text = `${userName} (${userEmail}) uhradil/a poplatek za screening setkání.\nPreferovaný produkt: ${product || "neuvedeno"}\n\nSpravujte žádost na: https://ivetaclarke.com/admin`;
-  console.log(`📧 ${subject}`);
-  if (!resendKey) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${resendKey}` },
-    body: JSON.stringify({ from: "noreply@ivetaclarke.com", to: ["iveta@ivetaclarke.com"], subject, text }),
-  }).catch(e => console.error("Resend error:", e));
+  await notifyAdmins({
+    heading: `Zaplaceno — ${userName}`,
+    details: {
+      "Jméno": userName,
+      "E-mail": userEmail,
+      "Produkt": product || "neuvedeno",
+      "Stav": "Zaplaceno",
+    },
+  });
 }
 
 async function forwardToFaktura(data: Record<string, string>) {

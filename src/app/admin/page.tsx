@@ -21,13 +21,19 @@ const PRODUCTS = [
   { id: "ws-b2",      label: "Masterclass – Základní program se supervizí", price: "27 999 Kč" },
 ];
 
+// Stavy, které lze v adminu nastavit.
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending:        { label: "Čeká na platbu screeningu", color: C.muted },
-  screening_paid: { label: "Screening zaplacen",        color: C.green },
-  screening_done: { label: "Screening proběhl",         color: C.green },
-  payment_sent:   { label: "Odkaz odeslán",             color: C.gold },
-  completed:      { label: "Dokončeno",                 color: C.green },
-  cancelled:      { label: "Zrušeno",                  color: C.red },
+  pending:      { label: "Nová registrace", color: C.gold },
+  payment_sent: { label: "Odkaz odeslán",   color: C.muted },
+  completed:    { label: "Zaplaceno",       color: C.green },
+  cancelled:    { label: "Zrušeno",         color: C.red },
+};
+
+// Stavy z dřívějška – už se nenabízejí, ale starší záznamy je můžou mít,
+// ať se místo nich neukazuje holý klíč z databáze.
+const LEGACY_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  screening_paid: { label: "Screening zaplacen", color: C.green },
+  screening_done: { label: "Screening proběhl",  color: C.green },
 };
 
 // Hodnoty z dotazníku "Jak jste se o mně dozvěděl/a?"
@@ -39,12 +45,8 @@ const HOW_FOUND_LABELS: Record<string, string> = {
   other: "Jiné",
 };
 
-// "pending" znamená u konzultace novou registraci, ne "čeká na platbu"
 function statusOf(r: { status: string; screening_type?: string }) {
-  if (r.status === "pending" && r.screening_type === "consultation") {
-    return { label: "Nová registrace", color: C.gold };
-  }
-  return STATUS_LABELS[r.status] ?? { label: r.status, color: C.muted };
+  return STATUS_LABELS[r.status] ?? LEGACY_STATUS_LABELS[r.status] ?? { label: r.status, color: C.muted };
 }
 
 type ScreeningRequest = {
@@ -897,10 +899,10 @@ export default function AdminPage() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
               {[
                 { key: "all", label: "Vše" },
-                { key: "pending", label: "Čeká" },
-                { key: "screening_paid", label: "Zaplaceno" },
-                { key: "screening_done", label: "Proběhl" },
+                { key: "pending", label: "Nová registrace" },
                 { key: "payment_sent", label: "Odkaz odeslán" },
+                { key: "completed", label: "Zaplaceno" },
+                { key: "cancelled", label: "Zrušeno" },
               ].map(f => (
                 <button key={f.key} onClick={() => setFilter(f.key)} style={{
                   padding: "5px 12px", borderRadius: 16, fontSize: 11,
@@ -1139,9 +1141,7 @@ export default function AdminPage() {
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {Object.entries(STATUS_LABELS).map(([key, s]) => {
                     const active = selected.status === key;
-                    const label = key === "pending" && selected.screening_type === "consultation"
-                      ? "Nová registrace"
-                      : s.label;
+                    const label = s.label;
                     return (
                       <button key={key} onClick={() => { if (!active) handleMarkDone(key); }} disabled={active}
                         style={{
