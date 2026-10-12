@@ -826,7 +826,7 @@ export default function AdminPage() {
           {(["requests", "messages", "emails"] as const).map(s => (
             <button key={s} onClick={() => { setSection(s); setSelected(null); if (s === "messages") loadMessages(); }}
               style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: section === s ? C.dark : C.muted, borderBottom: `2px solid ${section === s ? C.gold : "transparent"}`, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
-              {s === "requests" ? "Screening žádosti" : s === "messages" ? <>Zprávy z webu{messages.filter(m => !m.read).length > 0 && <span style={{ background: C.gold, color: C.darker, borderRadius: 10, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>{messages.filter(m => !m.read).length}</span>}</> : "Nastavení e-mailů"}
+              {s === "requests" ? "Registrace" : s === "messages" ? <>Zprávy z webu{messages.filter(m => !m.read).length > 0 && <span style={{ background: C.gold, color: C.darker, borderRadius: 10, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>{messages.filter(m => !m.read).length}</span>}</> : "Nastavení e-mailů"}
             </button>
           ))}
         </div>
