@@ -933,10 +933,15 @@ export default function AdminPage() {
                 )}
               </div>
 
-              {/* Send payment */}
-              {selected.status !== "cancelled" && (
+              {/* Send payment — dostupné vždy, i u zrušené žádosti */}
+              {(
                 <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
                   <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>ODESLAT PLATEBNÍ ODKAZ</div>
+                  {selected.status === "cancelled" && (
+                    <div style={{ fontSize: 12, color: C.red, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 14, padding: "9px 12px", background: "rgba(200,80,80,0.07)", border: "1px solid rgba(200,80,80,0.25)", borderRadius: 8 }}>
+                      Žádost je označená jako zrušená. Odkaz lze přesto odeslat — stav se tím přepne na „Odkaz odeslán“.
+                    </div>
+                  )}
                   <div style={{ marginBottom: 12 }}>
                     <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>VYBERTE PRODUKT</label>
                     <select value={selectedPkg} onChange={e => setSelectedPkg(e.target.value)} style={{ ...inputStyle, background: C.cream }}>
@@ -963,22 +968,37 @@ export default function AdminPage() {
                 </div>
               )}
 
-              {/* Status actions */}
+              {/* Status actions — kterýkoli stav lze nastavit kdykoli, i zpět ze "Zrušeno" */}
               <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
-                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>SPRÁVA STAVU</div>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 6 }}>SPRÁVA STAVU</div>
+                <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 14 }}>
+                  Klikněte na stav, na který chcete žádost přepnout. Změnit lze kdykoli a libovolným směrem.
+                </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {selected.status === "pending" && selected.screening_type === "free" && (
-                    <ActionBtn onClick={() => handleMarkDone("screening_done")} label="Označit: screening proběhl" />
-                  )}
-                  {selected.status === "screening_paid" && (
-                    <ActionBtn onClick={() => handleMarkDone("screening_done")} label="Označit: screening proběhl" />
-                  )}
-                  {selected.status !== "completed" && selected.status !== "cancelled" && (
-                    <ActionBtn onClick={() => handleMarkDone("completed")} label="Označit: dokončeno" color={C.green} />
-                  )}
-                  {selected.status !== "cancelled" && (
-                    <ActionBtn onClick={() => handleMarkDone("cancelled")} label="Zrušit" color={C.red} />
-                  )}
+                  {Object.entries(STATUS_LABELS).map(([key, s]) => {
+                    const active = selected.status === key;
+                    const label = key === "pending" && selected.screening_type === "consultation"
+                      ? "Čeká na termín"
+                      : s.label;
+                    return (
+                      <button key={key} onClick={() => { if (!active) handleMarkDone(key); }} disabled={active}
+                        style={{
+                          padding: "7px 14px", borderRadius: 20, fontSize: 12,
+                          fontFamily: "Trebuchet MS, sans-serif",
+                          background: active ? s.color : "transparent",
+                          border: `1px solid ${active ? s.color : C.sand}`,
+                          color: active ? C.white : s.color,
+                          fontWeight: active ? "bold" : "normal",
+                          cursor: active ? "default" : "pointer",
+                          transition: "all 0.15s",
+                        }}
+                        onMouseEnter={e => { if (!active) e.currentTarget.style.borderColor = s.color; }}
+                        onMouseLeave={e => { if (!active) e.currentTarget.style.borderColor = C.sand; }}
+                      >
+                        {active ? `✓ ${label}` : label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1035,10 +1055,3 @@ function QA({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
-function ActionBtn({ onClick, label, color = C.muted }: { onClick: () => void; label: string; color?: string }) {
-  return (
-    <button onClick={onClick} style={{ padding: "8px 16px", borderRadius: 20, border: `1px solid ${color}`, background: "transparent", color, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>
-      {label}
-    </button>
-  );
-}
