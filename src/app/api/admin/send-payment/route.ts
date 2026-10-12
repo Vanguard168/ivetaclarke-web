@@ -68,10 +68,21 @@ export async function POST(req: NextRequest) {
   const finalPriceExVat = Math.round(finalPrice / 1.21);
   const finalPriceDisplay = `${(finalPrice / 100).toLocaleString("cs-CZ")} Kč${deduct ? " (po odečtení screeningového poplatku)" : ""}`;
 
-  // Fakturační adresa z profilu zákazníka (na screening_requests není)
+  // Fakturační údaje: přednost mají ty upravené v adminu (billing_*),
+  // pak co zákazník vyplnil u registrace, nakonec jeho profil.
   const { data: profile } = sr.user_id
-    ? await db.from("profiles").select("street, city, zip, ico").eq("id", sr.user_id).single()
+    ? await db.from("profiles").select("first_name, last_name, street, city, zip, company, ico").eq("id", sr.user_id).single()
     : { data: null };
+
+  const profileName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
+  const billing = {
+    name: sr.billing_name || sr.user_name || profileName,
+    street: sr.billing_street || sr.street || profile?.street || "",
+    city: sr.billing_city || sr.city || profile?.city || "",
+    zip: sr.billing_zip || sr.zip || profile?.zip || "",
+    company: sr.billing_company || profile?.company || "",
+    ico: sr.billing_ico || profile?.ico || "",
+  };
 
   // PaymentRequest v faktura-app – jeho id MUSÍ být refId pro ComGate,
   // webhook faktura-app podle něj páruje platbu (paymentRequest.findUnique({ id: refId })).
@@ -87,12 +98,12 @@ export async function POST(req: NextRequest) {
           productPrice: finalPriceExVat / 100,
           productVatRate: pkg.vatRate,
           quantity: 1,
-          customerName: sr.user_name,
+          customerName: billing.company || billing.name,
           customerEmail: sr.user_email,
-          customerStreet: profile?.street ?? "",
-          customerCity: profile?.city ?? "",
-          customerZip: profile?.zip ?? "",
-          customerIco: profile?.ico ?? "",
+          customerStreet: billing.street,
+          customerCity: billing.city,
+          customerZip: billing.zip,
+          customerIco: billing.ico,
         }),
       });
       if (prRes.ok) {

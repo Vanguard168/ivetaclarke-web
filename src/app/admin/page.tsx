@@ -55,6 +55,10 @@ type ScreeningRequest = {
   workshop_motivation?: string; workshop_background?: string; workshop_experience?: string;
   preferred_workshop_variant?: string; preferred_workshop_variant_label?: string;
   how_found?: string; street?: string; city?: string; zip?: string;
+  billing_name?: string; billing_street?: string; billing_city?: string;
+  billing_zip?: string; billing_company?: string; billing_ico?: string;
+  profile?: { first_name?: string; last_name?: string; phone?: string; street?: string;
+              city?: string; zip?: string; company?: string; ico?: string } | null;
   status: string; screening_paid_at?: string;
   selected_package_id?: string; selected_package_title?: string;
   admin_notes?: string; product_payment_sent_at?: string; created_at: string;
@@ -598,6 +602,9 @@ export default function AdminPage() {
   const [sendMsg, setSendMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [selectedPkg, setSelectedPkg] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
+  const [billing, setBilling] = useState({ name: "", street: "", city: "", zip: "", company: "", ico: "" });
+  const [savingBilling, setSavingBilling] = useState(false);
+  const [billingMsg, setBillingMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [savingNotes, setSavingNotes] = useState(false);
 
   const parseNotes = (raw?: string): { text: string; created_at: string }[] => {
@@ -670,8 +677,43 @@ export default function AdminPage() {
     setMessagesLoading(false);
   }, [jwt]);
 
+  // Předvyplní fakturační údaje: nejdřív už uložené billing_*, jinak to,
+  // co zákazník zadal při registraci, případně jeho profil.
+  const billingFrom = (r: ScreeningRequest) => ({
+    name: r.billing_name || r.user_name || [r.profile?.first_name, r.profile?.last_name].filter(Boolean).join(" "),
+    street: r.billing_street || r.street || r.profile?.street || "",
+    city: r.billing_city || r.city || r.profile?.city || "",
+    zip: r.billing_zip || r.zip || r.profile?.zip || "",
+    company: r.billing_company || r.profile?.company || "",
+    ico: r.billing_ico || r.profile?.ico || "",
+  });
+
   const openDetail = (r: ScreeningRequest) => {
     setSelected(r); setAdminNotes(r.admin_notes ?? ""); setSelectedPkg(""); setSendMsg(null);
+    setBilling(billingFrom(r)); setBillingMsg(null);
+  };
+
+  const handleSaveBilling = async () => {
+    if (!selected || !jwt) return;
+    setSavingBilling(true); setBillingMsg(null);
+    const res = await fetch("/api/admin/screening", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+      body: JSON.stringify({ id: selected.id, billing }),
+    });
+    const data = await res.json();
+    setSavingBilling(false);
+    if (data.ok) {
+      setBillingMsg({ ok: true, text: "Fakturační údaje uloženy. Použijí se na faktuře." });
+      setSelected(prev => prev ? {
+        ...prev,
+        billing_name: billing.name, billing_street: billing.street, billing_city: billing.city,
+        billing_zip: billing.zip, billing_company: billing.company, billing_ico: billing.ico,
+      } : null);
+      await reload();
+    } else {
+      setBillingMsg({ ok: false, text: data.error ?? "Uložení se nezdařilo." });
+    }
   };
 
   const handleSendPayment = async () => {
@@ -973,6 +1015,62 @@ export default function AdminPage() {
                     <QA label="Zkušenosti s koučinkem" value={selected.workshop_background} />
                     <QA label="Délka praxe" value={selected.workshop_experience} />
                   </>
+                )}
+              </div>
+
+              {/* Fakturační údaje — co zákazník zadal, s možností upravit před fakturou */}
+              <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 6 }}>FAKTURAČNÍ ÚDAJE</div>
+                <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 16 }}>
+                  Předvyplněno z registrace. Úpravy se projeví na faktuře, kterou vystaví fakturační systém po zaplacení.
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JMÉNO A PŘÍJMENÍ</label>
+                    <input value={billing.name} onChange={e => setBilling(b => ({ ...b, name: e.target.value }))} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>FIRMA <span style={{ opacity: 0.6, textTransform: "none", letterSpacing: 0 }}>(nepovinné)</span></label>
+                    <input value={billing.company} onChange={e => setBilling(b => ({ ...b, company: e.target.value }))} placeholder="Název firmy" style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>ULICE A ČÍSLO</label>
+                  <input value={billing.street} onChange={e => setBilling(b => ({ ...b, street: e.target.value }))} placeholder="Václavské náměstí 1" style={inputStyle} />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 120px 140px", gap: 12, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>MĚSTO</label>
+                    <input value={billing.city} onChange={e => setBilling(b => ({ ...b, city: e.target.value }))} placeholder="Praha" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>PSČ</label>
+                    <input value={billing.zip} onChange={e => setBilling(b => ({ ...b, zip: e.target.value }))} placeholder="110 00" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>IČO</label>
+                    <input value={billing.ico} onChange={e => setBilling(b => ({ ...b, ico: e.target.value }))} placeholder="12345678" style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                  <button onClick={handleSaveBilling} disabled={savingBilling}
+                    style={{ padding: "10px 22px", borderRadius: 22, background: C.gold, border: "none", color: C.darker, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", cursor: savingBilling ? "default" : "pointer", opacity: savingBilling ? 0.6 : 1 }}>
+                    {savingBilling ? "Ukládám…" : "Uložit fakturační údaje"}
+                  </button>
+                  <button onClick={() => { if (selected) { setBilling(billingFrom(selected)); setBillingMsg(null); } }}
+                    style={{ padding: "10px 18px", borderRadius: 22, background: "transparent", border: `1px solid ${C.sand}`, color: C.muted, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", cursor: "pointer" }}>
+                    Vrátit z registrace
+                  </button>
+                </div>
+
+                {billingMsg && (
+                  <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 9, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", background: billingMsg.ok ? "rgba(76,175,124,0.08)" : "rgba(200,80,80,0.08)", color: billingMsg.ok ? C.green : C.red, border: `1px solid ${billingMsg.ok ? "rgba(76,175,124,0.3)" : "rgba(200,80,80,0.3)"}` }}>
+                    {billingMsg.text}
+                  </div>
                 )}
               </div>
 
