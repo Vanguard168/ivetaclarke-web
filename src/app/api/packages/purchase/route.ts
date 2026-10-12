@@ -100,9 +100,10 @@ export async function POST(req: NextRequest) {
   const SCREENING_PRICE_EX_VAT = 247851;
   const SCREENING_LABEL = "Vstupní konzultace";
 
-  // Create PaymentRequest in faktura-app first — get its UUID to use as ComGate refId
-  // This is critical: ComGate webhook sends refId back to faktura-app, which looks up PaymentRequest by id
-  let refId = `PKG-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  // PaymentRequest v faktura-app musí vzniknout jako první — jeho id je refId
+  // pro ComGate a webhook faktura-app podle něj páruje platbu s fakturou.
+  // Bez něj by platba proběhla bez faktury, proto se radši nespustí vůbec.
+  let paymentRequestId: string | null = null;
   if (FAKTURA_API_KEY) {
     try {
       const inv = billing ?? { firstName, lastName, street, city, zip, company, ico };
@@ -117,10 +118,23 @@ export async function POST(req: NextRequest) {
           customerIco: inv.ico ?? "",
         }),
       });
-      const prData = await prRes.json();
-      if (prData.id) refId = prData.id; // Use faktura-app UUID so webhook can match
+      if (prRes.ok) {
+        const prData = await prRes.json();
+        paymentRequestId = prData.id ?? null;
+      } else {
+        console.error("PaymentRequest create failed:", prRes.status, await prRes.text());
+      }
     } catch (e) { console.error("PaymentRequest create failed:", e); }
   }
+
+  if (!paymentRequestId) {
+    return NextResponse.json(
+      { error: "Fakturační službu se nepodařilo oslovit, platba by zůstala bez faktury. Zkuste to prosím znovu." },
+      { status: 502 },
+    );
+  }
+
+  const refId = paymentRequestId;
 
   // Save screening request with questions
   await db.from("screening_requests").insert({
@@ -179,7 +193,7 @@ export async function POST(req: NextRequest) {
     ...(testMode ? { test: "true" } : {}),
     returnUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=paid`,
     cancelUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=cancelled`,
-    notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
+    notifUrl: `${NEXTAUTH_URL}/api/comgate/notify`,
   });
 
   const cgRes = await fetch("https://payments.comgate.cz/v1.0/create", {

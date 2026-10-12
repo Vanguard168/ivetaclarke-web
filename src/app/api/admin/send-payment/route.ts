@@ -68,12 +68,18 @@ export async function POST(req: NextRequest) {
   const finalPriceExVat = Math.round(finalPrice / 1.21);
   const finalPriceDisplay = `${(finalPrice / 100).toLocaleString("cs-CZ")} Kč${deduct ? " (po odečtení screeningového poplatku)" : ""}`;
 
-  const refId = `PRD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  // Fakturační adresa z profilu zákazníka (na screening_requests není)
+  const { data: profile } = sr.user_id
+    ? await db.from("profiles").select("street, city, zip, ico").eq("id", sr.user_id).single()
+    : { data: null };
 
-  // Create PaymentRequest in faktura-app
+  // PaymentRequest v faktura-app – jeho id MUSÍ být refId pro ComGate,
+  // webhook faktura-app podle něj páruje platbu (paymentRequest.findUnique({ id: refId })).
+  // Bez toho se faktura po zaplacení nevytvoří.
+  let paymentRequestId: string | null = null;
   if (FAKTURA_API_KEY) {
     try {
-      await fetch(`${FAKTURA_URL}/api/public/payment-request`, {
+      const prRes = await fetch(`${FAKTURA_URL}/api/public/payment-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
@@ -83,14 +89,29 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           customerName: sr.user_name,
           customerEmail: sr.user_email,
-          customerStreet: "",
-          customerCity: "",
-          customerZip: "",
-          customerIco: "",
+          customerStreet: profile?.street ?? "",
+          customerCity: profile?.city ?? "",
+          customerZip: profile?.zip ?? "",
+          customerIco: profile?.ico ?? "",
         }),
       });
+      if (prRes.ok) {
+        const prData = await prRes.json();
+        paymentRequestId = prData.id ?? null;
+      } else {
+        console.error("PaymentRequest create failed:", prRes.status, await prRes.text());
+      }
     } catch (e) { console.error("PaymentRequest create failed:", e); }
   }
+
+  if (!paymentRequestId) {
+    return NextResponse.json(
+      { error: "Fakturační službu se nepodařilo oslovit, platba by zůstala bez faktury. Zkuste to prosím znovu." },
+      { status: 502 },
+    );
+  }
+
+  const refId = paymentRequestId;
 
   // Create ComGate payment
   const testMode = process.env.COMGATE_TEST === "true";
@@ -106,7 +127,7 @@ export async function POST(req: NextRequest) {
     ...(testMode ? { test: "true" } : {}),
     returnUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=paid`,
     cancelUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=cancelled`,
-    notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
+    notifUrl: `${NEXTAUTH_URL}/api/comgate/notify`,
   });
 
   const cgRes = await fetch("https://payments.comgate.cz/v1.0/create", {

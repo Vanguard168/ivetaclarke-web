@@ -34,6 +34,11 @@ export async function POST(req: NextRequest) {
 
   if (status === "PAID") {
     console.log(`✅ Payment PAID — refId=${refId}, transId=${transId}, email=${email}, ${price} ${curr}`);
+
+    // Faktura jako první – je to to podstatné a nesmí ji shodit chyba v naší DB.
+    // Platí pro každou zaplacenou platbu, ne jen pro screening.
+    await forwardToFaktura(data);
+
     try {
       await db.from("orders")
         .update({ status: "PAID", comgate_trans_id: transId, paid_at: new Date().toISOString() })
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest) {
     const { data: screening } = await db.from("screening_requests")
       .select("id, user_email, user_name, preferred_product_label")
       .eq("screening_comgate_ref", refId)
-      .single();
+      .maybeSingle();
 
     if (screening) {
       await db.from("screening_requests")
@@ -53,9 +58,6 @@ export async function POST(req: NextRequest) {
 
       // Notify Iveta that screening was paid
       await notifyIveta(screening.user_email, screening.user_name, screening.preferred_product_label ?? "");
-
-      // Forward to faktura-app for invoice generation
-      await forwardToFaktura(data);
     }
   }
 

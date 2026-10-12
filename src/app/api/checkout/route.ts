@@ -92,8 +92,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. Call ComGate directly with our credentials
-  const refId = paymentRequestId || `IC-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+  // 2. Call ComGate directly with our credentials.
+  // refId musí být id PaymentRequestu — podle něj faktura-app páruje platbu
+  // s fakturou. Bez něj by platba proběhla bez faktury, proto radši neproběhne.
+  if (!paymentRequestId) {
+    return NextResponse.json(
+      { error: "Fakturační službu se nepodařilo oslovit, platba by zůstala bez faktury. Zkuste to prosím znovu." },
+      { status: 502 },
+    );
+  }
+  const refId = paymentRequestId;
 
   const testMode = process.env.COMGATE_TEST === "true";
 
@@ -111,7 +119,7 @@ export async function POST(req: NextRequest) {
     ...(testMode ? { test: "true" } : {}),
     returnUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=paid`,
     cancelUrl: `${NEXTAUTH_URL}/dekujeme?order=${refId}&status=cancelled`,
-    notifUrl: `${FAKTURA_URL}/api/comgate/webhook`,
+    notifUrl: `${NEXTAUTH_URL}/api/comgate/notify`,
   });
 
   // Save pending order to Supabase
