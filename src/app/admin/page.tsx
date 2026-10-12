@@ -1025,6 +1025,23 @@ export default function AdminPage() {
                   Předvyplněno z registrace. Úpravy se projeví na faktuře, kterou vystaví fakturační systém po zaplacení.
                 </div>
 
+                {/* Co zákazník skutečně odeslal – ať je poznat, odkud se předvyplnilo */}
+                {(() => {
+                  const reg = [selected.street, [selected.zip, selected.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                  const prof = [selected.profile?.street, [selected.profile?.zip, selected.profile?.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                  return (
+                    <div style={{ background: C.warm, border: `1px solid ${C.sand}`, borderRadius: 10, padding: "12px 14px", marginBottom: 16, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.8, color: C.muted }}>
+                      <div><span style={{ color: C.text }}>Z registrace:</span> {reg || <em>adresa neuložena</em>}</div>
+                      <div><span style={{ color: C.text }}>Z profilu:</span> {prof || (selected.user_id ? <em>nevyplněno</em> : <em>bez účtu</em>)}</div>
+                      {!reg && !prof && (
+                        <div style={{ marginTop: 6, color: C.gold }}>
+                          U této registrace nemáme adresu — zadejte ji ručně níže. Nové registrace už ji ukládají.
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12, marginBottom: 12 }}>
                   <div>
                     <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>JMÉNO A PŘÍJMENÍ</label>
