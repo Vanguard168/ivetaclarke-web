@@ -30,6 +30,15 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   cancelled:      { label: "Zrušeno",                  color: C.red },
 };
 
+// Hodnoty z dotazníku "Jak jste se o mně dozvěděl/a?"
+const HOW_FOUND_LABELS: Record<string, string> = {
+  social: "Sociální sítě",
+  youtube: "YouTube / podcast",
+  google: "Google nebo jiné vyhledávání",
+  recommendation: "Doporučení",
+  other: "Jiné",
+};
+
 // "pending" znamená u konzultace "čeká na termín", ne "čeká na platbu"
 function statusOf(r: { status: string; screening_type?: string }) {
   if (r.status === "pending" && r.screening_type === "consultation") {
@@ -45,6 +54,7 @@ type ScreeningRequest = {
   preferred_product?: string; preferred_product_label?: string;
   workshop_motivation?: string; workshop_background?: string; workshop_experience?: string;
   preferred_workshop_variant?: string; preferred_workshop_variant_label?: string;
+  how_found?: string; street?: string; city?: string; zip?: string;
   status: string; screening_paid_at?: string;
   selected_package_id?: string; selected_package_title?: string;
   admin_notes?: string; product_payment_sent_at?: string; created_at: string;
@@ -922,6 +932,14 @@ export default function AdminPage() {
                     <QA label="Proč vás zajímá koučink?" value={selected.why_interested} />
                     <QA label="Zkušenosti s koučinkem/terapií" value={selected.previous_experience} />
                     <QA label="Co chce zákazník řešit" value={selected.goals} />
+                    <QA
+                      label="Jak se o Ivetě dozvěděl/a"
+                      value={selected.how_found ? (HOW_FOUND_LABELS[selected.how_found] ?? selected.how_found) : undefined}
+                    />
+                    <QA
+                      label="Adresa"
+                      value={[selected.street, [selected.zip, selected.city].filter(Boolean).join(" ")].filter(Boolean).join(", ") || undefined}
+                    />
                   </>
                 ) : (
                   <>

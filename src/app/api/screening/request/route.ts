@@ -11,6 +11,15 @@ const SCREENING_PRICE = 299900; // haléře
 const SCREENING_PRICE_EX_VAT = 247851; // haléře
 const SCREENING_LABEL = "Screening – 30minutové online setkání s Ivetou Clarke";
 
+/**
+ * Pozná, že insert spadl kvůli sloupci, který v tabulce zatím není.
+ * Díky tomu nová nepovinná pole nikdy neshodí registraci před spuštěním migrace.
+ */
+function isMissingColumn(e: { code?: string; message?: string }): boolean {
+  if (e?.code === "PGRST204" || e?.code === "42703") return true;
+  return /column .* does not exist|could not find the '.*' column/i.test(e?.message ?? "");
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
@@ -24,6 +33,7 @@ export async function POST(req: NextRequest) {
     // workshop (free) screening fields
     workshopMotivation, workshopBackground, workshopExperience,
     preferredWorkshopVariant, preferredWorkshopVariantLabel,
+    howFound,
   } = body;
 
   if (!userEmail || !userName) {
@@ -33,7 +43,7 @@ export async function POST(req: NextRequest) {
   const db = createServerClient();
 
   if (screeningType === "consultation") {
-    const { error } = await db.from("screening_requests").insert({
+    const baseRow = {
       user_id: userId ?? null,
       user_email: userEmail,
       user_name: userName,
@@ -45,7 +55,26 @@ export async function POST(req: NextRequest) {
       preferred_product: preferredProduct ?? null,
       preferred_product_label: preferredProductLabel ?? null,
       status: "pending",
-    });
+    };
+    // Uloží se jen pokud už tabulka tyto sloupce má (viz migrace v README/chatu).
+    const optionalRow = {
+      how_found: howFound ?? null,
+      street: street ?? null,
+      city: city ?? null,
+      zip: zip ?? null,
+    };
+
+    let { error } = await db.from("screening_requests").insert({ ...baseRow, ...optionalRow });
+
+    if (error && isMissingColumn(error)) {
+      console.warn(
+        "screening_requests postrádá sloupce how_found/street/city/zip – ukládám bez nich. " +
+        "Spusťte migraci: ALTER TABLE screening_requests ADD COLUMN IF NOT EXISTS street text, " +
+        "ADD COLUMN IF NOT EXISTS city text, ADD COLUMN IF NOT EXISTS zip text, " +
+        "ADD COLUMN IF NOT EXISTS how_found text;"
+      );
+      ({ error } = await db.from("screening_requests").insert(baseRow));
+    }
 
     if (error) {
       console.error("Consultation insert error:", error);
@@ -62,7 +91,7 @@ export async function POST(req: NextRequest) {
       console.error("Consultation email error:", emailError);
     }
 
-    await sendNotification(userEmail, userName, "consultation", preferredProductLabel ?? "");
+    await sendNotification(userEmail, userName, "consultation", preferredProductLabel ?? "", howFound);
     return NextResponse.json({ ok: true, emailSent, emailError });
   }
 
@@ -195,11 +224,20 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ redirect: result.redirect });
 }
 
+const HOW_FOUND_LABELS: Record<string, string> = {
+  social: "Sociální sítě",
+  youtube: "YouTube / podcast",
+  google: "Google nebo jiné vyhledávání",
+  recommendation: "Doporučení",
+  other: "Jiné",
+};
+
 async function sendNotification(
   email: string,
   name: string,
   type: "paid" | "free" | "consultation",
   product: string,
+  howFound?: string,
 ) {
   const typeLabel =
     type === "free" ? "Registrace na výcvik (screening zdarma)"
@@ -213,6 +251,7 @@ async function sendNotification(
       "E-mail": email,
       "Typ": typeLabel,
       "Zájem o": product || "neuvedeno",
+      "Zdroj": howFound ? (HOW_FOUND_LABELS[howFound] ?? howFound) : undefined,
     },
   });
 }
