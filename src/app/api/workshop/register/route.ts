@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
-import { sendRegistrationEmail, sendScreeningEmail } from "@/lib/email";
+import { sendRegistrationEmail, sendScreeningEmail, notifyAdmins } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -79,6 +79,17 @@ export async function POST(req: NextRequest) {
     preferred_product: workshopVariantId ?? "workshop",
     preferred_product_label: workshopVariantLabel ?? "Výcvik Průvodcem v midlife®",
     status: "pending",
+  });
+
+  await notifyAdmins({
+    heading: `Nová registrace na webu — ${firstName} ${lastName}`,
+    details: {
+      "Jméno": `${firstName} ${lastName}`,
+      "E-mail": userEmail,
+      "Telefon": phone,
+      "Typ": "Registrace na výcvik (screening zdarma)",
+      "Zájem o": workshopVariantLabel ?? "Výcvik Průvodcem v midlife®",
+    },
   });
 
   return NextResponse.json({ ok: true, session: newSession });

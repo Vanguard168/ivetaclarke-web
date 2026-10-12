@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
-import { sendRegistrationEmail } from "@/lib/email";
+import { sendRegistrationEmail, notifyAdmins } from "@/lib/email";
 
 const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
@@ -147,6 +147,17 @@ export async function POST(req: NextRequest) {
     price_display: "2 999 Kč",
     comgate_ref_id: refId,
     status: "PENDING",
+  });
+
+  await notifyAdmins({
+    heading: `Nová registrace na webu — ${firstName} ${lastName}`,
+    details: {
+      "Jméno": `${firstName} ${lastName}`,
+      "E-mail": userEmail,
+      "Telefon": phone,
+      "Typ": "Vstupní konzultace (platba 2 999 Kč)",
+      "Zájem o": pkg.label,
+    },
   });
 
   // Create ComGate payment

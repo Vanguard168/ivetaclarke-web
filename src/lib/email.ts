@@ -285,3 +285,87 @@ export async function sendRegistrationEmail(customerName: string, customerEmail:
 
   await transporter.sendMail({ from, to: customerEmail, subject, text, html });
 }
+
+// ── Notifikace adminům ───────────────────────────────────────────────────────
+
+/** Komu chodí upozornění na novou registraci. */
+export const ADMIN_NOTIFY_EMAILS = ["iveta@ivetaclarke.com", "v@babec.eu"];
+
+/**
+ * Pošle adminům krátké upozornění o nové registraci.
+ * Jede přes stejné SMTP jako ostatní maily (tabulka email_settings),
+ * ne přes Resend – ten nemá nastavený klíč, takže nic neodesílal.
+ */
+export async function sendAdminNotification(opts: {
+  /** Nadpis, např. "Nová registrace na webu" */
+  heading: string;
+  /** Řádky do přehledu – prázdné hodnoty se vynechají */
+  details?: Record<string, string | null | undefined>;
+}) {
+  const { heading, details = {} } = opts;
+  const db = createServerClient();
+  const { data, error } = await db.from("email_settings").select("*").eq("id", "default").single();
+
+  if (error) throw new Error(`email_settings read failed: ${error.message}`);
+  if (!data?.smtp_host || !data?.smtp_user || !data?.smtp_pass) {
+    throw new Error("SMTP není nakonfigurováno v email_settings.");
+  }
+
+  const color = data.primary_color || "#C9A84C";
+  const rows = Object.entries(details).filter(([, v]) => v != null && String(v).trim() !== "");
+
+  const subject = `Skvělá zpráva! ${heading}`;
+  const text = [
+    "Skvělá zpráva! Na webu je nová registrace.",
+    "",
+    ...rows.map(([k, v]) => `${k}: ${v}`),
+    "",
+    "Detail najdete v administraci: https://ivetaclarke.com/admin",
+  ].join("\n");
+
+  const rowsHtml = rows
+    .map(([k, v]) =>
+      `<tr><td style="padding:4px 0;color:#6b7280;">${k}:</td><td style="padding:4px 0;font-weight:600;text-align:right;">${v}</td></tr>`
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="cs">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+    <div style="background:${color};padding:20px 28px;">
+      <span style="color:#fff;font-size:18px;font-weight:700;">Skvělá zpráva! 🎉</span>
+    </div>
+    <div style="padding:28px;">
+      <p style="margin:0 0 20px;color:#374151;font-size:15px;line-height:1.7;">
+        Na webu je <strong>nová registrace</strong>.
+      </p>
+      ${rowsHtml ? `<table style="width:100%;font-size:13px;color:#374151;border-collapse:collapse;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:16px;margin-bottom:20px;">${rowsHtml}</table>` : ""}
+      <div style="text-align:center;margin-top:20px;">
+        <a href="https://ivetaclarke.com/admin" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Otevřít administraci</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const transporter = nodemailer.createTransport({
+    host: data.smtp_host,
+    port: Number(data.smtp_port) || 587,
+    secure: !!data.smtp_secure,
+    auth: { user: data.smtp_user, pass: data.smtp_pass },
+  });
+
+  const from = `"${data.from_name || "Iveta Clarke"}" <${data.from_email || data.smtp_user}>`;
+  await transporter.sendMail({ from, to: ADMIN_NOTIFY_EMAILS, subject, text, html });
+}
+
+/** Jako sendAdminNotification, ale selhání jen zaloguje – registraci nikdy neshodí. */
+export async function notifyAdmins(opts: Parameters<typeof sendAdminNotification>[0]) {
+  try {
+    await sendAdminNotification(opts);
+  } catch (e) {
+    console.error("Admin notification failed:", e instanceof Error ? e.message : e);
+  }
+}

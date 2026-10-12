@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
+import { notifyAdmins } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const { email, password, firstName, lastName, phone, street, city, zip, company, ico } = await req.json();
@@ -42,6 +43,16 @@ export async function POST(req: NextRequest) {
   if (profileError) {
     console.error("Profile insert error:", profileError);
   }
+
+  await notifyAdmins({
+    heading: `Nová registrace na webu — ${firstName} ${lastName}`,
+    details: {
+      "Jméno": `${firstName} ${lastName}`,
+      "E-mail": email,
+      "Telefon": phone,
+      "Typ": "Registrace účtu",
+    },
+  });
 
   return NextResponse.json({ userId: data.user.id, emailConfirmationRequired: !data.session });
 }

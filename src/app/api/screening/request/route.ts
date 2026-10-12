@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
-import { sendConsultationEmail } from "@/lib/email";
+import { sendConsultationEmail, notifyAdmins } from "@/lib/email";
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       console.error("Consultation email error:", emailError);
     }
 
-    await sendNotification(userEmail, userName, "paid", preferredProductLabel ?? "");
+    await sendNotification(userEmail, userName, "consultation", preferredProductLabel ?? "");
     return NextResponse.json({ ok: true, emailSent, emailError });
   }
 
@@ -195,27 +195,24 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ redirect: result.redirect });
 }
 
-async function sendNotification(email: string, name: string, type: "paid" | "free", product: string) {
-  const resendKey = process.env.RESEND_API_KEY;
-  const subject = type === "free"
-    ? `Nová registrace na výcvik — ${name}`
-    : `Nová žádost o screening — ${name}`;
-  const text = type === "free"
-    ? `${name} (${email}) se zaregistroval/a na bezplatný screening pro výcvik.\nPreferovaná varianta: ${product || "neuvedena"}\n\nSpravujte žádost na: https://ivetaclarke.com/admin`
-    : `${name} (${email}) uhradil/a screening a čeká na kontakt.\nPreferovaný produkt: ${product || "neuvedeno"}\n\nSpravujte žádost na: https://ivetaclarke.com/admin`;
+async function sendNotification(
+  email: string,
+  name: string,
+  type: "paid" | "free" | "consultation",
+  product: string,
+) {
+  const typeLabel =
+    type === "free" ? "Registrace na výcvik (screening zdarma)"
+    : type === "consultation" ? "Vstupní konzultace (30 min)"
+    : "Placený screening";
 
-  console.log(`📧 Notifikace Ivetě: ${subject}`);
-
-  if (!resendKey) return;
-
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${resendKey}` },
-    body: JSON.stringify({
-      from: "noreply@ivetaclarke.com",
-      to: ["iveta@ivetaclarke.com"],
-      subject,
-      text,
-    }),
-  }).catch(e => console.error("Resend error:", e));
+  await notifyAdmins({
+    heading: `Nová registrace na webu — ${name}`,
+    details: {
+      "Jméno": name,
+      "E-mail": email,
+      "Typ": typeLabel,
+      "Zájem o": product || "neuvedeno",
+    },
+  });
 }
