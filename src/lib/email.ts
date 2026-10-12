@@ -51,7 +51,18 @@ function buildRegistrationHtml(opts: {
 </html>`;
 }
 
-const CALENDLY_URL = "https://calendly.com/iveta-clarke/individual-session";
+/** Použije se, dokud není v administraci vyplněný vlastní odkaz. */
+const CALENDLY_URL_FALLBACK = "https://calendly.com/iveta-clarke/individual-session";
+
+/** Odkaz na úvodní screening zdarma (nezaplativší zájemci). */
+function calendlyScreeningUrl(s: { calendly_screening_url?: string | null }): string {
+  return s?.calendly_screening_url?.trim() || CALENDLY_URL_FALLBACK;
+}
+
+/** Odkaz pro platící klienty. */
+function calendlyClientUrl(s: { calendly_client_url?: string | null }): string {
+  return s?.calendly_client_url?.trim() || CALENDLY_URL_FALLBACK;
+}
 
 export async function sendPaymentEmailFromDB(opts: {
   customerName: string;
@@ -77,6 +88,7 @@ export async function sendPaymentEmailFromDB(opts: {
   const color = data.primary_color || "#C9A84C";
   const header = data.header_text || "Iveta Clarke";
   const footer = data.footer_text || "Tato zpráva byla vygenerována automaticky.";
+  const clientCalendly = calendlyClientUrl(data);
   const bgTint = !!data.bg_tint;
   const bgColor = bgTint ? tintColor(color, 0.92) : "#f5f5f5";
   const cardBg = bgTint ? tintColor(color, 0.97) : "#ffffff";
@@ -118,7 +130,7 @@ export async function sendPaymentEmailFromDB(opts: {
         <a href="${paymentLink}" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;">Zaplatit</a>
       </div>
       <div style="text-align:center;margin-bottom:20px;">
-        <a href="${CALENDLY_URL}" style="display:inline-block;background:#ffffff;color:${color};text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;border:2px solid ${color};">Rezervovat Termín →</a>
+        <a href="${clientCalendly}" style="display:inline-block;background:#ffffff;color:${color};text-decoration:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;border:2px solid ${color};">Rezervovat Termín →</a>
       </div>
     </div>
     <div style="background:${footerBg};border-top:1px solid ${tableBorder};padding:14px 28px;text-align:center;">
@@ -128,7 +140,7 @@ export async function sendPaymentEmailFromDB(opts: {
 </body>
 </html>`;
 
-  const text = rawBody + `\n\nZaplaťte prosím zde: ${paymentLink}\n\nNebo si rezervujte termín: ${CALENDLY_URL}`;
+  const text = rawBody + `\n\nZaplaťte prosím zde: ${paymentLink}\n\nNebo si rezervujte termín: ${clientCalendly}`;
 
   const transporter = nodemailer.createTransport({
     host: data.smtp_host,
@@ -222,7 +234,7 @@ export async function sendConsultationEmail(customerName: string, customerEmail:
     ? `<img src="${data.logo_url}" alt="${header}" style="max-height:48px;max-width:240px;object-fit:contain;">`
     : `<span style="color:#fff;font-size:20px;font-weight:700;">${header}</span>`;
   const bodyHtml = text.replace(/\n/g, "<br>");
-  const calendlyUrl = CALENDLY_URL;
+  const calendlyUrl = calendlyScreeningUrl(data);
 
   const html = `<!DOCTYPE html>
 <html lang="cs">

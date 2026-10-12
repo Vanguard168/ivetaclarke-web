@@ -67,6 +67,7 @@ type EmailSettings = {
   screeningSubject: string; screeningBody: string;
   paymentSubject: string; paymentBody: string;
   consultationSubject: string; consultationBody: string;
+  calendlyScreeningUrl: string; calendlyClientUrl: string;
   autoSend: boolean;
   primaryColor: string; logoUrl: string; headerText: string; footerText: string; bgTint: boolean;
 };
@@ -90,6 +91,8 @@ obdrželi jsme vaši přihlášku na výcvik. Iveta vás brzy kontaktuje s dalš
 
 S pozdravem,
 Iveta Clarke`,
+  calendlyScreeningUrl: "",
+  calendlyClientUrl: "",
   consultationSubject: "Rezervace termínu — Iveta Clarke",
   consultationBody: `Dobrý den, {customerName},
 
@@ -232,6 +235,8 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
             paymentBody: d.payment_body || EMAIL_DEFAULTS.paymentBody,
             consultationSubject: d.consultation_subject || EMAIL_DEFAULTS.consultationSubject,
             consultationBody: d.consultation_body || EMAIL_DEFAULTS.consultationBody,
+            calendlyScreeningUrl: d.calendly_screening_url || "",
+            calendlyClientUrl: d.calendly_client_url || "",
             autoSend: d.auto_send ?? false,
             primaryColor: d.primary_color || "#C9A84C",
             logoUrl: d.logo_url || "",
@@ -256,7 +261,11 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
         body: JSON.stringify(settings),
       });
-      if (!res.ok) { const d = await res.json(); setSaveError(d.error || "Chyba při ukládání"); }
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { setSaveError(d.error || "Chyba při ukládání"); }
+      else if (d.calendlySaved === false) {
+        setSaveError("Nastavení uloženo, ale odkazy na Calendly ne — v tabulce email_settings chybí sloupce calendly_screening_url a calendly_client_url. Spusťte prosím migraci.");
+      }
       else { setSaved(true); setTimeout(() => setSaved(false), 3000); }
     } catch { setSaveError("Síťová chyba"); }
     setSaving(false);
@@ -428,8 +437,14 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
               <textarea value={settings.consultationBody} onChange={e => set("consultationBody", e.target.value)}
                 rows={10} style={{ ...inp, resize: "vertical", fontFamily: "monospace", fontSize: 12, lineHeight: 1.6 }} />
             </div>
+            <div>
+              <label style={lbl}>CALENDLY ODKAZ — ÚVODNÍ SCREENING (ZDARMA)</label>
+              <input value={settings.calendlyScreeningUrl} onChange={e => set("calendlyScreeningUrl", e.target.value)}
+                placeholder="https://calendly.com/iveta-clarke/uvodni-screening" style={inp} />
+            </div>
             <div style={{ padding: "12px 16px", background: "rgba(201,168,76,0.06)", border: `1px solid rgba(201,168,76,0.25)`, borderRadius: 10, fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
-              Pod textem mailu se automaticky zobrazí zlaté tlačítko <strong style={{ color: C.text }}>„Rezervovat termín →"</strong> s Calendly odkazem.
+              Pod textem mailu se automaticky zobrazí zlaté tlačítko <strong style={{ color: C.text }}>„Rezervovat termín →"</strong> s odkazem vyplněným výše.
+              Když pole necháte prázdné, použije se výchozí odkaz <code>calendly.com/iveta-clarke/individual-session</code>.
             </div>
           </div>
         )}
@@ -468,6 +483,15 @@ function EmailSettingsPanel({ jwt }: { jwt: string }) {
               <label style={lbl}>TEXT E-MAILU</label>
               <textarea value={settings.paymentBody} onChange={e => set("paymentBody", e.target.value)}
                 rows={12} style={{ ...inp, resize: "vertical", fontFamily: "monospace", fontSize: 12, lineHeight: 1.6 }} />
+            </div>
+            <div>
+              <label style={lbl}>CALENDLY ODKAZ — PLATÍCÍ KLIENTI</label>
+              <input value={settings.calendlyClientUrl} onChange={e => set("calendlyClientUrl", e.target.value)}
+                placeholder="https://calendly.com/iveta-clarke/konzultace" style={inp} />
+            </div>
+            <div style={{ padding: "12px 16px", background: "rgba(201,168,76,0.06)", border: `1px solid rgba(201,168,76,0.25)`, borderRadius: 10, fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
+              Vedle tlačítka „Zaplatit" se v mailu zobrazí i <strong style={{ color: C.text }}>„Rezervovat Termín →"</strong> s tímto odkazem — je určený klientům, kteří už platí.
+              Prázdné pole znamená výchozí odkaz <code>calendly.com/iveta-clarke/individual-session</code>.
             </div>
           </div>
         )}

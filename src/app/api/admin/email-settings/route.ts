@@ -35,7 +35,14 @@ export async function PUT(req: NextRequest) {
 
   const body = await req.json();
   const db = createServerClient();
-  const { error } = await db.from("email_settings").upsert({
+
+  // Nové nepovinné sloupce – uloží se, jen pokud už je tabulka má.
+  const optional = {
+    calendly_screening_url: body.calendlyScreeningUrl ?? "",
+    calendly_client_url: body.calendlyClientUrl ?? "",
+  };
+
+  const base = {
     id: "default",
     from_name: body.fromName ?? "",
     from_email: body.fromEmail ?? "",
@@ -59,7 +66,28 @@ export async function PUT(req: NextRequest) {
     footer_text: body.footerText ?? "",
     bg_tint: body.bgTint ?? false,
     updated_at: new Date().toISOString(),
-  });
+  };
+
+  let { error } = await db.from("email_settings").upsert({ ...base, ...optional });
+
+  // Chybí-li sloupce pro Calendly, ulož aspoň zbytek a dej o tom vědět.
+  let calendlySaved = true;
+  if (error && isMissingColumn(error)) {
+    calendlySaved = false;
+    console.warn(
+      "email_settings postrádá calendly_screening_url/calendly_client_url. Spusťte migraci: " +
+      "ALTER TABLE email_settings ADD COLUMN IF NOT EXISTS calendly_screening_url text, " +
+      "ADD COLUMN IF NOT EXISTS calendly_client_url text;"
+    );
+    ({ error } = await db.from("email_settings").upsert(base));
+  }
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, calendlySaved });
+}
+
+/** Insert/upsert spadl kvůli sloupci, který v tabulce zatím není. */
+function isMissingColumn(e: { code?: string; message?: string }): boolean {
+  if (e?.code === "PGRST204" || e?.code === "42703") return true;
+  return /column .* does not exist|could not find the '.*' column/i.test(e?.message ?? "");
 }
