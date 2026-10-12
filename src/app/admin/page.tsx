@@ -12,9 +12,9 @@ const C = {
 const PRODUCTS = [
   { id: "1x",         label: "Jednorázová konzultace",            price: "5 990 Kč" },
   { id: "1x-personal",label: "Konzultace osobní",                 price: "8 990 Kč" },
-  { id: "3m",         label: "Krátkodobá spolupráce (3 měsíce)",  price: "24 990 Kč (−2 999 Kč po odečtení screeningu)" },
-  { id: "6m",         label: "Střednědobá spolupráce (6 měsíců)", price: "44 990 Kč (−2 999 Kč po odečtení screeningu)" },
-  { id: "12m",        label: "Roční spolupráce (12 měsíců)",      price: "74 990 Kč (−2 999 Kč po odečtení screeningu)" },
+  { id: "3m",         label: "Krátkodobá spolupráce (3 měsíce)",  price: "24 990 Kč" },
+  { id: "6m",         label: "Střednědobá spolupráce (6 měsíců)", price: "44 990 Kč" },
+  { id: "12m",        label: "Roční spolupráce (12 měsíců)",      price: "74 990 Kč" },
   { id: "sup-1x",     label: "Supervize – Ochutnávka",            price: "4 890 Kč" },
   { id: "sup-6x",     label: "Supervizní balíček (6 setkání)",    price: "35 990 Kč" },
   { id: "ws-base",    label: "Masterclass – Základní program",              price: "23 999 Kč" },
@@ -1115,9 +1115,7 @@ export default function AdminPage() {
                   </div>
                   {selectedPkg && (
                     <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 16, padding: "8px 12px", background: C.cream, borderRadius: 8 }}>
-                      {["3m", "6m", "12m"].includes(selectedPkg) && selected.screening_paid_at
-                        ? "Poplatek za screening (2 999 Kč) bude automaticky odečten z ceny produktu."
-                        : "Zákazník zaplatí plnou cenu produktu."}
+                      Zákazník zaplatí plnou cenu produktu.
                     </div>
                   )}
                   <button onClick={handleSendPayment} disabled={!selectedPkg || sending}

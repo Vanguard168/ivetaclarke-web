@@ -6,10 +6,7 @@ import { sendPaymentEmailFromDB } from "@/lib/email";
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
 const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
-const SCREENING_FEE = 299900; // 2 999 Kč in haléře
 
-// Products that get the screening fee deducted
-const DEDUCTIBLE_PRODUCTS = ["3m", "6m", "12m"];
 
 const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: number; label: string }> = {
   "screening":      { price: 299900,  vatRate: 21, priceExVat: 247851,  label: "Screening – 30minutové online setkání s Ivetou Clarke" },
@@ -21,7 +18,7 @@ const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: num
   "sup-1x":         { price: 489000,  vatRate: 21, priceExVat: 404132,  label: "Supervize – Ochutnávka" },
   "sup-6x":         { price: 3599000, vatRate: 21, priceExVat: 2974380, label: "Supervizní balíček (6 setkání)" },
   "ws-base":        { price: 2399900, vatRate: 21, priceExVat: 1983388, label: "Masterclass Průvodcem v midlife® – Základní program" },
-  "ws-b2":          { price: 2799900, vatRate: 21, priceExVat: 2314793, label: "Masterclass Průvodcem v midlife® – Základní program se supervizí" },
+  "ws-b2":          { price: 2799900, vatRate: 21, priceExVat: 2313967, label: "Masterclass Průvodcem v midlife® – Základní program se supervizí" },
 };
 
 async function verifyAdmin(req: NextRequest) {
@@ -62,11 +59,10 @@ export async function POST(req: NextRequest) {
   const secret = process.env.COMGATE_SECRET;
   if (!merchant || !secret) return NextResponse.json({ error: "Platební brána není nakonfigurována." }, { status: 503 });
 
-  // Deduct screening fee for 3-month, 6-month, 12-month packages
-  const deduct = DEDUCTIBLE_PRODUCTS.includes(packageId) && sr.screening_paid_at;
-  const finalPrice = deduct ? pkg.price - SCREENING_FEE : pkg.price;
-  const finalPriceExVat = Math.round(finalPrice / 1.21);
-  const finalPriceDisplay = `${(finalPrice / 100).toLocaleString("cs-CZ")} Kč${deduct ? " (po odečtení screeningového poplatku)" : ""}`;
+  // Zákazník platí plnou cenu produktu – screening se už neodečítá.
+  const finalPrice = pkg.price;
+  const finalPriceExVat = pkg.priceExVat;
+  const finalPriceDisplay = `${(finalPrice / 100).toLocaleString("cs-CZ")} Kč`;
 
   // Fakturační údaje: přednost mají ty upravené v adminu (billing_*),
   // pak co zákazník vyplnil u registrace, nakonec jeho profil.
@@ -94,7 +90,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
-          productName: pkg.label + (deduct ? " (odečten screening)" : ""),
+          productName: pkg.label,
           productPrice: finalPriceExVat / 100,
           productVatRate: pkg.vatRate,
           quantity: 1,
