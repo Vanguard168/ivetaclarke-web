@@ -39,10 +39,10 @@ const HOW_FOUND_LABELS: Record<string, string> = {
   other: "Jiné",
 };
 
-// "pending" znamená u konzultace "čeká na termín", ne "čeká na platbu"
+// "pending" znamená u konzultace novou registraci, ne "čeká na platbu"
 function statusOf(r: { status: string; screening_type?: string }) {
   if (r.status === "pending" && r.screening_type === "consultation") {
-    return { label: "Čeká na termín", color: C.gold };
+    return { label: "Nová registrace", color: C.gold };
   }
   return STATUS_LABELS[r.status] ?? { label: r.status, color: C.muted };
 }
@@ -997,7 +997,7 @@ export default function AdminPage() {
                   {Object.entries(STATUS_LABELS).map(([key, s]) => {
                     const active = selected.status === key;
                     const label = key === "pending" && selected.screening_type === "consultation"
-                      ? "Čeká na termín"
+                      ? "Nová registrace"
                       : s.label;
                     return (
                       <button key={key} onClick={() => { if (!active) handleMarkDone(key); }} disabled={active}
