@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { exVat } from "@/lib/pricing";
 
 const C = {
   cream: "#FAF8F4", warm: "#F0EBE3", sand: "#E8DDD0",
@@ -9,17 +10,21 @@ const C = {
   green: "#4CAF7C", red: "#C85050",
 };
 
+// Ceny v haléřích včetně DPH – základ daně se dopočítá, nikdy se nepíše ručně.
 const PRODUCTS = [
-  { id: "1x",         label: "Jednorázová konzultace",            price: "5 990 Kč" },
-  { id: "1x-personal",label: "Konzultace osobní",                 price: "8 990 Kč" },
-  { id: "3m",         label: "Krátkodobá spolupráce (3 měsíce)",  price: "24 990 Kč" },
-  { id: "6m",         label: "Střednědobá spolupráce (6 měsíců)", price: "44 990 Kč" },
-  { id: "12m",        label: "Roční spolupráce (12 měsíců)",      price: "74 990 Kč" },
-  { id: "sup-1x",     label: "Supervize – Ochutnávka",            price: "4 890 Kč" },
-  { id: "sup-6x",     label: "Supervizní balíček (6 setkání)",    price: "35 990 Kč" },
-  { id: "ws-base",    label: "Masterclass – Základní program",              price: "23 999 Kč" },
-  { id: "ws-b2",      label: "Masterclass – Základní program se supervizí", price: "27 999 Kč" },
+  { id: "1x",          label: "Jednorázová konzultace",                       price: 599000 },
+  { id: "1x-personal", label: "Konzultace osobní",                            price: 899000 },
+  { id: "3m",          label: "Krátkodobá spolupráce (3 měsíce)",             price: 2499000 },
+  { id: "6m",          label: "Střednědobá spolupráce (6 měsíců)",            price: 4499000 },
+  { id: "12m",         label: "Roční spolupráce (12 měsíců)",                 price: 7499000 },
+  { id: "sup-1x",      label: "Supervize – Ochutnávka",                       price: 489000 },
+  { id: "sup-6x",      label: "Supervizní balíček (6 setkání)",               price: 3599000 },
+  { id: "ws-base",     label: "Masterclass – Základní program",               price: 2399900 },
+  { id: "ws-b2",       label: "Masterclass – Základní program se supervizí",  price: 2799900 },
 ];
+
+const czk = (hal: number) => (hal / 100).toLocaleString("cs-CZ", { maximumFractionDigits: 0 });
+const czkExact = (hal: number) => (hal / 100).toLocaleString("cs-CZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // Stavy, které lze v adminu nastavit.
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -1110,7 +1115,7 @@ export default function AdminPage() {
                     <label style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.1em", display: "block", marginBottom: 6 }}>VYBERTE PRODUKT</label>
                     <select value={selectedPkg} onChange={e => setSelectedPkg(e.target.value)} style={{ ...inputStyle, background: C.cream }}>
                       <option value="">— zvolte produkt —</option>
-                      {PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label} — {p.price}</option>)}
+                      {PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label} — {czk(p.price)} Kč ({czkExact(exVat(p.price))} Kč bez DPH)</option>)}
                     </select>
                   </div>
                   {selectedPkg && (
