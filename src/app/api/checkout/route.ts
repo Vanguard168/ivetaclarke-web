@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import { exVat } from "@/lib/pricing";
 
 // Prices in haléře (CZK × 100), VAT-inclusive
-const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: number; label: string }> = {
-  "1x":           { price: 599000, vatRate: 21, priceExVat: 495041,  label: "Jednorázová konzultace" },
-  "1x-personal":  { price: 899000, vatRate: 21, priceExVat: 742975,  label: "Konzultace osobní" },
-  "3m":           { price: 2499000, vatRate: 21, priceExVat: 2065289, label: "Krátkodobá spolupráce (3 měsíce)" },
-  "6m":           { price: 4499000, vatRate: 21, priceExVat: 3718182, label: "Střednědobá spolupráce (6 měsíců)" },
-  "12m":          { price: 7499000, vatRate: 21, priceExVat: 6197521, label: "Roční spolupráce (12 měsíců)" },
-  "sup-1x":       { price: 489000, vatRate: 21, priceExVat: 404132,  label: "Supervize – Ochutnávka" },
-  "sup-6x":       { price: 3599000, vatRate: 21, priceExVat: 2974380, label: "Supervizní balíček (6 setkání)" },
-  "ws-base":      { price: 2399900, vatRate: 21, priceExVat: 1983388, label: "Masterclass Průvodcem v midlife® – Základní program" },
-  "ws-b2":        { price: 2799900, vatRate: 21, priceExVat: 2313967, label: "Masterclass Průvodcem v midlife® – Základní program se supervizí" },
+const PACKAGES: Record<string, { price: number; vatRate: number; label: string }> = {
+  "1x":           { price: 599000, vatRate: 21, label: "Jednorázová konzultace" },
+  "1x-personal":  { price: 899000, vatRate: 21, label: "Konzultace osobní" },
+  "3m":           { price: 2499000, vatRate: 21, label: "Krátkodobá spolupráce (3 měsíce)" },
+  "6m":           { price: 4499000, vatRate: 21, label: "Střednědobá spolupráce (6 měsíců)" },
+  "12m":          { price: 7499000, vatRate: 21, label: "Roční spolupráce (12 měsíců)" },
+  "sup-1x":       { price: 489000, vatRate: 21, label: "Supervize – Ochutnávka" },
+  "sup-6x":       { price: 3599000, vatRate: 21, label: "Supervizní balíček (6 setkání)" },
+  "ws-base":      { price: 2399900, vatRate: 21, label: "Masterclass Průvodcem v midlife® – Základní program" },
+  "ws-b2":        { price: 2799900, vatRate: 21, label: "Masterclass Průvodcem v midlife® – Základní program se supervizí" },
 };
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
           productName: pkg.label,
-          productPrice: pkg.priceExVat / 100,
+          productPrice: exVat(pkg.price, pkg.vatRate) / 100,
           productVatRate: pkg.vatRate,
           quantity: 1,
           customerName: name,

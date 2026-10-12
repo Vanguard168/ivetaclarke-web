@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import { exVat } from "@/lib/pricing";
 import { sendConsultationEmail, notifyAdmins } from "@/lib/email";
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
@@ -8,7 +9,6 @@ const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
 
 // Screening fee: 2 999 Kč incl. 21% VAT
 const SCREENING_PRICE = 299900; // haléře
-const SCREENING_PRICE_EX_VAT = 247851; // haléře
 const SCREENING_LABEL = "Screening – 30minutové online setkání s Ivetou Clarke";
 
 /**
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
           productName: SCREENING_LABEL,
-          productPrice: SCREENING_PRICE_EX_VAT / 100,
+          productPrice: exVat(SCREENING_PRICE) / 100,
           productVatRate: 21,
           quantity: 1,
           customerName: userName,

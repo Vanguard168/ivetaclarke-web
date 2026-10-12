@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import { exVat } from "@/lib/pricing";
 import { createClient } from "@supabase/supabase-js";
 import { sendRegistrationEmail, notifyAdmins } from "@/lib/email";
 
@@ -7,14 +8,14 @@ const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
 
-const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: number; label: string }> = {
-  "3m":     { price: 2499000, vatRate: 21, priceExVat: 2065289, label: "Krátkodobá spolupráce (3 měsíce)" },
-  "6m":     { price: 4499000, vatRate: 21, priceExVat: 3718182, label: "Střednědobá spolupráce (6 měsíců)" },
-  "12m":    { price: 7499000, vatRate: 21, priceExVat: 6197521, label: "Roční spolupráce (12 měsíců)" },
-  "sup-1x": { price: 489000,  vatRate: 21, priceExVat: 404132,  label: "Supervize – Ochutnávka" },
-  "sup-6x": { price: 3599000, vatRate: 21, priceExVat: 2974380, label: "Supervizní balíček (6 setkání)" },
-  "1x":          { price: 599000,  vatRate: 21, priceExVat: 495041,  label: "Jednorázová konzultace" },
-  "1x-personal": { price: 899000,  vatRate: 21, priceExVat: 742975,  label: "Konzultace osobní" },
+const PACKAGES: Record<string, { price: number; vatRate: number; label: string }> = {
+  "3m":     { price: 2499000, vatRate: 21, label: "Krátkodobá spolupráce (3 měsíce)" },
+  "6m":     { price: 4499000, vatRate: 21, label: "Střednědobá spolupráce (6 měsíců)" },
+  "12m":    { price: 7499000, vatRate: 21, label: "Roční spolupráce (12 měsíců)" },
+  "sup-1x": { price: 489000,  vatRate: 21, label: "Supervize – Ochutnávka" },
+  "sup-6x": { price: 3599000, vatRate: 21, label: "Supervizní balíček (6 setkání)" },
+  "1x":          { price: 599000,  vatRate: 21, label: "Jednorázová konzultace" },
+  "1x-personal": { price: 899000,  vatRate: 21, label: "Konzultace osobní" },
 };
 
 export async function POST(req: NextRequest) {
@@ -97,7 +98,6 @@ export async function POST(req: NextRequest) {
 
   // Screening (vstupní konzultace) is always 2 999 Kč — package choice saved for context only
   const SCREENING_PRICE = 299900;
-  const SCREENING_PRICE_EX_VAT = 247851;
   const SCREENING_LABEL = "Vstupní konzultace";
 
   // PaymentRequest v faktura-app musí vzniknout jako první — jeho id je refId
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-API-Key": FAKTURA_API_KEY },
         body: JSON.stringify({
-          productName: SCREENING_LABEL, productPrice: SCREENING_PRICE_EX_VAT / 100,
+          productName: SCREENING_LABEL, productPrice: exVat(SCREENING_PRICE) / 100,
           productVatRate: 21, quantity: 1,
           customerName: `${inv.firstName} ${inv.lastName}`, customerEmail: userEmail,
           customerStreet: inv.street, customerCity: inv.city, customerZip: inv.zip,

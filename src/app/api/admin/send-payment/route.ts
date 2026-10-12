@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import { exVat } from "@/lib/pricing";
 import { createClient } from "@supabase/supabase-js";
 import { sendPaymentEmailFromDB } from "@/lib/email";
 
@@ -8,17 +9,17 @@ const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
 const NEXTAUTH_URL = process.env.NEXT_PUBLIC_URL || "https://ivetaclarke.com";
 
 
-const PACKAGES: Record<string, { price: number; vatRate: number; priceExVat: number; label: string }> = {
-  "screening":      { price: 299900,  vatRate: 21, priceExVat: 247851,  label: "Screening – 30minutové online setkání s Ivetou Clarke" },
-  "1x":             { price: 599000,  vatRate: 21, priceExVat: 495041,  label: "Jednorázová konzultace" },
-  "1x-personal":    { price: 899000,  vatRate: 21, priceExVat: 742975,  label: "Konzultace osobní" },
-  "3m":             { price: 2499000, vatRate: 21, priceExVat: 2065289, label: "Krátkodobá spolupráce (3 měsíce)" },
-  "6m":             { price: 4499000, vatRate: 21, priceExVat: 3718182, label: "Střednědobá spolupráce (6 měsíců)" },
-  "12m":            { price: 7499000, vatRate: 21, priceExVat: 6197521, label: "Roční spolupráce (12 měsíců)" },
-  "sup-1x":         { price: 489000,  vatRate: 21, priceExVat: 404132,  label: "Supervize – Ochutnávka" },
-  "sup-6x":         { price: 3599000, vatRate: 21, priceExVat: 2974380, label: "Supervizní balíček (6 setkání)" },
-  "ws-base":        { price: 2399900, vatRate: 21, priceExVat: 1983388, label: "Masterclass Průvodcem v midlife® – Základní program" },
-  "ws-b2":          { price: 2799900, vatRate: 21, priceExVat: 2313967, label: "Masterclass Průvodcem v midlife® – Základní program se supervizí" },
+const PACKAGES: Record<string, { price: number; vatRate: number; label: string }> = {
+  "screening":      { price: 299900,  vatRate: 21, label: "Screening – 30minutové online setkání s Ivetou Clarke" },
+  "1x":             { price: 599000,  vatRate: 21, label: "Jednorázová konzultace" },
+  "1x-personal":    { price: 899000,  vatRate: 21, label: "Konzultace osobní" },
+  "3m":             { price: 2499000, vatRate: 21, label: "Krátkodobá spolupráce (3 měsíce)" },
+  "6m":             { price: 4499000, vatRate: 21, label: "Střednědobá spolupráce (6 měsíců)" },
+  "12m":            { price: 7499000, vatRate: 21, label: "Roční spolupráce (12 měsíců)" },
+  "sup-1x":         { price: 489000,  vatRate: 21, label: "Supervize – Ochutnávka" },
+  "sup-6x":         { price: 3599000, vatRate: 21, label: "Supervizní balíček (6 setkání)" },
+  "ws-base":        { price: 2399900, vatRate: 21, label: "Masterclass Průvodcem v midlife® – Základní program" },
+  "ws-b2":          { price: 2799900, vatRate: 21, label: "Masterclass Průvodcem v midlife® – Základní program se supervizí" },
 };
 
 async function verifyAdmin(req: NextRequest) {
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   // Zákazník platí plnou cenu produktu – screening se už neodečítá.
   const finalPrice = pkg.price;
-  const finalPriceExVat = pkg.priceExVat;
+  const finalPriceExVat = exVat(pkg.price, pkg.vatRate);
   const finalPriceDisplay = `${(finalPrice / 100).toLocaleString("cs-CZ")} Kč`;
 
   // Fakturační údaje: přednost mají ty upravené v adminu (billing_*),
