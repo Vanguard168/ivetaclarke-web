@@ -706,6 +706,36 @@ export default function AdminPage() {
 
   useEffect(() => { if (section === "users") void loadUsers(); }, [section, loadUsers]);
 
+  const [openingUser, setOpeningUser] = useState<string | null>(null);
+
+  // Otevře kartu zákazníka z přehledu účtů. Kdo dotazník nevyplnil, kartu
+  // zatím nemá — tak ji založíme, aby šlo použít stejnou administraci.
+  const openUserCard = async (u: AppUser) => {
+    if (!jwt) return;
+    setOpeningUser(u.id);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+        body: JSON.stringify({ userId: u.id }),
+      });
+      const d = await res.json();
+      if (!d.ok) { alert(d.error ?? "Kartu se nepodařilo otevřít."); return; }
+
+      const listRes = await fetch("/api/admin/screening", { headers: { Authorization: `Bearer ${jwt}` } });
+      const listData = await listRes.json();
+      const rows: ScreeningRequest[] = listData.requests ?? [];
+      setRequests(rows);
+
+      const row = rows.find(r => r.id === d.id);
+      setSection("requests");
+      setFilter("all");
+      if (row) openDetail(row);
+    } finally {
+      setOpeningUser(null);
+    }
+  };
+
   const loadMessages = useCallback(async () => {
     if (!jwt) return;
     setMessagesLoading(true);
@@ -904,7 +934,7 @@ export default function AdminPage() {
           <div style={{ marginBottom: 24 }}>
             <h2 style={{ fontSize: 22, fontWeight: "normal", margin: "0 0 6px", color: C.dark }}>Registrované účty</h2>
             <p style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", margin: 0 }}>
-              Lidé, kteří si na webu založili účet. Kdo zatím nevyplnil dotazník, je vidět jen tady — v Registracích se objeví až po jeho odeslání.
+              Lidé, kteří si na webu založili účet. Kliknutím otevřete kartu zákazníka — stejnou jako v Registracích, včetně fakturačních údajů a odeslání platebního odkazu. Komu karta chybí, tomu se při otevření založí.
             </p>
           </div>
 
@@ -918,7 +948,7 @@ export default function AdminPage() {
                 const name = [u.first_name, u.last_name].filter(Boolean).join(" ") || "(bez jména)";
                 const addr = [u.street, [u.zip, u.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
                 return (
-                  <div key={u.id} style={{ background: C.white, borderRadius: 12, padding: "14px 16px", border: `1px solid ${C.sand}`, boxShadow: "0 2px 8px rgba(44,44,62,0.04)" }}>
+                  <div key={u.id} onClick={() => void openUserCard(u)} style={{ background: C.white, borderRadius: 12, padding: "14px 16px", border: `1px solid ${C.sand}`, boxShadow: "0 2px 8px rgba(44,44,62,0.04)", cursor: "pointer", opacity: openingUser === u.id ? 0.6 : 1, transition: "opacity 0.15s" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 15, color: C.dark, marginBottom: 2 }}>
@@ -945,6 +975,9 @@ export default function AdminPage() {
                         </div>
                         <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
                           {formatNoteDate(u.created_at)}
+                        </div>
+                        <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", whiteSpace: "nowrap" }}>
+                          {openingUser === u.id ? "Otevírám…" : "Otevřít kartu →"}
                         </div>
                       </div>
                     </div>
@@ -1117,7 +1150,12 @@ export default function AdminPage() {
               {/* Questionnaire */}
               <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
                 <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 16 }}>DOTAZNÍK</div>
-                {selected.screening_type === "paid" || selected.screening_type === "consultation" ? (
+                {!selected.why_interested && !selected.previous_experience && !selected.goals
+                  && !selected.workshop_motivation && !selected.preferred_product_label ? (
+                  <div style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.7 }}>
+                    Zákazník dotazník nevyplnil — má jen založený účet. Fakturační údaje níže jsou z jeho registrace a platební odkaz mu lze poslat normálně.
+                  </div>
+                ) : selected.screening_type === "paid" || selected.screening_type === "consultation" ? (
                   <>
                     <QA label="Zájem o produkt" value={selected.preferred_product_label} />
                     <QA label="Proč vás zajímá koučink?" value={selected.why_interested} />
