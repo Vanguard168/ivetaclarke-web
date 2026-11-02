@@ -81,6 +81,12 @@ type ScreeningRequest = {
   email_log?: { kind: string; recipient: string; status: string; error?: string | null; created_at: string }[];
 };
 
+type AppUser = {
+  id: string; first_name?: string; last_name?: string; phone?: string;
+  street?: string; city?: string; zip?: string; company?: string; ico?: string;
+  role?: string; created_at: string; email?: string | null; has_request: boolean;
+};
+
 type EmailSettings = {
   fromName: string; fromEmail: string;
   smtpHost: string; smtpPort: number; smtpUser: string; smtpPass: string; smtpSecure: boolean;
@@ -636,7 +642,9 @@ export default function AdminPage() {
     return d.toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit", year: "numeric" })
       + " " + d.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
   };
-  const [section, setSection] = useState<"requests" | "emails" | "messages">("requests");
+  const [section, setSection] = useState<"requests" | "users" | "emails" | "messages">("requests");
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [messages, setMessages] = useState<{ id: string; name: string; email: string; message: string; created_at: string; read: boolean }[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -687,6 +695,16 @@ export default function AdminPage() {
     const res = await fetch("/api/admin/screening", { headers: { Authorization: `Bearer ${jwt}` } });
     if (res.ok) { const d = await res.json(); setRequests(d.requests ?? []); }
   }, [jwt]);
+
+  const loadUsers = useCallback(async () => {
+    if (!jwt) return;
+    setUsersLoading(true);
+    const res = await fetch("/api/admin/users", { headers: { Authorization: `Bearer ${jwt}` } });
+    if (res.ok) { const d = await res.json(); setUsers(d.users ?? []); }
+    setUsersLoading(false);
+  }, [jwt]);
+
+  useEffect(() => { if (section === "users") void loadUsers(); }, [section, loadUsers]);
 
   const loadMessages = useCallback(async () => {
     if (!jwt) return;
@@ -865,20 +883,78 @@ export default function AdminPage() {
           <a href="/" style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textDecoration: "none" }}>← Web</a>
           <div style={{ width: 1, height: 16, background: C.sand }} />
           {/* Section nav */}
-          {(["requests", "messages", "emails"] as const).map(s => (
+          {(["requests", "users", "messages", "emails"] as const).map(s => (
             <button key={s} onClick={() => { setSection(s); setSelected(null); if (s === "messages") loadMessages(); }}
               style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: section === s ? C.dark : C.muted, borderBottom: `2px solid ${section === s ? C.gold : "transparent"}`, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
-              {s === "requests" ? "Registrace" : s === "messages" ? <>Zprávy z webu{messages.filter(m => !m.read).length > 0 && <span style={{ background: C.gold, color: C.darker, borderRadius: 10, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>{messages.filter(m => !m.read).length}</span>}</> : "Nastavení e-mailů"}
+              {s === "requests" ? "Registrace" : s === "users" ? "Uživatelé" : s === "messages" ? <>Zprávy z webu{messages.filter(m => !m.read).length > 0 && <span style={{ background: C.gold, color: C.darker, borderRadius: 10, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>{messages.filter(m => !m.read).length}</span>}</> : "Nastavení e-mailů"}
             </button>
           ))}
         </div>
         <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif" }}>
-          {section === "requests" ? `${requests.length} žádostí celkem` : section === "messages" ? `${messages.length} zpráv celkem` : "SMTP & šablony"}
+          {section === "requests" ? `${requests.length} žádostí celkem` : section === "users" ? `${users.length} účtů celkem` : section === "messages" ? `${messages.length} zpráv celkem` : "SMTP & šablony"}
         </div>
       </nav>
 
       {/* Email settings section */}
       {section === "emails" && jwt && <EmailSettingsPanel jwt={jwt} />}
+
+      {/* Users section — účty založené na webu */}
+      {section === "users" && (
+        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 22, fontWeight: "normal", margin: "0 0 6px", color: C.dark }}>Registrované účty</h2>
+            <p style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", margin: 0 }}>
+              Lidé, kteří si na webu založili účet. Kdo zatím nevyplnil dotazník, je vidět jen tady — v Registracích se objeví až po jeho odeslání.
+            </p>
+          </div>
+
+          {usersLoading ? (
+            <div style={{ padding: "32px 0", textAlign: "center", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif" }}>Načítám…</div>
+          ) : users.length === 0 ? (
+            <div style={{ padding: "32px 0", textAlign: "center", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif" }}>Žádné účty</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {users.map(u => {
+                const name = [u.first_name, u.last_name].filter(Boolean).join(" ") || "(bez jména)";
+                const addr = [u.street, [u.zip, u.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                return (
+                  <div key={u.id} style={{ background: C.white, borderRadius: 12, padding: "14px 16px", border: `1px solid ${C.sand}`, boxShadow: "0 2px 8px rgba(44,44,62,0.04)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 15, color: C.dark, marginBottom: 2 }}>
+                          {name}
+                          {u.role === "admin" && (
+                            <span style={{ marginLeft: 8, fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 10, padding: "1px 7px" }}>admin</span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", wordBreak: "break-all" }}>
+                          {u.email ?? "e-mail neznámý"}
+                          {u.phone && <> · <a href={`tel:${u.phone}`} style={{ color: C.gold, textDecoration: "none" }}>{u.phone}</a></>}
+                        </div>
+                        {(addr || u.company) && (
+                          <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 3 }}>
+                            {addr}{u.company ? `${addr ? " · " : ""}${u.company}${u.ico ? ` (IČO ${u.ico})` : ""}` : ""}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                        <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", padding: "2px 8px", borderRadius: 10, whiteSpace: "nowrap",
+                          background: u.has_request ? "rgba(76,175,124,0.12)" : "rgba(201,168,76,0.14)",
+                          color: u.has_request ? C.green : C.gold, fontWeight: "bold" }}>
+                          {u.has_request ? "Vyplnil dotazník" : "Bez dotazníku"}
+                        </div>
+                        <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
+                          {formatNoteDate(u.created_at)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages section */}
       {section === "messages" && (
