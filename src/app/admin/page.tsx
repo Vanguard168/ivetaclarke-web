@@ -23,6 +23,8 @@ const PRODUCTS = [
   { id: "ws-b2",       label: "Masterclass – Základní program se supervizí",  price: 2799900 },
 ];
 
+const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
+
 const czk = (hal: number) => (hal / 100).toLocaleString("cs-CZ", { maximumFractionDigits: 0 });
 const czkExact = (hal: number) => (hal / 100).toLocaleString("cs-CZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -66,6 +68,7 @@ type ScreeningRequest = {
   billing_zip?: string; billing_company?: string; billing_ico?: string;
   profile?: { first_name?: string; last_name?: string; phone?: string; street?: string;
               city?: string; zip?: string; company?: string; ico?: string } | null;
+  screening_comgate_ref?: string; product_comgate_ref?: string;
   status: string; screening_paid_at?: string;
   selected_package_id?: string; selected_package_title?: string;
   admin_notes?: string; product_payment_sent_at?: string; created_at: string;
@@ -612,6 +615,8 @@ export default function AdminPage() {
   const [billing, setBilling] = useState({ name: "", street: "", city: "", zip: "", company: "", ico: "" });
   const [savingBilling, setSavingBilling] = useState(false);
   const [billingMsg, setBillingMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [invoices, setInvoices] = useState<{ url: string; label: string }[]>([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
 
   const parseNotes = (raw?: string): { text: string; created_at: string }[] => {
@@ -698,6 +703,31 @@ export default function AdminPage() {
   const openDetail = (r: ScreeningRequest) => {
     setSelected(r); setAdminNotes(r.admin_notes ?? ""); setSelectedPkg(""); setSendMsg(null);
     setBilling(billingFrom(r)); setBillingMsg(null);
+    void loadInvoices(r);
+  };
+
+  // Faktury vystavuje fakturační aplikace. refId platby = id PaymentRequestu,
+  // podle něj se u ní doptáme, jestli už k platbě faktura existuje.
+  const loadInvoices = async (r: ScreeningRequest) => {
+    setInvoices([]);
+    const refs = [
+      { ref: r.product_comgate_ref, label: r.selected_package_title || "Produkt" },
+      { ref: r.screening_comgate_ref, label: "Vstupní konzultace" },
+    ].filter(x => !!x.ref) as { ref: string; label: string }[];
+
+    if (!refs.length) return;
+    setInvoicesLoading(true);
+    const found: { url: string; label: string }[] = [];
+    await Promise.all(refs.map(async ({ ref, label }) => {
+      try {
+        const res = await fetch(`${FAKTURA_URL}/api/public/payment-status?id=${encodeURIComponent(ref)}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d.invoiceUrl) found.push({ url: d.invoiceUrl, label });
+      } catch { /* fakturační appka nedostupná – odkaz se prostě nenabídne */ }
+    }));
+    setInvoices(found);
+    setInvoicesLoading(false);
   };
 
   const handleSaveBilling = async () => {
@@ -1024,6 +1054,30 @@ export default function AdminPage() {
                   </>
                 )}
               </div>
+
+              {/* Vystavené faktury (z fakturační aplikace) */}
+              {(invoicesLoading || invoices.length > 0) && (
+                <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 14 }}>FAKTURA</div>
+                  {invoicesLoading ? (
+                    <div style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>Načítám…</div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {invoices.map(inv => (
+                        <a key={inv.url} href={inv.url} target="_blank" rel="noopener noreferrer"
+                          style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, border: `1px solid ${C.sand}`, background: C.cream, textDecoration: "none", color: C.text, fontSize: 13 }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                            <line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="13" y2="17" />
+                          </svg>
+                          <span style={{ flex: 1 }}>{inv.label}</span>
+                          <span style={{ fontSize: 12, color: C.gold, fontFamily: "Trebuchet MS, sans-serif" }}>Zobrazit fakturu →</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Fakturační údaje — co zákazník zadal, s možností upravit před fakturou */}
               <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginBottom: 20 }}>
