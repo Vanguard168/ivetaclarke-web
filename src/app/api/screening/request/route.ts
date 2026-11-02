@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { exVat } from "@/lib/pricing";
-import { sendConsultationEmail, notifyAdmins } from "@/lib/email";
+import { sendConsultationEmail, notifyAdmins, ADMIN_NOTIFY_EMAILS } from "@/lib/email";
+import { logEmail } from "@/lib/email-log";
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
@@ -64,7 +65,11 @@ export async function POST(req: NextRequest) {
       zip: zip ?? null,
     };
 
-    let { error } = await db.from("screening_requests").insert({ ...baseRow, ...optionalRow });
+    let { data: inserted, error } = await db
+      .from("screening_requests")
+      .insert({ ...baseRow, ...optionalRow })
+      .select("id")
+      .single();
 
     if (error && isMissingColumn(error)) {
       console.warn(
@@ -73,8 +78,14 @@ export async function POST(req: NextRequest) {
         "ADD COLUMN IF NOT EXISTS city text, ADD COLUMN IF NOT EXISTS zip text, " +
         "ADD COLUMN IF NOT EXISTS how_found text;"
       );
-      ({ error } = await db.from("screening_requests").insert(baseRow));
+      ({ data: inserted, error } = await db
+        .from("screening_requests")
+        .insert(baseRow)
+        .select("id")
+        .single());
     }
+
+    const requestId: string | null = inserted?.id ?? null;
 
     if (error) {
       console.error("Consultation insert error:", error);
@@ -90,8 +101,9 @@ export async function POST(req: NextRequest) {
       emailError = e instanceof Error ? e.message : String(e);
       console.error("Consultation email error:", emailError);
     }
+    await logEmail({ screeningRequestId: requestId, kind: "consultation", recipient: userEmail, error: emailError });
 
-    await sendNotification(userEmail, userName, "consultation", preferredProductLabel ?? "", howFound);
+    await sendNotification(userEmail, userName, "consultation", preferredProductLabel ?? "", howFound, requestId);
     return NextResponse.json({ ok: true, emailSent, emailError });
   }
 
@@ -252,13 +264,14 @@ async function sendNotification(
   type: "paid" | "free" | "consultation",
   product: string,
   howFound?: string,
+  screeningRequestId?: string | null,
 ) {
   const typeLabel =
     type === "free" ? "Registrace na výcvik (screening zdarma)"
     : type === "consultation" ? "Vstupní konzultace (30 min)"
     : "Placený screening";
 
-  await notifyAdmins({
+  const err = await notifyAdmins({
     heading: `Nová registrace na webu — ${name}`,
     details: {
       "Jméno": name,
@@ -267,5 +280,11 @@ async function sendNotification(
       "Zájem o": product || "neuvedeno",
       "Zdroj": howFound ? (HOW_FOUND_LABELS[howFound] ?? howFound) : undefined,
     },
+  });
+  await logEmail({
+    screeningRequestId,
+    kind: "admin_notify",
+    recipient: ADMIN_NOTIFY_EMAILS.join(", "),
+    error: err,
   });
 }

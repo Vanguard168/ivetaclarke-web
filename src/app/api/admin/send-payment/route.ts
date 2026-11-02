@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase-server";
 import { exVat } from "@/lib/pricing";
 import { createClient } from "@supabase/supabase-js";
 import { sendPaymentEmailFromDB } from "@/lib/email";
+import { logEmail } from "@/lib/email-log";
 
 const FAKTURA_URL = "https://faktura-app-iota.vercel.app";
 const FAKTURA_API_KEY = process.env.FAKTURA_API_KEY || "";
@@ -187,6 +188,12 @@ export async function POST(req: NextRequest) {
     emailError = e instanceof Error ? e.message : String(e);
     console.error("Payment email error:", emailError);
   }
+  await logEmail({
+    screeningRequestId,
+    kind: "payment_link",
+    recipient: sr.user_email,
+    error: emailError,
+  });
 
   return NextResponse.json({ ok: true, paymentLink, emailSent: !emailError, emailError });
 }

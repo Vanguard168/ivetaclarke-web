@@ -377,11 +377,19 @@ export async function sendAdminNotification(opts: {
   await transporter.sendMail({ from, to: ADMIN_NOTIFY_EMAILS, subject, text, html });
 }
 
-/** Jako sendAdminNotification, ale selhání jen zaloguje – registraci nikdy neshodí. */
-export async function notifyAdmins(opts: Parameters<typeof sendAdminNotification>[0]) {
+/**
+ * Jako sendAdminNotification, ale selhání jen zaloguje – registraci nikdy neshodí.
+ * Vrací text chyby, nebo null při úspěchu, aby se dal zapsat do email_log.
+ */
+export async function notifyAdmins(
+  opts: Parameters<typeof sendAdminNotification>[0],
+): Promise<string | null> {
   try {
     await sendAdminNotification(opts);
+    return null;
   } catch (e) {
-    console.error("Admin notification failed:", e instanceof Error ? e.message : e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("Admin notification failed:", msg);
+    return msg;
   }
 }

@@ -43,6 +43,12 @@ const LEGACY_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   screening_done: { label: "Screening proběhl",  color: C.green },
 };
 
+const EMAIL_KIND_LABELS: Record<string, string> = {
+  consultation: "Potvrzení konzultace (Calendly)",
+  payment_link: "Platební odkaz",
+  admin_notify: "Upozornění adminům",
+};
+
 // Hodnoty z dotazníku "Jak jste se o mně dozvěděl/a?"
 const HOW_FOUND_LABELS: Record<string, string> = {
   social: "Sociální sítě",
@@ -72,6 +78,7 @@ type ScreeningRequest = {
   status: string; screening_paid_at?: string;
   selected_package_id?: string; selected_package_title?: string;
   admin_notes?: string; product_payment_sent_at?: string; created_at: string;
+  email_log?: { kind: string; recipient: string; status: string; error?: string | null; created_at: string }[];
 };
 
 type EmailSettings = {
@@ -1256,6 +1263,42 @@ export default function AdminPage() {
                   style={{ marginTop: 10, padding: "8px 20px", borderRadius: 20, background: C.gold, border: "none", color: C.darker, fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", cursor: adminNotes.trim() ? "pointer" : "default", opacity: (savingNotes || !adminNotes.trim()) ? 0.5 : 1 }}>
                   {savingNotes ? "Ukládám…" : "Uložit poznámky"}
                 </button>
+              </div>
+
+              {/* Log odeslaných notifikací — úplně na konci karty */}
+              <div style={{ background: C.white, borderRadius: 16, padding: 24, border: `1px solid ${C.sand}`, marginTop: 20 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "0.15em", marginBottom: 14 }}>ODESLANÉ NOTIFIKACE</div>
+                {!selected.email_log || selected.email_log.length === 0 ? (
+                  <div style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
+                    Zatím žádné záznamy. Logují se e-maily odeslané od zavedení této funkce.
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {selected.email_log.map((l, i) => {
+                      const ok = l.status === "sent";
+                      return (
+                        <div key={i} style={{ padding: "12px 14px", borderRadius: 10, background: ok ? C.warm : "rgba(200,80,80,0.06)", border: `1px solid ${ok ? C.sand : "rgba(200,80,80,0.25)"}` }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                            <div style={{ fontSize: 13, color: C.text }}>
+                              {EMAIL_KIND_LABELS[l.kind] ?? l.kind}
+                            </div>
+                            <div style={{ fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold", color: ok ? C.green : C.red, whiteSpace: "nowrap" }}>
+                              {ok ? "✓ Odesláno" : "✕ Nepodařilo se"}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 4 }}>
+                            {formatNoteDate(l.created_at)} · {l.recipient}
+                          </div>
+                          {!ok && l.error && (
+                            <div style={{ fontSize: 12, color: C.red, marginTop: 8, lineHeight: 1.6, wordBreak: "break-word" }}>
+                              {l.error}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}

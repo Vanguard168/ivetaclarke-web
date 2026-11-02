@@ -54,9 +54,28 @@ export async function GET(req: NextRequest) {
       profiles = Object.fromEntries((profs ?? []).map(pr => [pr.id as string, pr]));
     }
 
+    // Log odeslaných e-mailů. Tabulka nemusí existovat (viz migrace) – pak
+    // se karta prostě zobrazí bez logu, místo aby celé načtení spadlo.
+    let logs: Record<string, unknown[]> = {};
+    const { data: logRows, error: logErr } = await db
+      .from("email_log")
+      .select("screening_request_id, kind, recipient, status, error, created_at")
+      .in("screening_request_id", rows.map(r => r.id))
+      .order("created_at", { ascending: false });
+
+    if (logErr) {
+      console.warn("email_log nedostupný:", logErr.message);
+    } else {
+      for (const l of logRows ?? []) {
+        const key = l.screening_request_id as string;
+        (logs[key] ??= []).push(l);
+      }
+    }
+
     const requests = rows.map(r => ({
       ...r,
       profile: r.user_id ? profiles[r.user_id] ?? null : null,
+      email_log: logs[r.id] ?? [],
     }));
 
     return NextResponse.json({ requests });
