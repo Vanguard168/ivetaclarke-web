@@ -58,6 +58,18 @@ const HOW_FOUND_LABELS: Record<string, string> = {
   other: "Jiné",
 };
 
+/**
+ * Karta založená z pouhé registrace účtu – zákazník dotazník nevyplnil.
+ * Poznáme to podle obsahu, takže to platí i pro karty založené dřív.
+ */
+function isAccountOnly(r: {
+  why_interested?: string; previous_experience?: string; goals?: string;
+  workshop_motivation?: string; preferred_product_label?: string;
+}) {
+  return !r.why_interested && !r.previous_experience && !r.goals
+    && !r.workshop_motivation && !r.preferred_product_label;
+}
+
 function statusOf(r: { status: string; screening_type?: string }) {
   return STATUS_LABELS[r.status] ?? LEGACY_STATUS_LABELS[r.status] ?? { label: r.status, color: C.muted };
 }
@@ -704,7 +716,7 @@ export default function AdminPage() {
     setUsersLoading(false);
   }, [jwt]);
 
-  useEffect(() => { if (section === "users") void loadUsers(); }, [section, loadUsers]);
+  useEffect(() => { if (section === "users" || filter === "no_form") void loadUsers(); }, [section, filter, loadUsers]);
 
   const [openingUser, setOpeningUser] = useState<string | null>(null);
 
@@ -913,7 +925,7 @@ export default function AdminPage() {
           <a href="/" style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", textDecoration: "none" }}>← Web</a>
           <div style={{ width: 1, height: 16, background: C.sand }} />
           {/* Section nav */}
-          {(["requests", "users", "messages", "emails"] as const).map(s => (
+          {(["requests", "messages", "emails", "users"] as const).map(s => (
             <button key={s} onClick={() => { setSection(s); setSelected(null); if (s === "messages") loadMessages(); }}
               style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", fontSize: 13, fontFamily: "Trebuchet MS, sans-serif", color: section === s ? C.dark : C.muted, borderBottom: `2px solid ${section === s ? C.gold : "transparent"}`, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
               {s === "requests" ? "Registrace" : s === "users" ? "Uživatelé" : s === "messages" ? <>Zprávy z webu{messages.filter(m => !m.read).length > 0 && <span style={{ background: C.gold, color: C.darker, borderRadius: 10, padding: "1px 7px", fontSize: 10, fontWeight: "bold" }}>{messages.filter(m => !m.read).length}</span>}</> : "Nastavení e-mailů"}
@@ -934,7 +946,7 @@ export default function AdminPage() {
           <div style={{ marginBottom: 24 }}>
             <h2 style={{ fontSize: 22, fontWeight: "normal", margin: "0 0 6px", color: C.dark }}>Registrované účty</h2>
             <p style={{ fontSize: 13, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", margin: 0 }}>
-              Lidé, kteří si na webu založili účet. Kliknutím otevřete kartu zákazníka — stejnou jako v Registracích, včetně fakturačních údajů a odeslání platebního odkazu. Komu karta chybí, tomu se při otevření založí.
+              Všechny účty založené na webu — s vyplněným dotazníkem i bez něj. Kliknutím otevřete kartu zákazníka; komu zatím chybí, tomu se založí.
             </p>
           </div>
 
@@ -1054,6 +1066,7 @@ export default function AdminPage() {
                 { key: "payment_sent", label: "Odkaz odeslán" },
                 { key: "completed", label: "Zaplaceno" },
                 { key: "cancelled", label: "Zrušeno" },
+                { key: "no_form", label: "Bez dotazníku" },
               ].map(f => (
                 <button key={f.key} onClick={() => setFilter(f.key)} style={{
                   padding: "5px 12px", borderRadius: 16, fontSize: 11,
@@ -1066,7 +1079,46 @@ export default function AdminPage() {
               ))}
             </div>
 
-            {filtered.length === 0 ? (
+            {filter === "no_form" ? (
+              // Účty bez vyplněného dotazníku – ty v screening_requests zatím nejsou.
+              usersLoading ? (
+                <div style={{ padding: "32px 0", textAlign: "center", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif" }}>Načítám…</div>
+              ) : users.filter(u => !u.has_request).length === 0 ? (
+                <div style={{ padding: "32px 0", textAlign: "center", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif" }}>Všichni registrovaní dotazník vyplnili</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ fontSize: 12, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.6, marginBottom: 4 }}>
+                    Účty založené na webu, ke kterým zatím není dotazník. Kliknutím se jim založí karta zákazníka.
+                  </div>
+                  {users.filter(u => !u.has_request).map(u => (
+                    <div key={u.id} onClick={() => void openUserCard(u)} style={{
+                      padding: "14px 16px", borderRadius: 12, cursor: "pointer",
+                      background: C.white, border: `1px solid ${C.sand}`,
+                      boxShadow: "0 2px 8px rgba(44,44,62,0.04)",
+                      opacity: openingUser === u.id ? 0.6 : 1, transition: "opacity 0.15s",
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 14, color: C.dark, marginBottom: 2 }}>
+                            {[u.first_name, u.last_name].filter(Boolean).join(" ") || "(bez jména)"}
+                          </div>
+                          <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", wordBreak: "break-all" }}>{u.email ?? "e-mail neznámý"}</div>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                          <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", padding: "2px 8px", borderRadius: 10, background: "rgba(201,168,76,0.14)", color: C.gold, fontWeight: "bold", whiteSpace: "nowrap" }}>Bez dotazníku</div>
+                          <div style={{ fontSize: 10, color: C.gold, fontFamily: "Trebuchet MS, sans-serif", whiteSpace: "nowrap" }}>
+                            {openingUser === u.id ? "Otevírám…" : "Otevřít kartu →"}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 6 }}>
+                        {formatNoteDate(u.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : filtered.length === 0 ? (
               <div style={{ padding: "32px 0", textAlign: "center", color: C.muted, fontSize: 13, fontFamily: "Trebuchet MS, sans-serif" }}>Žádné žádosti</div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1088,7 +1140,7 @@ export default function AdminPage() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                           <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", padding: "2px 8px", borderRadius: 10, background: `${st.color}18`, color: st.color, fontWeight: "bold", whiteSpace: "nowrap" }}>{st.label}</div>
-                          <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{r.screening_type === "free" ? "Výcvik (zdarma)" : r.screening_type === "consultation" ? "Vstupní konzultace" : "Placený screening"}</div>
+                          <div style={{ fontSize: 10, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>{isAccountOnly(r) ? "Registrace" : r.screening_type === "free" ? "Výcvik (zdarma)" : r.screening_type === "consultation" ? "Vstupní konzultace" : "Placený screening"}</div>
                         </div>
                       </div>
                       <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif", marginTop: 6 }}>
@@ -1139,7 +1191,8 @@ export default function AdminPage() {
                   <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 24 }}>
                     <div style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", padding: "4px 12px", borderRadius: 12, background: `${st.color}18`, color: st.color, fontWeight: "bold" }}>{st.label}</div>
                     <div style={{ fontSize: 11, color: C.muted, fontFamily: "Trebuchet MS, sans-serif" }}>
-                      {selected.screening_type === "free" ? "Výcvik — screening ZDARMA"
+                      {isAccountOnly(selected) ? "Registrace účtu — bez dotazníku"
+                        : selected.screening_type === "free" ? "Výcvik — screening ZDARMA"
                         : selected.screening_type === "consultation" ? "Vstupní konzultace 30 min — ZDARMA (Calendly)"
                         : "Konzultace/koučink — screening 2 999 Kč"}
                     </div>
