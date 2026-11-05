@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { supabase, type Profile } from "@/lib/supabase";
-import { zamyslnik2Episodes } from "@/lib/podcast";
+import { zamyslnik2Episodes, isPremierePending, premiereLabel } from "@/lib/podcast";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -2071,6 +2071,15 @@ export default function App() {
   // Zámyslník 2.0 – vybraný díl (výchozí = nejnovější, tj. první v poli)
   const [zam2Id, setZam2Id] = useState(zamyslnik2Episodes[0].id);
   const activeZam2 = zamyslnik2Episodes.find(e => e.id === zam2Id) ?? zamyslnik2Episodes[0];
+  // Aktuální čas pro odpočet premiéry – null před mountem (server/hydratace), pak se obnovuje každých 15 s,
+  // takže se video samo odemkne v čase premiéry bez nového nasazení.
+  const [zam2NowMs, setZam2NowMs] = useState<number | null>(null);
+  useEffect(() => {
+    setZam2NowMs(Date.now());
+    const t = setInterval(() => setZam2NowMs(Date.now()), 15000);
+    return () => clearInterval(t);
+  }, []);
+  const activeZam2Pending = isPremierePending(activeZam2, zam2NowMs);
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [openWorkshopModal, setOpenWorkshopModal] = useState(false);
   const [checkoutPkg, setCheckoutPkg] = useState<typeof consultationData.packages[0] | null>(null);
@@ -3227,14 +3236,28 @@ export default function App() {
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>Hloubkové rozhovory o moudrosti, životě a proměně. S hosty a na videu.</p>
               </div>
               <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, borderRadius: 12, overflow: "hidden" }}>
-                <iframe
-                  key={activeZam2.id}
-                  src={`https://www.youtube.com/embed/${activeZam2.id}`}
-                  title={`Zámyslník 2.0 – Moudrost je: ${activeZam2.title}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
-                />
+                {activeZam2Pending ? (
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    textAlign: "center", gap: 10, padding: 20,
+                    background: "linear-gradient(135deg, rgba(201,168,76,0.14), rgba(255,255,255,0.04))",
+                    border: "1px solid rgba(201,168,76,0.3)", borderRadius: 12,
+                  }}>
+                    <div style={{ fontSize: 11, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.18em" }}>NOVÝ DÍL</div>
+                    <div style={{ fontSize: isMobile ? 20 : 26, color: C.white }}>{premiereLabel(activeZam2)}</div>
+                    <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>{activeZam2.title}</div>
+                  </div>
+                ) : (
+                  <iframe
+                    key={activeZam2.id}
+                    src={`https://www.youtube.com/embed/${activeZam2.id}`}
+                    title={`Zámyslník 2.0 – Moudrost je: ${activeZam2.title}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
+                  />
+                )}
               </div>
 
               {/* Seznam dílů */}
@@ -3255,6 +3278,11 @@ export default function App() {
                         <span style={{ fontSize: 9, color: active ? "#000" : "rgba(255,255,255,0.5)" }}>▶</span>
                       </div>
                       <span style={{ fontSize: 14, color: active ? C.gold : C.white, flex: 1 }}>{ep.title}</span>
+                      {isPremierePending(ep, zam2NowMs) && (
+                        <span style={{ fontSize: 10, color: C.gold, fontFamily: "Trebuchet MS", letterSpacing: "0.08em" }}>
+                          {premiereLabel(ep).toUpperCase()}
+                        </span>
+                      )}
                       <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS" }}>
                         EP {zamyslnik2Episodes.length - i}
                       </span>
