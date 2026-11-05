@@ -15,6 +15,7 @@ export type Zamyslnik2Episode = {
  * a podle jeho data se zvýrazňuje odkaz na /links.
  */
 export const zamyslnik2Episodes: Zamyslnik2Episode[] = [
+  { id: "y-6lxrUmViA", title: "Irena Budweiserová", publishedAt: "2026-11-05" },
   { id: "EmUD5uGqbQc", title: "Liběna Rochová", publishedAt: "2026-10-01" },
   { id: "80KxxlWaPRA", title: "Lucie Konášová", publishedAt: "2026-09-04" },
 ];
